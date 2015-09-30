@@ -1,0 +1,68 @@
+Turtle NEWS:  History of user-visible changes.
+
+Copyright (C) 2003 Martin Grabmueller
+
+Please send Turtle bug reports to <mgrabmue@cs.tu-berlin.de>
+
+
+Changes between 0.1.7 and 1.0.0:
+
+This is the first release of Turtle.
+
+
+Changes between 0.1.6 and 0.1.7:
+
+Cleanup work on Diploma Thesis.
+
+
+Changes between 0.1.5 and 0.1.6:
+
+Documentation improvements, the examples work again.
+
+
+Changes between 0.1.4 and 0.1.5:
+
+Major overhaul of constrainable variables, constraint compilation
+etc.
+
+
+Changes between 0.1.3 and 0.1.4:
+
+Mainly work on the docs.
+
+Tiny improvements to the web server.
+
+
+Changes between 0.1.2 and 0.1.3:
+
+Mainly work on the docs.
+
+
+Changes between 0.1.1 and 0.1.2:
+
+More work on the constraint-solving part of the implementation.
+
+Various fixes, example additions.
+
+
+Changes between 0.1.0 and 0.1.1:
+
+Nearly everything changed.  We now have:
+
+- a working compiler for the imperative subset of Turtle,
+
+- some useful modules in the standard library and
+
+- some documentation for the compiler, the standard library and
+  the language.
+
+
+Changes between 0.0.0 and 0.1.0:
+
+The whole package is new.
+
+
+Local variables:
+mode: outline
+paragraph-separate: "[ 	]*$"
+end:

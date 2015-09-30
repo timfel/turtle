@@ -1,0 +1,1256 @@
+This is turtle.info, produced by makeinfo version 4.0 from turtle.texi.
+
+INFO-DIR-SECTION Turtle
+START-INFO-DIR-ENTRY
+* turtle: (turtle).     Turtle reference manual.
+END-INFO-DIR-ENTRY
+
+   This file documents the Turtle compiler.
+
+   Copyright (C) 2003 Martin Grabmueller
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+
+File: turtle.info,  Node: List and array expressions,  Next: Return statements,  Prev: Array operators,  Up: Turtle semantics
+
+List and array expressions
+--------------------------
+
+   All elements of list and array expressions must have the same type.
+The type of a list or array expression is `list of ELEMENT TYPE' or
+`array of ELEMENT TYPE', respectively.  The empty list expression `[]'
+is equivalent to the constant `null' and is compatible with all list
+types.  The empty array expression `{}' is compatible with all array
+types.
+
+   The special constant `null' is compatible to all list types.
+
+   The array constructor `array EXPR of EXPR' has the type `array of
+ELEMENT TYPE', where ELEMENT TYPE is the type of the second expression
+of the constructor.  The first expression must be of type `int'.  The
+constructor returns an array of the length given as the first
+expression, where each list element is initialized to the second
+expression.
+
+   The list constructor `list EXPR of EXPR' has the type `list of
+ELEMENT TYPE', where ELEMENT TYPE is the type of the second expression
+of the constructor.  The first expression must be of type `int'.  The
+constructor returns a list of the length given as the first expression,
+where each list element is initialized to the second expression.
+
+   The string constructor `string EXPR [of EXPR]' has the type
+`string'.  The first expression must be of type `int', the second
+expression, if given, must be of type `char'.  If omitted, the contents
+of the newly created string value is unspecified.
+
+
+File: turtle.info,  Node: Return statements,  Next: Overloading,  Prev: List and array expressions,  Up: Turtle semantics
+
+Return statements
+-----------------
+
+   Return statements are not followed by an expression if they are
+contained in a function of return type void.  Otherwise, the expression
+must have a type compatible with the return type of the enclosing
+function.  A function with non-void return type _must_ have a return
+expression in tail position.
+
+
+File: turtle.info,  Node: Overloading,  Next: Generic Modules,  Prev: Return statements,  Up: Turtle semantics
+
+Overloading
+-----------
+
+   A Turtle module may declare more than one type, variable, function or
+constraint with the same name, as long as they are distinguishable by
+identifier kind (type vs. variable, function or constraint), or by
+type.  Consider the following Turtle fragment:
+
+     var a: int, a: real;
+     a := 1;
+     a := 1.1;
+
+   This code is legal, because the compiler can determine unambiguously
+which variable is used in the second and third line.  The second line
+refers to the `int' variable, because an `int' value is assigned, and
+the third line modifies the `real' variable.
+
+   Turtle's overloading is more powerful that in C++ or Java, because
+not only the parameter types of functions can be overloaded but also the
+return type and variables which don't have function types.  Because of
+these restrictions in C++/Java, the above code would not work there.
+Turtle is similar to Ada in that respect.
+
+   When type-checking programs, the Turtle compiler considers every
+possible interpretation of a given expression, and then tries to find a
+unique type-consistent interpretation.  If this is not possible, an
+error message is issued, either stating that no possible typing was
+found or that the expression is ambiguous, that means, there is more
+than one legal interpretation.  Consider this example:
+
+     var a: int, a: real;
+     var b: array of int, b: array of real;
+     b := {a, a};
+
+   Here, both the assignment of a two-element array of integers and
+reals to an integer or real array variable is legal.  The compile will
+signal an error for this example.
+
+
+File: turtle.info,  Node: Generic Modules,  Prev: Overloading,  Up: Turtle semantics
+
+Generic Modules
+---------------
+
+   Turtle supports so-called generic modules.  They provide a restricted
+form of polymorphism.  Modules can be declared to have module
+parameters, which are types.  In the module, these parameters can be
+used for defining functions and data types.  When a generic module is
+then imported, it must be instantiated, that is, actual types must be
+provided for the module parameters.  The exported functions of the
+module are then available with the actual type substituted for the
+module parameter.
+
+   A module can be imported more than once into the same scope, provided
+that the combination of module parameters differ.
+
+   Module parameters can be used to form the actual types in module
+import statements, too.
+
+
+File: turtle.info,  Node: Data Types,  Next: Runtime environment,  Prev: Turtle semantics,  Up: Language Reference
+
+Data Types
+==========
+
+   Turtle provides a variety of builtin data types, such as integers,
+reals, strings etc., and support for arrays and lists is also built into
+the language.  Additionally, Turtle provides a powerful mechanism for
+defining new data types for specific purposes.  This functionality is
+used in the standard library, which provides a set of abstract data
+types such as binary trees, hash tables and so on.
+
+   This subsection documents the basic data types, compound data types
+and user-defined data types.
+
+* Menu:
+
+* Basic data types::            Basic builtin data types.
+* Compound data types::         Data types made up of other data types.
+* User-defined data types::     Special-purpose self-made data types.
+
+
+File: turtle.info,  Node: Basic data types,  Next: Compound data types,  Prev: Data Types,  Up: Data Types
+
+Basic data types
+----------------
+
+   Basic data types provide the most basic functionality for computing.
+For the numeric data types (integers and reals), arithmetic operations
+are defined, strings can be decomposed to characters and so on.
+
+* Menu:
+
+* Integers::                    Integer numbers.
+* Longs::                       Long integer numbers.
+* Reals::                       Real numbers.
+* Booleans::                    Truth values, `true' and `false'.
+* Characters::                  Characters.
+* Strings::                     Strings of characters.
+
+
+File: turtle.info,  Node: Integers,  Next: Longs,  Prev: Basic data types,  Up: Basic data types
+
+Integers
+........
+
+   Integer numbers are numbers without a fraction part.
+
+   Integer numbers are written as a non-empty sequence of the digits
+`0' to `9'.  The name of the data type is `int', which is not a
+reserved word but defined in the standard outermost compilation
+environment.
+
+     1
+     10
+     1000
+     424242
+     23
+
+   Turtle defines the arithmetic operators `+' (addition), `-'
+(subtraction), `*' (multiplication), `/' (division) and `%' (modulo).
+Integers can be compared with the operators `=', `<>', `<', `>', `<='
+and `>='.
+
+   The module `ints' (*note ints module::) provides some useful
+constants and functions for integer values.
+
+
+File: turtle.info,  Node: Longs,  Next: Reals,  Prev: Integers,  Up: Basic data types
+
+Longs
+.....
+
+   While there is an integer data type called `int', there is an
+additional integer data type supported, called `long'.  The difference
+between `int' and `long' is that integer values are restricted to the
+range `ints.min'...`ints.max', which is not necessarily the complete
+32-bit value space.  `long' values, on the other side, are guaranteed
+to have at least 32 bits, on 64 bit platforms, it can be even 64 bits.
+
+   Long integer constants are written like integer constants, but must
+be appended with an uppercase `L', as in the following examples:
+
+     42L
+     23L
+     0L
+     2147483647L
+
+   Note especially the last example, which is too large to fit into an
+`int' value on 32 bit systems.
+
+   The same arithmetic operations as supported for `int' values are
+supported, that is, `+' (addition), `-' (subtraction), `*'
+(multiplication), `/' (division) and `%' (modulo).  Long integers can
+be compared with the operators `=', `<>', `<', `>', `<=' and `>='.
+
+   The module `longs' (*note longs module::) provides some useful
+constants and functions for integer values.
+
+
+File: turtle.info,  Node: Reals,  Next: Booleans,  Prev: Longs,  Up: Basic data types
+
+Reals
+.....
+
+   In contrast to integers, reals can have a fraction part.  The
+fraction part is separated from the leading sequence of digits by a
+period, and can be followed by an optional exponent part, like in C or
+Java.  The name of the data type is `real', which is not a reserved
+word but defined in the standard outermost compilation environment.
+
+     1.0
+     3.14159
+     1.0e12
+     20E-12
+
+   Turtle defines the arithmetic operators `+' (addition), `-'
+(subtraction), `*' (multiplication) and `/' (division).  Reals can be
+compared with the operators `=', `<>', `<', `>', `<=' and `>='.
+
+   The module `reals' (*note reals module::) provides some useful
+constants and functions for real values.
+
+
+File: turtle.info,  Node: Booleans,  Next: Characters,  Prev: Reals,  Up: Basic data types
+
+Booleans
+........
+
+   The booleans represent the two truth values _true_ and _false_.
+They are denoted by the reserved words `true' and `false'.  The name of
+the data type is `bool', which is not a reserved word but defined in
+the standard outermost compilation environment.
+
+   Boolean values can be compared with `=' and `<>'.  The operations
+`and' for conjunction, `or' for disjunction and `not' for negation can
+be used with expression of type `bool'.  The `and' and `or' are
+evaluated with short-circuiting, that is if the first operand of `and'
+evaluates to false, the second operand is not evaluated, and if the
+first operand of `or' is true, the evaluation of the second is skipped.
+
+
+File: turtle.info,  Node: Characters,  Next: Strings,  Prev: Booleans,  Up: Basic data types
+
+Characters
+..........
+
+   Characters are used for storing character data.  Character constants
+are denoted by enclosing a character in single quotes, as in C/C++/Java.
+For denoting some special characters, the following escape sequences are
+defined:
+
+`'\"''
+     Denotes a double quote.
+
+`'\'''
+     Denotes a single quote.
+
+`'\\''
+     Denotes a backslash character.
+
+`'\n''
+     Denotes a newline character.
+
+`'\r''
+     Denotes a carriage return character.
+
+`'\t''
+     Denotes a tab character.
+
+`'\b''
+     Denotes a backspace character.
+
+   The name of the data type is `char', which is not a reserved word
+but defined in the standard outermost compilation environment.
+
+   The module `chars' (*note chars module::) provides some useful
+constants and functions for character values.
+
+
+File: turtle.info,  Node: Strings,  Prev: Characters,  Up: Basic data types
+
+Strings
+.......
+
+   Strings are sequences of characters.  They have a fixed length,
+which is specified when creating a new string value, or when writing
+down a string literal.  String literals consist of zero or more
+characters, enclosed in double quotes.  They may contain the same
+escape sequences as character literals *Note Characters::, but they may
+not span a line boundary, that is they may not contain a character with
+the character code of '\n'.
+
+   Strings are different than the former documented basic data types,
+because they contain zero or more values of another data type,
+character.  The reason for building this data type into Turtle is that
+it is so common, that using (for example) `array of char' or `list of
+char' is considered too inconvenient.
+
+   The name of the data type is `string', which is, unlike the other
+type names so far, a reserved word.
+
+   Elements of a string can be extracted by applying the subscript
+operator, `[]', to a string expression:
+
+     var s: string := "Hallo";
+     io.put (s[1]);    // Writes 'a' to stdout.
+
+   The same operator, when applied to the lefthand side of an
+assignment, will change an element of the string.
+
+     var s: string := "Hallo";
+     io.put (s[1]);    // Writes 'a' to stdout.
+     s[1] := 'u';
+     io.put (s);       // Writes "Hullo" to stdout.
+
+   Strings are either created by writing down string literals, like
+this:
+
+     ""       // Empty string.
+     "Hello"
+     "a"
+
+   or with a string constructor expression, which creates a string of a
+given length and initializes all elements to a given character:
+
+     var s: string := string 12 of '!';
+
+   The length of a string can be determined with the `sizeof' operator.
+
+   The module `strings' (*note strings module::) provides some useful
+constants and functions for string values.
+
+
+File: turtle.info,  Node: Compound data types,  Next: User-defined data types,  Prev: Basic data types,  Up: Data Types
+
+Compound data types
+-------------------
+
+   Turtle provides three data types which are made up of other data
+types: arrays, lists and function types.
+
+* Menu:
+
+* Array data type::             Fixed-length random-access sequences.
+* List data type::              Varying-length, linear-access sequences.
+* Function data type::          Types for functions.
+* Tuple data type::             Fixed-length, varying-types aggregates.
+
+
+File: turtle.info,  Node: Array data type,  Next: List data type,  Prev: Compound data types,  Up: Compound data types
+
+Array data type
+...............
+
+   An array data type is written as `array of' BASETYPE.
+
+   The length of an array is fixed when the array value is created and
+can be determined later with the `sizeof' operator.
+
+   Elements of an array can be fetched from the array value or stored
+into it using the subscript operator `[]'.
+
+   Arrays can be created with array constructor expressions or by
+writing down array expressions.
+
+   Array constructor expressions create arrays of a specified length,
+where each element of the array is initialized to the same value.  It is
+important to note that the array elements are really initialized to the
+_same_ value, so that if this value is of an array, list, string or
+user-defined data type, the same value is shared by all array elements
+and by modifying one element, all other array elements are affected as
+well.
+
+     var a: array of int := array 20 of 23;
+     var l: array of string := array 12 of "Hello";
+
+   Array expressions are used to create array values with pre-defined
+contents.  They are written as comma-separated lists of array elements,
+enclosed in curly braces.
+
+     var a: array of int := {1, 3, 12, 4};
+     var a: array of string := {"O", "sole", "mio"};
+
+   The library module `arrays' (*note arrays module::) provides some
+useful and functions for array values.  The library also contains the
+module `arraysort' (*note arraysort module::) for sorting arrays of
+arbitrary contents and the module `arraysearch' (*note arraysearch
+module::) for searching arrays linearly or by bisection.  The library
+module `arraymap' (*note arraymap module::) exports a function for
+applying functions to all elements of an array in turn, returning an
+array of the function results
+
+
+File: turtle.info,  Node: List data type,  Next: Function data type,  Prev: Array data type,  Up: Compound data types
+
+List data type
+..............
+
+   A list data type is written as `list of' BASETYPE.
+
+   The length of a list is variable, a list can be extended by
+prepending values to the front of the list.
+
+   The first element of a list (the head) is fetched from a list with
+the prefix operator `hd', the list of the remaining elements (the tail)
+is fetched with the operator `tl'.  An element is added to the front
+with the so-called _cons_ operator, written as `::'.
+
+   Lists can be created with list constructor expressions or by writing
+down list expressions.
+
+   List constructor expressions create lists of a specified length,
+where each element of the list is initialized to the same value.  It is
+important to note that the list elements are really initialized to the
+_same_ value, so that if this value is of an array, list, string or
+user-defined data type, the same value is shared by all list elements
+and by modifying one element, all other list elements are affected as
+well.
+
+     var l: list of int := list 20 of 23;
+     var l: list of string := list 12 of "Hello";
+
+   List expressions are used to create lists with pre-defined contents.
+They are written as comma-separated lists of list elements, enclosed
+in square brackets.
+
+     var l: list of int := [1, 3, 12, 4];
+     var l: list of string := ["O", "sole", "mio"];
+
+   The library module `lists' (*note lists module::) provides some
+useful functions for lists.  The library also contains the module
+`listsort' (*note listsort module::) for sorting lists of arbitrary
+contents and the module `listsearch' (*note listsearch module::) for
+searching lists.  The library module `listmap' (*note listmap module::)
+exports a function for applying a function to all elements of a list,
+producing a list of the function's results.
+
+
+File: turtle.info,  Node: Function data type,  Next: Tuple data type,  Prev: List data type,  Up: Compound data types
+
+Function data type
+..................
+
+   A function data type is written as `fun('PARAMTYPES...`):' RETURNTYPE
+
+   Functions can be created with function expressions or by function
+declarations..
+
+   The standard module `compose' (*note compose module::) provides a
+function for composing functions.
+
+
+File: turtle.info,  Node: Tuple data type,  Prev: Function data type,  Up: Compound data types
+
+Tuple data type
+...............
+
+   Values can be composed to form tuples.  Tuples are ordered sequences
+of fixed length, where the data types of the elements can be different.
+
+   A tuple type is written by enclosing more than one type expression in
+parentheses, seperated by commas, for example:
+
+     (int, string, array of string)
+
+   Tuple values are created by writing down comma-separated list of more
+than one expression.
+
+   Tuple values are decomposed by assigning to a tuple of variables,
+such as in:
+
+     var a: int, b: int, c: (int, int);
+     c := 1, 2;
+     a, b := c;
+
+   For programming convenience, the standard library contains two
+modules which export functions for dealing with two very common tuple
+types.  The modules `pairs' (*note pairs module::) and `triples' (*note
+triples module::) export selector functions for tuple components.
+
+
+File: turtle.info,  Node: User-defined data types,  Prev: Compound data types,  Up: Data Types
+
+User-defined data types
+-----------------------
+
+   User-defined data types are defined using the `datatype'
+declaration.  As an example, we will define a data type representing a
+binary tree.  The name of the new type will be `tree', and there are
+two variants for objects of this type: First, there will be a variant
+for interior node, which consist of a left and a right subtree, and
+second there must be a variant for the leafs of the tree.  This is how
+such a datatype declration looks like in Turtle:
+
+     datatype tree = node (left: tree, right: tree) or
+                     leaf (value: int);
+
+   There are several things to note here.  The variants of the data type
+are listed on the right hand side of the declaration, separated by the
+reserved word `or'.  User-defined data types can be recursive, that
+means that the left hand side of the declaration may appear on the right
+hand side as well.
+
+   Each variant has a number of data fields. This field list can be
+empty, and if it is empty, the parenthesis can be omitted.  Fields in
+different variants can have the same name and must not have the same
+types if they have the same name, but the fields of one variant must be
+distinct either in name or in type.
+
+   A datatype declaration causes the compiler to create several
+functions automatically:
+
+Constructor functions
+     For each variant a constructor function is created which can be
+     called to create objects of this variant.  Constructor functions
+     are called like the variant and expect the fields' data types as
+     arguments.
+
+Discriminator functions
+     For each variant a discriminator function is created which expects
+     an object of the data type and returns `true' if the object is of
+     the correct variant, and `false' otherwise.  The name of the
+     discriminator function is the name of the variant with an appended
+     `?' (question mark).
+
+Selector functions
+     For each name/type combination of the fields a selector function is
+     created which extract the field from an object of the data type.
+     If the object is of a variant which does not have a field with the
+     name/type combination, an exception is raised.  The name of the
+     selector functions is simply the name of the fields.
+
+Setter functions
+     For each name/type combination of the fields a selector function is
+     created which sets the field to an object of type of the field.
+     If the object is of a variant which does not have a field with the
+     name/type combination, an exception is raised.  The name of the
+     setter functions is derived from the field names by appending a
+     `!' (exclamation point).
+
+   For our example above, the following functions are automatically
+created:
+
+     // Constructors
+     fun node (tree, tree): tree;
+     fun leaf (int): tree;
+     
+     // Discriminators
+     fun node? (tree): bool
+     fun leaf? (tree): bool
+     
+     // Selectors
+     fun left (tree): tree;
+     fun right (tree): tree;
+     fun value (tree): int
+     
+     // Setters
+     fun left! (tree, tree);
+     fun right! (tree, tree);
+     fun value! (tree, int);
+
+
+File: turtle.info,  Node: Runtime environment,  Prev: Data Types,  Up: Language Reference
+
+Runtime environment
+===================
+
+   The Turtle runtime environment consists of a standard virtual machine
+like the ones used for other imperative programming languages, enriched
+with a constraint solver interface, a constraint store and several
+constraint solvers for solving primitive constraints.  User-defined
+constraints are either translated by the compiler or dynamically by the
+runtime library to primitive constraints, which are then solved using
+the primitive solvers.
+
+
+File: turtle.info,  Node: Constraint Programming,  Next: Standard library,  Prev: Language Reference,  Up: Top
+
+Constraint Programming
+**********************
+
+   Turtle is a constraint-imperative language.  That means that the
+normal imperative language constructs found in today's imperative
+programming languages are present in Turtle as well as more declarative
+language elements.  This chapter gives an introduction to constraint
+programming in Turtle, will describe the principles of constraint
+programming and the interaction between imperative and constraint
+features, and will give some hints about what can be accomplished with
+constraints in Turtle.
+
+* Menu:
+
+* Constraints and the Constraint Store::  Basic definitions.
+* Constrainable Variables::     Variables for constraints.
+* Constraint Statements::       Statements for constraint programming.
+* Constraints as Assertions::   Constraint application as runtime checks.
+
+
+File: turtle.info,  Node: Constraints and the Constraint Store,  Next: Constrainable Variables,  Prev: Constraint Programming,  Up: Constraint Programming
+
+Constraints and the Constraint Store
+====================================
+
+   Before we jump into constraint programming, we have to give a brief
+introduction to constraints and the mechanisms necessary to manage and
+solve constraint systems.
+
+   One basic notion is the _constraint_.  A constraint is a formula, in
+Turtle it is defined to be either an expression of type boolean, or the
+application of a user-defined constraint.  All constraints which are to
+be solved in a program are added to the so-called _constraint store_,
+which is simply a set of constraints.
+
+   In Turtle, constraints are added to or removed from the store by
+using _constraint statements_ (*note Constraint Statements::).  Whenever
+a constraint is added to or removed from the store, the constraint
+solver tries to enforce as many constraints as possible.
+
+   Since Turtle supports _constraint hierarchies_, that is, constraints
+of different strength, each constraint in the constraint store is
+labelled with its associated strength.  Strengths are given to
+constraints when adding them to the store.  One special strength is
+called _required_, and constraints of this strength must hold during
+program execution, or otherwise an exception will be raised.
+
+
+File: turtle.info,  Node: Constrainable Variables,  Next: Constraint Statements,  Prev: Constraints and the Constraint Store,  Up: Constraint Programming
+
+Constrainable Variables
+=======================
+
+   In Turtle, variables are either normal variables or _constrainable
+variables_.  Constrainable variables have the special property that they
+can not be set by assignment statements, but only by constraints.  The
+following example will demonstrate the difference:
+
+     var x: int;
+     x := 2;
+
+   `x' is a normal variable, and is set to the value 2 by assignment.
+In the next example, the variable `y' is declared as a constrainable
+variable (note the `!' (exclamation point) in the type declaration of
+the variable), and can thus be used in a constraint to set its value.
+
+     var x: !int;
+     require y = 2;
+
+
+File: turtle.info,  Node: Constraint Statements,  Next: Constraints as Assertions,  Prev: Constrainable Variables,  Up: Constraint Programming
+
+Constraint Statements
+=====================
+
+   The language Turtle knows about three statement kinds normally not
+found in imperative languages: `require', `prefer' and `retract'
+statements.  These commands are used to maintain the constraint store
+(*note Constraints and the Constraint Store::).
+
+   This example adds a constraint to the store:
+
+     require x > 3;
+
+   Executing this constraint statements will cause the Turtle runtime to
+add the constraint `x > 3' to the store, and to try to satisfy it.  If
+the current value of the variable `x' is greater than 3, nothing will
+happen.  If not, an exception will be raised saying that a required
+constraint was not satisfued.  The statement `prefer', on the other
+hand, will only try to satisfy a constraint if possible.  For the
+constraint example above, this would not make sense, but if instead a
+constrainable variable was involve in the constraint, the solver would
+try to satisfy it as well as possible by adjusting the variable's value:
+
+     var x: !int := 2;
+     prefer x > 3;
+
+   The constraint will set the variable to 4, because this will cause
+the constraint to be satisfied.
+
+
+File: turtle.info,  Node: Constraints as Assertions,  Prev: Constraint Statements,  Up: Constraint Programming
+
+Constraints as Assertions
+=========================
+
+   For the start, constraints can simply be used to code checks for
+program invariants.  If a utility function you write expects that an
+integer parameter be always greater than zero, you can add the
+constraint statement
+
+     require x > 0;
+
+   at the beginning of the function.  This is similar to the use of the
+`assert()' macro in C source code.  Since no constrainable variables
+appear in the constraint, the constraint does not get added to the
+constraint store, but only tested.  If the test fails, an exception is
+raised.  In this way, preconditions can be tested by adding constraint
+statements at the beginning of functions, and postconditions by adding
+such statements at the end, just before any `return' statements.
+
+   Of course this is not real constraint programming, but it shows that
+sometimes new features can be adapted to old needs.
+
+
+File: turtle.info,  Node: Standard library,  Next: Glossary,  Prev: Constraint Programming,  Up: Top
+
+Standard library
+****************
+
+   The Turtle standard library comes with a couple of modules for
+commonly needed programming tasks, such as input/output, string
+handling, list manipulation etc.
+
+   The functions in the standard library are documented like shown
+below:
+
+ - Library function:  bla (FOO: bar): baz
+     Description of function...
+
+   This means that a library function called `bla' is documented.  The
+function expects one parameter, called FOO which is of type `bar'.  The
+type of the return value is called BAZ.  The function header is then
+followed by a description of what the function does, and which
+preconditions must be fulfilled when calling the function.
+
+   Remember that in Turtle all references to functions and variables in
+other modules must be fully qualified, so if you want to call the
+function `map' of module `listmap' from your main program, you have to
+write:
+
+     l := listmap.map (proc, l);
+
+* Menu:
+
+* General modules::             Generally useful utilities.
+* Input and output modules::    Input and output.
+* Data type related modules::   Modules for handling specific data types.
+* List utility modules::        List functions.
+* Array utility modules::       Array functions.
+* Tuple utility modules::       Modules for accessing tuple elements.
+* Low level modules::           Low-level system functions.
+* Modules in the subsystem sys::  System-dependant modules.
+* Modules in the subsystem internal::  Internal modules.
+
+
+File: turtle.info,  Node: General modules,  Next: Input and output modules,  Prev: Standard library,  Up: Standard library
+
+General modules
+===============
+
+   This section documents general useful modules, which are not closely
+related to specific data structures or application fields like
+input/output or systems programming.
+
+* Menu:
+
+* math module::                 Mathematical constants and functions.
+* random module::               Random number generation.
+* compose module::              Function composition.
+* identity module::             The identity function.
+* compare module::              Functions for comparing basic data types.
+* option module::               The `option' data type.
+* cmdline module::              Command line parsing.
+* hash module::                 Functions for calculating hash values.
+* hashtab module::              Hash table implementation.
+* trees module::                Module for binary trees.
+* bstrees module::              Binary search trees.
+* bintree module::              Binary search trees (older version).
+* binary module::               Byte-arrays.
+* exceptions module::           Exception handling.
+* filenames module::            Filename manipulation.
+
+
+File: turtle.info,  Node: math module,  Next: random module,  Prev: General modules,  Up: General modules
+
+math module
+-----------
+
+   This module provides mathematical constants and functions.
+
+ - Constant:  pi : real
+     This is the constant `pi'.
+
+ - Function:  sin (X: real): real
+ - Function:  asin (X: real): real
+ - Function:  cos (X: real): real
+ - Function:  acos (X: real): real
+ - Function:  tan (X: real): real
+ - Function:  atan (X: real): real
+ - Function:  atan (X: real, Y: real): real
+     These are the common trigonometric functions.  They are mapped
+     directly to the functions in the C library.
+
+
+File: turtle.info,  Node: random module,  Next: compose module,  Prev: math module,  Up: General modules
+
+random module
+-------------
+
+   The exported functions `rand' delivers a random number in the range
+0..`ints.max'.  The current implementation uses the C library function
+`rand()' for obtaining the random numbers and the C library function
+`srand()' for seeding the generator.
+
+ - Function:  seed (SEED: int)
+     Seed the random number generator with the given seed value SEED.
+
+ - Function:  rand (): int
+     Return a random number in the range 0..`ints.max'.
+
+
+File: turtle.info,  Node: compose module,  Next: identity module,  Prev: random module,  Up: General modules
+
+compose module
+--------------
+
+   This module exports one function, `compose', which implements
+function composition.
+
+ - Function:  compose (F: fun(inter): res, G: fun(arg): inter):
+          fun(arg): res
+     Return a function of one argument, which first applies G to its
+     argument and then F to the result of this function application.
+
+
+File: turtle.info,  Node: identity module,  Next: compare module,  Prev: compose module,  Up: General modules
+
+identity module
+---------------
+
+   This module exports the function `id', which is the identity on
+values of the type given as the module parameter A.
+
+ - Function:  id (DATA: A): A
+     Return the argument DATA unchanged. This function is especially
+     useful for higher-order functions which expect a function to apply
+     to all members of a collection, such as `map'.  For example,
+
+          l := listmap.map (identity.id, l)
+
+     can be used to copy a list.
+
+
+File: turtle.info,  Node: compare module,  Next: option module,  Prev: identity module,  Up: General modules
+
+compare module
+--------------
+
+   The module `compare' exports several comparison functions, where
+each of the functions compares two values of a basic data type.  These
+functions are especially useful as parameters for the higher-order
+functions, such as the sorting functions in the listsort or arraysort
+modules.
+
+ - Function:  cmp (X: bool, Y: bool): int
+ - Function:  cmp (X: int, Y: int): int
+ - Function:  cmp (X: long, Y: long): int
+ - Function:  cmp (X: real, Y: real): int
+ - Function:  cmp (X: char, Y: char): int
+ - Function:  cmp (X: string, Y: string): int
+     Compare the values X and Y, and return -1 if the first argument is
+     to be considered smaller, 0 if they are equal, and 1 if the first
+     argument is greater than the second.
+
+
+File: turtle.info,  Node: option module,  Next: cmdline module,  Prev: compare module,  Up: General modules
+
+option module
+-------------
+
+   This module exports one data type, `option', and the corresponding
+constructor, accessor and discriminator functions.
+
+   The `option' type is intended to be the result of partial functions,
+which can either succeed and return a useful value, or fail.  The
+former result will be of variant `some' with the useful packaged in the
+`data' field, whereas the latter will yield a value of variant `none'.
+
+   This is (of course) inspired by the `option' type in ML.
+
+ - Data type: option
+     Defined as:
+
+          datatype option<A> =
+            none or
+            some(data: A)
+
+     The `option' data type.  It either represents nothing (variant
+     `none'), or a value of the data type A, which is a parameter to
+     this module.
+
+
+File: turtle.info,  Node: cmdline module,  Next: hash module,  Prev: option module,  Up: General modules
+
+cmdline module
+--------------
+
+   The function `getopt', exported by this module, deconstructs a
+command line into options, option parameters and other parameters.
+
+ - Data type: optspec
+     Defined as:
+
+          datatype optspec =
+            flag(flag_char: char, flag_string: string) or
+            option(option_char: char, option_string: string)
+
+     Values of type `optspec' define the possibilities of command line
+     flags (parameterless options) and options (which have parameters).
+
+ - Data type: option
+     Defined as:
+
+          datatype option =
+            flag(flag_char: char) or
+            option(option_char: char, argument: string) or
+            parameter(param: string)
+
+     Calls to the `getopt' function return lists of this type.  Each
+     element of the list stands for one of three different argument
+     types:
+
+    Flag
+          A flag is a parameterless option, which acts as a switch.
+
+    Option
+          An option has an associated argument, which gives the program
+          additional information about the option.
+
+    Parameter
+          Everything not beginning with one or two dashes is considered
+          a normal parameter, such as a filename to act on.  Everything
+          following the special option `--' will also be treated as a
+          parameter, even if it starts with a dash.  Note that a single
+          dash is also a normal parameter.
+
+ - Function:  getopt (SPECS: list of optspec, ARGS: list of string):
+          list of option
+     Given a list of option specifications and a list of command line
+     arguments (as passed to the `main' function, for example), return
+     a list of options, classified and deconstructed as flags, options
+     or parameters.
+
+
+File: turtle.info,  Node: hash module,  Next: hashtab module,  Prev: cmdline module,  Up: General modules
+
+hash module
+-----------
+
+   This module exports hash functions for the basic data types.
+
+ - Function:  hash (I: int): int
+ - Function:  hash (L: long): int
+ - Function:  hash (R: real): int
+ - Function:  hash (B: bool): int
+ - Function:  hash (C: char): int
+ - Function:  hash (S: string): int
+     Calculate a hash value for the given argument.  The returned value
+     is in the range 0...`ints.max'.
+
+
+File: turtle.info,  Node: hashtab module,  Next: trees module,  Prev: hash module,  Up: General modules
+
+hashtab module
+--------------
+
+   This is a generic implementation for hash table.  The range and
+domain types for the partial mapping implemented by the hash table are
+supplied as module parameters and the hash function for mapping the
+keys to integers must be given when constructing a hash table.
+
+   The module expects two module parameters, RANGE and DOMAIN, where
+RANGE is the type of the keys in the hash table and DOMAIN is the type
+of the associated values.
+
+ - Data type: hashtable
+     Defined as:
+
+          datatype hashtable =
+            tab(size: int, data: array of bucket, hashfn: fun(range): int, cmpfn: fun(range, range): bool)
+
+     This is the hastable data type.  It stores the hashing and
+     comparison functions to be used with the keys, so that these
+     functions must not be passed to the insertion/search functions
+     each time they are invoked.
+
+ - Function:  make (HASHFN: fun(range): int, CMPFN: fun(range, range):
+          bool): hashtable
+     Create a new hash table which maps keys of type RANGE to values of
+     type DOMAIN.  HASHFN is a function which determines the hash value
+     of a key and CMDFN is a function which determines whether two keys
+     are actually the same.
+
+ - Function:  insert (TAB: hashtable, KEY: range, VAL: domain)
+     Insert the KEY/VALUE pair into the hash table TAB.  If KEY is
+     already in the table, its value is overwritten.
+
+ - Function:  delete (TAB: hashtable, KEY: range)
+     Remove the entry with key KEY from the hash table TAB.  Do
+     nothing, if the key is not present in the table.
+
+ - Function:  lookup (TAB: hashtable, KEY: range): option.option
+     Search the hash table TAB for an entry with key KEY and return
+     `some(value)' if the key was found, and `none()' if not found in
+     the table.
+
+
+File: turtle.info,  Node: trees module,  Next: bstrees module,  Prev: hashtab module,  Up: General modules
+
+trees module
+------------
+
+   Functions for creating and inspecting binary trees of type `A',
+where A must be instantiated when importing this module.
+
+ - Data type: tree
+     Defined as:
+
+          datatype tree<A> =
+            nil or
+            node(data: A, left: tree, right: tree)
+
+     Data type for binary trees.  The empty tree is created with a call
+     to the constructor `nil', and a non-empty tree with the
+     constructor `node'.
+
+ - Function:  node (D: A): tree
+     Utility function for creating a singleton tree.
+
+ - Function:  preorder (T: tree, F: fun(A))
+ - Function:  inorder (T: tree, F: fun(A))
+ - Function:  postorder (T: tree, F: fun(A))
+     Iterate over the tree T in preorder, inorder or postorder,
+     respectively and call function F at every node, with the data
+     element of the node as argument.
+
+ - Function:  copy (T: tree): tree
+     Create a deep copy of the tree T.
+
+
+File: turtle.info,  Node: bstrees module,  Next: bintree module,  Prev: trees module,  Up: General modules
+
+bstrees module
+--------------
+
+   Functions for creating and inspecting binary search trees with a key
+of type `A', and a data object of type B, where A and B must be
+instantiated when importing this module.
+
+ - Data type: tree
+     Defined as:
+
+          datatype tree<A, B> =
+            tree(cmpfn: fun(A, A): int, root: trees.tree<(A, B)>)
+
+     Data type for binary search trees.
+
+ - Function:  tree (CMPFN: fun(A, A): int): bstrees.tree<A, B>
+
+ - Function:  insert (T: bstrees.tree<A, B>, KEY: A, VAL: B):
+          bstrees.tree<A, B>
+     Insert the pair (KEY, VAL) into the binary search tree T and
+     return the updated tree.  The old copy of the search tree remains
+     usable; the binary search tree implemented by this module is
+     persistent.
+
+ - Function:  search (T: bstrees.tree<A, B>, KEY: A): option.option<B>
+     Search the binary search tree T for the key KEY and return the
+     associated value, if found, packaged in an `option.option' type.
+     If not found, the variant `option.none' is returned.
+
+
+File: turtle.info,  Node: bintree module,  Next: binary module,  Prev: bstrees module,  Up: General modules
+
+bintree module
+--------------
+
+   Simple, but working binary tree implementation for building search
+trees.  A binary tree is parametrized by two types, one for the key and
+one for the associated value.  Both the insertion and the search
+function require a comparison function to be passed, so that an order
+on the keys can be established.
+
+   The module expects two module parameters, A and B, where A is the
+type of the keys in the search tree and B is the type of the associated
+values.
+
+ - Data type: tree
+     Defined as:
+
+          datatype tree<A, B> =
+            empty or
+            leaf(element: A, data: B) or
+            node(left: tree, right: tree, key: A)
+
+     The binary search trees are made up of this data type.
+
+ - Function:  insert (T: bintree.tree<A, B>, KEY: A, DATA: B, CMP:
+          fun(A, A): int): bintree.tree<A, B>
+     Return a new search tree in which all key/value pairs from the
+     input tree T are stored and additionally a pair of the parameters
+     KEY and DATA is stored.  CMP is a comparison function used to
+     determine the order in the tree.  CMP is expected to return a
+     value less than 0 if the first argument is smaller than the
+     second, a value greater than 0 if the first argument is greater
+     and 0 if they are equal.
+
+ - Function:  find (T: bintree.tree<A, B>, KEY: A, CMP: fun(A, A):
+          int): option.option<B>
+     Search the binary search tree T for an entry with key KEY.  Return
+     `option.some (data)' with the data value associated with KEY if
+     KEY was found, otherwise return `option.none ()'.  Note that it is
+     not specified which data value will be returned if the key KEY
+     appears more than once in the tree.
+
+
+File: turtle.info,  Node: binary module,  Next: exceptions module,  Prev: bintree module,  Up: General modules
+
+binary module
+-------------
+
+   Support module for binary (byte-) arrays.
+
+ - Data type: binary
+     Defined as:
+
+          type binary = internal.binary.binary
+
+     The `binary' data type is an alias for the type of the same name
+     from the module `internal.binary', where the real type and
+     function definitions reside.
+
+ - Constant:  make_binary : fun(int): binary
+ - Constant:  binary_get : fun(binary, int): int
+ - Constant:  binary_set : fun(binary, int, int)
+ - Constant:  binary_size : fun(binary): int
+     These functions create binary arrays of a given size, extract an
+     element from these arrays or stores an integer into a specified
+     location.  `binary_size' returns the number of elements in the
+     binary array B.
+
+ - Function:  to_string (B: internal.binary.binary): string
+     Convert the binary array B to a string by simply converting the
+     integer values in B to characters using the function `chars.chr'.
+
+ - Function:  from_string (S: string): internal.binary.binary
+     Convert the string S to a binary array by converting the
+     characters in the string to their code values using the function
+     `chars.ord'.
+
+
+File: turtle.info,  Node: exceptions module,  Next: filenames module,  Prev: binary module,  Up: General modules
+
+exceptions module
+-----------------
+
+   This module exports some functions for raising and handling
+exceptions.
+
+   Exceptions are raised by calling the function `exceptions.raise',
+which has the same effect as performing some illegal operation such as
+taking the head of the empty list.  The argument to `raise' is the name
+of the exception.
+
+   Exception handling is done by calling the function
+`exceptions.handle'.  The first argument is a functions which might
+possibly raise an exception, while the second is a function which will
+be called when an exception occurs.  If no exception is raised,
+`handle' returns without calling the handler function.
+
+ - Function:  raise (S: string)
+     Raise an exception with name S.
+
+ - Function:  handle (THUNK: fun(): (), HANDLER: fun(string))
+     Call the function THUNK.  If any exception is raised while THUNK
+     is running, the function HANDLER will be called with the exception
+     name as the only argument.  When HANDLER returns, it will return
+     to the caller of `exceptions.handle', in the same way as the call
+     would return when THUNK was returning without an exception.
+
+ - Function:  null_pointer_ex (): string
+ - Function:  out_of_range_ex (): string
+ - Function:  subscript_ex (): string
+ - Function:  wrong_variant_ex (): string
+ - Function:  require_ex (): string
+     The return value of these functions is the corresponding exception
+     name, which is the same that would be used if the illegal
+     operation would be performed.
+
+     That means that
+
+          exceptions.raise (exceptions.subscript_ex ())
+
+     has the same effect as
+
+          var s: string;
+          s[-1] := 'a'
+
+
+File: turtle.info,  Node: filenames module,  Prev: exceptions module,  Up: General modules
+
+filenames module
+----------------
+
+   Library module for filename manipulation functions.
+
+ - Variable:  path_seperator : char
+     The path name element seperator used by the module.
+
+ - Function:  basename (S: string): string
+ - Function:  basename (S: string, EXT: string): string
+     Return the filename S without any directory component.  If the
+     parameter EXT is specified and matches the file name extension of
+     S, this is removed also.
+
+ - Function:  dirname (S: string): string
+     Return the directory component of the filename S, without any
+     trailing path seperator.
+
+
+File: turtle.info,  Node: Input and output modules,  Next: Data type related modules,  Prev: General modules,  Up: Standard library
+
+Input and output modules
+========================
+
+   This section collects all input/output related modules of the
+standard library.  The most basic module in this group is `io', which
+provides basic input and output operations for basic data types.
+
+* Menu:
+
+* io module::                   Basic input and output.
+

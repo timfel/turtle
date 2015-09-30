@@ -1,0 +1,40 @@
+								-*-text-*-
+
+This directory contains some library modules for internal use.
+
+The modules in this directory are intended to be used by more high
+level modules only, and not by user code.  The reason is that these
+modules are very low level, system dependant and the interfaces are
+expected to change.
+
+Build the internal library modules with `make'.
+
+
+Internal library modules:
+-------------------------
+
+binary.t         Internal binary array functions.
+binary.t.i       Handcoded implementation of the above.
+debug.t		 Debugging utility functions.
+debug.t.i        Handcoded implementation of the above.
+ex.t             Exception handling.
+ex.t.i           Handcoded implementation of the above.
+gc.t             Interface functions to the garbage collector.
+gc.t.i           Handcoded implementation of the above.
+limits.t         Definitions of system limits.
+random.t	 Interface to the C library random functions.
+random.t.i       Handcoded implementation of the above.
+stats.t		 Runtime statistics.
+stats.t.i        Handcoded implementation of the above.
+timeout.t	 Installation of a timeout function.
+timeout.t.i      Handcoded implementation of the above.
+version.t        Version information.
+version.t.i      Handcoded implementation of the above.
+
+
+Administrativa:
+---------------
+
+ChangeLog        Change list for the `crawl/internal' directory.
+Makefile.am      Input file for Automake for generating Makefile.in.
+Makefile.in      Input file for Autoconf for generating.

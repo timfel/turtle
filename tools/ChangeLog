@@ -1,0 +1,12 @@
+2003-02-20  Martin Grabmueller  <mg@glug.org>
+
+	* Cleaned up for release.
+
+2002-09-30  Martin Grabmueller  <mg@glug.org>
+
+	* README: New file.  Added file descriptions and build
+	instructions.
+
+	* make-assembler.sh: New script file.  Generates the assembler
+	source for a turtle module.  Usage: make-assembler.sh input.t.
+

@@ -1,0 +1,7 @@
+2003-02-20  Martin Grabmueller  <mg@glug.org>
+
+	* Cleaned up for release.
+
+2002-09-10  Martin Grabmueller  <mg@glug.org>
+
+	* turtle-utils.el: Renamed from utils.el.

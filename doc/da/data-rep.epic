@@ -1,0 +1,67 @@
+\setlength{\unitlength}{0.00087489in}
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+{\renewcommand{\dashlinestretch}{30}
+\begin{picture}(3624,1170)(0,-10)
+\drawline(1272,1002)(2352,1002)(2352,822)
+	(1272,822)(1272,1002)
+\drawline(2127,1002)(2127,822)
+\drawline(12,1002)(1092,1002)(1092,822)
+	(12,822)(12,1002)
+\drawline(867,1002)(867,822)
+\drawline(2532,1002)(3612,1002)(3612,822)
+	(2532,822)(2532,1002)
+\drawline(3387,1002)(3387,822)
+\drawline(2532,462)(3612,462)(3612,282)
+	(2532,282)(2532,462)
+\drawline(3387,462)(3387,282)
+\drawline(2532,282)(3612,282)(3612,102)
+	(2532,102)(2532,282)
+\drawline(3387,282)(3387,102)
+\put(3432,327){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}xx}}}}}
+\put(3432,147){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}xx}}}}}
+\drawline(1272,462)(2352,462)(2352,282)
+	(1272,282)(1272,462)
+\drawline(2127,462)(2127,282)
+\drawline(1812,822)(1812,462)
+\drawline(1782.000,582.000)(1812.000,462.000)(1842.000,582.000)
+\drawline(3072,822)(3072,462)
+\drawline(3042.000,582.000)(3072.000,462.000)(3102.000,582.000)
+\drawline(2127,282)(2127,102)
+\drawline(1272,282)(1272,102)
+\drawline(2352,282)(2352,12)
+\drawline(1272,102)(2352,102)
+\drawline(1272,102)(1273,101)(1276,100)
+	(1282,98)(1290,94)(1301,89)
+	(1315,84)(1331,77)(1349,70)
+	(1369,63)(1391,55)(1414,48)
+	(1438,41)(1465,35)(1493,29)
+	(1524,23)(1558,19)(1595,15)
+	(1635,13)(1677,12)(1719,13)
+	(1759,15)(1795,19)(1825,23)
+	(1850,28)(1870,34)(1885,39)
+	(1898,45)(1908,51)(1917,57)
+	(1926,63)(1936,69)(1947,75)
+	(1962,80)(1980,86)(2002,91)
+	(2029,95)(2059,99)(2093,101)
+	(2127,102)(2167,101)(2202,97)
+	(2231,92)(2255,85)(2274,78)
+	(2291,69)(2305,61)(2317,51)
+	(2327,42)(2335,34)(2342,26)
+	(2346,20)(2349,16)(2351,13)(2352,12)
+\put(912,867){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}00}}}}}
+\put(2172,867){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}01}}}}}
+\put(3432,867){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}10}}}}}
+\put(12,1047){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}Immediate}}}}}
+\put(1272,1047){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}Object}}}}}
+\put(2532,1047){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}Pair}}}}}
+\put(1272,507){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}Header}}}}}
+\put(2172,327){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}11}}}}}
+\put(2172,147){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\rmdefault}{\mddefault}{\updefault}xx}}}}}
+\end{picture}
+}

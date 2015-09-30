@@ -1,0 +1,42 @@
+								-*-outline-*-
+
+* General
+
+** `Interval' types
+
+Include the notion of `interval' types, that is, integer and real
+types for which the lower and upper limits can be specified.
+
+Example:
+
+type day = [1, 31];
+type month = [1, 12]
+type weekday = [1, 7];
+
+
+* Documentation
+
+** The grammar in turtle.texi is now authorative
+
+Update grammars in turtle-def.tex and da.tex.  Make sure turtle.texi
+is always consistent with the parser and the comments in parser.c.
+
+** array <expr> of <expr>
+
+Make clear whether the second expression can be omitted, and if not,
+correct the documentation.
+
+
+** Overloading
+
+Document the overloading of functions.
+
+
+* Implementation
+
+** Remove `any'
+
+This type is too strange, poorly supported and has strange semantics.
+If we really want something like this, we should implement proper
+polymorphism.
+

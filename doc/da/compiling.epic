@@ -1,0 +1,132 @@
+\setlength{\unitlength}{0.00087489in}
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+{\renewcommand{\dashlinestretch}{30}
+\begin{picture}(5784,4359)(0,-10)
+\drawline(1272,4242)(2172,4242)(2172,3792)
+	(1272,3792)(1272,4242)
+\put(1362,4062){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Scanner}}}}}
+\drawline(1272,3612)(2172,3612)(2172,3162)
+	(1272,3162)(1272,3612)
+\put(1362,3432){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Parser}}}}}
+\drawline(1272,2982)(2172,2982)(2172,2172)
+	(1272,2172)(1272,2982)
+\put(1362,2442){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Overload}}}}}
+\put(1362,2802){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Context}}}}}
+\put(1362,2622){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}check/}}}}}
+\put(1362,2262){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}resolution}}}}}
+\dottedline{45}(1272,1992)(2172,1992)(2172,1542)
+	(1272,1542)(1272,1992)
+\put(1362,1812){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Optimizer}}}}}
+\drawline(1272,1362)(2172,1362)(2172,912)
+	(1272,912)(1272,1362)
+\put(1362,1182){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Code}}}}}
+\put(1362,1002){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}generator}}}}}
+\drawline(1272,732)(2172,732)(2172,282)
+	(1272,282)(1272,732)
+\put(1362,552){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Code}}}}}
+\put(1362,372){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}emitter}}}}}
+\drawline(102,4242)(102,3792)(1002,3792)
+	(1002,4062)(822,4242)(102,4242)
+\drawline(822,4242)(822,4062)(1002,4062)
+\put(192,4062){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Source}}}}}
+\put(192,3882){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}file}}}}}
+\drawline(102,2982)(102,2532)(1002,2532)
+	(1002,2802)(822,2982)(102,2982)
+\drawline(822,2982)(822,2802)(1002,2802)
+\put(192,2802){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Interface}}}}}
+\put(192,2622){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}file(s)}}}}}
+\drawline(2442,1002)(2442,552)(3342,552)
+	(3342,822)(3162,1002)(2442,1002)
+\drawline(3162,1002)(3162,822)(3342,822)
+\put(2532,822){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}.c file}}}}}
+\drawline(2442,462)(2442,12)(3342,12)
+	(3342,282)(3162,462)(2442,462)
+\drawline(3162,462)(3162,282)(3342,282)
+\put(2532,282){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}.h file}}}}}
+\drawline(3612,1542)(3612,1092)(4512,1092)
+	(4512,1362)(4332,1542)(3612,1542)
+\drawline(4332,1542)(4332,1362)(4512,1362)
+\put(3702,1362){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}object}}}}}
+\put(3702,1182){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}file}}}}}
+\drawline(3612,192)(4512,192)(4512,822)
+	(3612,822)(3612,192)
+\put(3702,642){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}C compiler}}}}}
+\drawline(2442,2802)(2442,2352)(3342,2352)
+	(3342,2622)(3162,2802)(2442,2802)
+\drawline(3162,2802)(3162,2622)(3342,2622)
+\put(2532,2622){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Interface}}}}}
+\put(2532,2442){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}file}}}}}
+\drawline(4782,687)(4692,687)(4692,237)
+	(5592,237)(5592,327)
+\drawline(4782,777)(4782,327)(5682,327)
+	(5682,597)(5502,777)(4782,777)
+\drawline(5502,777)(5502,597)(5682,597)
+\put(4872,597){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}.h file(s)}}}}}
+\drawline(3612,3252)(3612,2802)(4512,2802)
+	(4512,3072)(4332,3252)(3612,3252)
+\drawline(4332,3252)(4332,3072)(4512,3072)
+\put(3702,3072){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}program}}}}}
+\drawline(3612,1902)(4512,1902)(4512,2532)
+	(3612,2532)(3612,1902)
+\put(3702,2352){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}linker}}}}}
+\drawline(4782,2712)(4692,2712)(4692,2262)
+	(5592,2262)(5592,2352)
+\drawline(4782,2802)(4782,2352)(5682,2352)
+	(5682,2622)(5502,2802)(4782,2802)
+\drawline(5502,2802)(5502,2622)(5682,2622)
+\put(4872,2622){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}.o file(s)}}}}}
+\drawline(4782,2172)(4782,1722)(5682,1722)
+	(5682,1992)(5502,2172)(4782,2172)
+\drawline(5502,2172)(5502,1992)(5682,1992)
+\put(4872,1992){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}run-time}}}}}
+\put(4872,1797){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}library}}}}}
+\drawline(1002,3972)(1272,3972)
+\drawline(1152.000,3942.000)(1272.000,3972.000)(1152.000,4002.000)
+\drawline(1002,2712)(1272,2712)
+\drawline(1152.000,2682.000)(1272.000,2712.000)(1152.000,2742.000)
+\drawline(1722,3792)(1722,3612)
+\drawline(1692.000,3732.000)(1722.000,3612.000)(1752.000,3732.000)
+\drawline(1722,3162)(1722,2982)
+\drawline(1692.000,3102.000)(1722.000,2982.000)(1752.000,3102.000)
+\drawline(1722,2172)(1722,1992)
+\drawline(1692.000,2112.000)(1722.000,1992.000)(1752.000,2112.000)
+\drawline(1722,1542)(1722,1362)
+\drawline(1692.000,1482.000)(1722.000,1362.000)(1752.000,1482.000)
+\drawline(1722,912)(1722,732)
+\drawline(1692.000,852.000)(1722.000,732.000)(1752.000,852.000)
+\drawline(2172,642)(2442,642)
+\drawline(2322.000,612.000)(2442.000,642.000)(2322.000,672.000)
+\drawline(2172,372)(2442,372)
+\drawline(2322.000,342.000)(2442.000,372.000)(2322.000,402.000)
+\drawline(1182,4332)(2262,4332)(2262,192)
+	(1182,192)(1182,4332)
+\drawline(3342,732)(3612,732)
+\drawline(3492.000,702.000)(3612.000,732.000)(3492.000,762.000)
+\drawline(3342,282)(3612,282)
+\drawline(3492.000,252.000)(3612.000,282.000)(3492.000,312.000)
+\drawline(4062,822)(4062,1092)
+\drawline(4092.000,972.000)(4062.000,1092.000)(4032.000,972.000)
+\drawline(4062,1542)(4062,1902)
+\drawline(4092.000,1782.000)(4062.000,1902.000)(4032.000,1782.000)
+\drawline(102,2892)(12,2892)(12,2442)
+	(912,2442)(912,2532)
+\drawline(2172,2577)(2442,2577)
+\drawline(2322.000,2547.000)(2442.000,2577.000)(2322.000,2607.000)
+\drawline(4782,507)(4512,507)
+\drawline(4632.000,537.000)(4512.000,507.000)(4632.000,477.000)
+\drawline(4062,2532)(4062,2802)
+\drawline(4092.000,2682.000)(4062.000,2802.000)(4032.000,2682.000)
+\drawline(4782,2442)(4512,2442)
+\drawline(4632.000,2472.000)(4512.000,2442.000)(4632.000,2412.000)
+\drawline(4782,2037)(4512,2037)
+\drawline(4632.000,2067.000)(4512.000,2037.000)(4632.000,2007.000)
+\dottedline{45}(3522,3342)(5772,3342)(5772,1632)
+	(3522,1632)(3522,3342)
+\end{picture}
+}

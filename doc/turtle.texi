@@ -1,0 +1,5058 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename turtle.info
+@settitle Turtle Reference Manual
+@iftex
+@afourpaper
+@end iftex
+@c %**end of header
+
+@set UPDATED 20. Feb 2003
+@set EDITION 1.0.0
+@set VERSION 1.0.0
+
+@dircategory Turtle
+@direntry
+* turtle: (turtle).     Turtle reference manual.
+@end direntry
+
+@ifinfo
+This file documents the Turtle compiler.
+
+Copyright (C) 2003 Martin Grabmueller
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+@end ifinfo
+
+
+
+@c --- title page starts here ---
+
+@titlepage
+@title Turtle
+@subtitle Reference Manual
+@subtitle Version @value{VERSION}
+@author Martin Grabmueller
+
+@c  The following two commands
+@c  start the copyright page.
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2003 Martin Grabmueller
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+@end titlepage
+
+@c --- title page ends here ---
+
+
+
+@syncodeindex vr cp
+@syncodeindex fn cp
+
+
+
+@c ===================================================================
+@node Top, Introduction, (dir), (dir)
+@comment  node-name,  next,  previous,  up
+
+@ifinfo
+This document describes the Turtle programming language and how to use
+the Turtle compiler and standard library.
+
+It applies to version @value{VERSION} of Turtle.
+@end ifinfo
+
+@menu
+* Introduction::                Introduction to Turtle
+* Using Turtle::                How to use Turtle
+* Language Reference::          Language description
+* Constraint Programming::      Using constraints in Turtle programs.
+* Standard library::            The Turtle library modules.
+* Glossary::                    The glossary
+* Index::                       Function and variable index
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Introduction
+
+* About Turtle::                What is Turtle anyway?
+* Turtle History::              How Turtle was developed.
+* Turtle Future::               What are the future plans about Turtle?
+
+Using Turtle
+
+* Compiling source programs::   How to compile Turtle programs.
+* Command line options::        How to instruct the compiler.
+* Handcoding::                  How to interface Turtle to C code.
+* Documenting Turtle Modules::  Automatic Turtle source documentation.
+
+Handcoding
+
+* Compiling handcoded modules::  Compiler invocation for handcoded modules.
+* Implementation include file::  Details about the include file.
+* Implementation macros::       How to handcode implementation macros.
+* Mapped functions::            Details about mapped functions.
+
+Documenting Turtle Modules
+
+* Preparing Turtle Modules for turtledoc::  turtledoc markup.
+* Extracting the Documentation::  How to invoke the compiler for turtledoc.
+
+Language Reference
+
+* Turtle Grammar::              Syntactic definition of the Turtle language.
+* Turtle semantics::            Semantic definitions for Turtle.
+* Data Types::                  Data types provided in Turtle.
+* Runtime environment::         Turtle's runtime environment.
+
+Turtle Grammar
+
+* Notation::                    The notation used in this section.
+* Lexical Structure::           Lexical entities (aka tokens).
+* Turtle Syntax::               The formal syntax of Turtle programs.
+
+Turtle Syntax
+
+* Module Syntax::               The syntax of compilation units.
+* Declaration Syntax::          Declarations in Turtle.
+* Statement Syntax::            Program statements.
+* Expression Syntax::           Expressions.
+* Basic syntax items::          Grammar leftovers.
+
+Turtle semantics
+
+* Expression Types::            How expressions get types.
+* List operators::              Operators on lists.
+* Array operators::             Operators on arrays.
+* List and array expressions::  Compound expressions.
+* Return statements::           How values are returned from functions.
+* Overloading::                 Identifier overloading.
+* Generic Modules::             Parametrized modules.
+
+Data Types
+
+* Basic data types::            Basic builtin data types.
+* Compound data types::         Data types made up of other data types.
+* User-defined data types::     Special-purpose self-made data types.
+
+Basic data types
+
+* Integers::                    Integer numbers.
+* Longs::                       Long integer numbers.
+* Reals::                       Real numbers.
+* Booleans::                    Truth values, @code{true} and @code{false}.
+* Characters::                  Characters.
+* Strings::                     Strings of characters.
+
+Compound data types
+
+* Array data type::             Fixed-length random-access sequences.
+* List data type::              Varying-length, linear-access sequences.
+* Function data type::          Types for functions.
+* Tuple data type::             Fixed-length, varying-types aggregates.
+
+Constraint Programming
+
+* Constraints and the Constraint Store::  Basic definitions.
+* Constrainable Variables::     Variables for constraints.
+* Constraint Statements::       Statements for constraint programming.
+* Constraints as Assertions::   Constraint application as runtime checks.
+
+Standard library
+
+* General modules::             Generally useful utilities.
+* Input and output modules::    Input and output.
+* Data type related modules::   Modules for handling specific data types.
+* List utility modules::        List functions.
+* Array utility modules::       Array functions.
+* Tuple utility modules::       Modules for accessing tuple elements.
+* Low level modules::           Low-level system functions.
+* Modules in the subsystem sys::  System-dependant modules.
+* Modules in the subsystem internal::  Internal modules.
+
+General modules
+
+* math module::                 Mathematical constants and functions.
+* random module::               Random number generation.
+* compose module::              Function composition.
+* identity module::             The identity function.
+* compare module::              Functions for comparing basic data types.
+* option module::               The @code{option} data type.
+* cmdline module::              Command line parsing.
+* hash module::                 Functions for calculating hash values.
+* hashtab module::              Hash table implementation.
+* trees module::                Module for binary trees.
+* bstrees module::              Binary search trees.
+* bintree module::              Binary search trees (older version).
+* binary module::               Byte-arrays.
+* exceptions module::           Exception handling.
+* filenames module::            Filename manipulation.
+
+Input and output modules
+
+* io module::                   Basic input and output.
+
+Data type related modules
+
+* ints module::                 Integer constants and functions.
+* longs module::                Long integer functions.
+* reals module::                Real constants and functions.
+* bools module::                Boolean value utilities.
+* chars module::                Character handling.
+* strings module::              Basic string operations.
+* union module::                Union data type of the buildin types.
+* strformat module::            String formatting a la sprintf ().
+
+List utility modules
+
+* lists module::                General list functions.
+* listmap module::              Mapping functions over lists.
+* listfold module::             Folding a function over lists.
+* listreduce module::           Reducing lists with initial value.
+* listzip module::              Combine two lists into one and the reverse.
+* listindex module::            Functions on lists operating with indices.
+* listsearch module::           Searching in lists.
+* listsort module::             Sorting lists.
+
+Array utility modules
+
+* arrays module::               Basic array operations.
+* arraymap module::             Mapping functions over arrays.
+* arraysearch module::          Searching in arrays.
+* arraysort module::            Sorting arrays.
+
+Tuple utility modules
+
+* pairs module::                Module for handling 2-tuples.
+* triples module::              Module for handling 3-tuples.
+
+Low level modules
+
+* core module::                 Some low-level utilities.
+
+Subsystem sys
+
+* sys.files module::            Low-level file handling.
+* sys.dirs module::             Directory handling.
+* sys.net module::              Low-level network programming.
+* sys.times module::            
+* sys.users module::            Accessing the user data base.
+* sys.procs module::            Handling operating system processes.
+* sys.errno module::            Accessing the errno variable.
+* sys.signal module::           
+
+Subsystem internal
+
+* internal.version module::     Version information.
+* internal.random module::      Random number functions.
+* internal.stats module::       
+* internal.gc module::          Garbage collection interface.
+* internal.ex module::          Exception raising and handling.
+* internal.timeout module::     
+* internal.limits module::      System limits.
+
+@end detailmenu
+@end menu
+
+@c ===================================================================
+@node 	 Introduction, Using Turtle, Top, Top
+@comment  node-name,  next,  previous,  up
+@chapter Introduction
+
+Turtle is both a programming language and the name of a compiler for
+this language.
+
+The language Turtle is a programming language which supports
+constraint imperative programming, that means that standard imperative
+programming constructs can be combined with the declarative style of
+constraint programming.
+
+The chapter after this introduction describes the Turtle compiler from
+the user's point of view, you will learn how to run the compiler
+and how to develop programs using it.
+
+After that, in the third chapter, the Turtle programming language is
+presented in detail, including formal descriptions like EBNF grammars,
+and an informal description of the semantics of Turtle.
+
+The fourth chapter contains the reference documentation for the standard
+library modules which come with the Turtle system.
+
+The manual is closed by a a glossary and an index of all functions and
+variables of the standard library.
+
+@menu
+* About Turtle::                What is Turtle anyway?
+* Turtle History::              How Turtle was developed.
+* Turtle Future::               What are the future plans about Turtle?
+@end menu
+
+
+@c ===================================================================
+@node About Turtle, Turtle History, Introduction, Introduction
+@comment  node-name,  next,  previous,  up
+@section About Turtle
+
+The Turtle programming language has these main characteristics:
+
+@table @asis
+@item Imperative
+Turtle has the basic imperative constructs like variables, side-effects,
+loops, procedures, procedure calls, statements, and statement
+sequencing.  Thus the semantics of a Turtle program relies on state and
+time.
+
+@item Constraints
+Turtle supports constraint programming.  That means that constraints can
+be asserted on program variables, so that these constraints can be
+checked and values for the variables can be deduced.
+
+@item Higher-order programming
+Functions and procedures are first-class values, they can be returned
+from functions and even be stored in data structures.  Additionally to
+the imperative and constraint programming styles, this makes functional
+programming possible.
+
+@item Garbage collection
+Memory is managed automatically in Turtle programs.  Garbage collection
+is now standard in new programming languages, since it frees the
+programmer from many possible bug sources, such as dangling pointers
+(because references to freed memory regions are used) or memory leaks
+(because unneeded references are kept).
+
+@item Module system
+Turtle comes with a module system for structuring programs in smaller,
+encapsulated subsystems.  This is a key feature for software
+engineering, because it makes the interfaces between subsystems clean
+and makes life easier if several programmers are working on different
+parts of a larger program.
+
+Additionally, modules can be parametrisized over data types.  The
+programmer can thus write generic modules which implement abstract data
+types which can be used with arbitrary objects of arbitrary types.
+
+@item Rich set of data types
+Turtle comes with builtin basic data types (integers, reals, booleans,
+strings, characters) as well as aggregate types such as arrays, lists
+and tuples.
+
+@item Efficiency
+Turtle programs run reasonably fast, mainly because they are not
+interpreted but compiled to machine code (via generating C code and
+running a C compiler).
+@end table
+
+
+@c ===================================================================
+@node 	 Turtle History, Turtle Future, About Turtle, Introduction
+@comment  node-name,  next,  previous,  up
+@section Turtle History
+
+Turtle is the product of my master's thesis, written at the Technical
+University of Berlin.
+
+The language definition was sketched in February 2002, and after the
+thesis was officially started, development towards turning it into a
+usable constraint imperative language began.
+
+
+@c ===================================================================
+@node 	 Turtle Future,  , Turtle History, Introduction
+@comment  node-name,  next,  previous,  up
+@section Turtle Future
+
+I don't know.
+
+
+@c ===================================================================
+@node Using Turtle, Language Reference, Introduction, Top
+@comment  node-name,  next,  previous,  up
+@chapter Using Turtle
+
+This chapter describes how to use the Turtle compiler.  You will learn
+how to invoke the compiler in order to produce an executable program,
+what command line options the compiler understands and how the compiler
+can be used to access the underlying system an how to produce
+documentation from source code comments.
+
+@menu
+* Compiling source programs::   How to compile Turtle programs.
+* Command line options::        How to instruct the compiler.
+* Handcoding::                  How to interface Turtle to C code.
+* Documenting Turtle Modules::  Automatic Turtle source documentation.
+@end menu
+
+
+@c ===================================================================
+@node Compiling source programs, Command line options, Using Turtle, Using Turtle
+@section Compiling source programs
+
+The Turtle compiler is run by executing the command @file{turtle},
+giving the names of the source files to be compiled on the command
+line:
+
+@example
+turtle ex1.t
+@end example
+
+Turtle source code files are named with the file name extension
+@file{.t} by convention.
+
+The compiler will generate a bunch of files from earch Turtle source
+file:
+
+@table @file
+@item ex1.ifc
+This is the interface file in which the exported identifiers, imported
+modules and some other data is stored.  Interface files are read when
+modules are imported.
+
+@item ex1.c
+This is the C source code generated for the input file.  It is compiled
+by the C compiler to produce the file @file{ex1.o} mentioned below.
+
+@item ex1.h
+This is the header file (for the C compiler) which contains declarations
+for all exported variables and functions and for the initialization
+files.
+
+@item ex1.o
+This is the object code for the input file, it contains the machine
+code.
+@end table
+
+If you don't want to compile a library module, but a complete program,
+you have to give the @code{--main=@var{name}} option to the compiler.
+@ref{Command line options} for details.
+
+
+@c ===================================================================
+@node Command line options, Handcoding, Compiling source programs, Using Turtle
+@comment  node-name,  next,  previous,  up
+@section Command line options
+
+The following command line options are available.
+
+@table @code
+@item -h, --help
+This option will force the compiler to show a short usage message and
+to exit successfully.
+
+@item -v, --version
+The compiler will print its version number and exit successfully.
+
+@item -m, --main=@var{name}
+This option must be given when compiling the main module of a program.
+It tells the compiler to link the module with all imported modules and
+to produce an executable program called @var{name}.  With this option,
+only one source file may be given, which must be the main module.
+
+@item -p, --module-path=@var{path}
+Tells the compiler to look in all directories in @var{path} (which must
+be a colon-separated list of directory names) when searching for
+imported modules.
+
+@item -d, --debug=MODIFIER
+This options switches on one or more debugging options.  Each
+debugging option is denoted by a different letter; they must be given
+one after the other without intervening spaces, as in the following
+example:
+
+@example
+turtle --debug=ae
+@end example
+
+@table @code
+@item a
+This option causes the compiler to print out the abstract syntax tree
+of each parsed source file after reading it.
+
+@item e
+With this option, the compiler prints the top-level environment of
+each source file after parsing and analyzing it.
+
+@item i
+The highlevel intermediate language (HIL) representation of the source
+program will be printed to standard out just after type checking.
+
+@item b
+The lowlevel intermediate language (LIL) representation of the source
+module will be printed to standard out just after code generation.
+@end table
+
+@item -z, --pragma=@var{pragma}
+This option is used to pass additional information about the source file
+or the compilation process.  The following pragmas can be given:
+
+@table @code
+@item handcoded
+Handcoded modules (that is, modules which contain functions implemented
+in C) must be compiled with this option, otherwise the compiler will
+refuse to compile the source file.  This is a safety feature, because
+declarations for handcoded functions can be easily written by error and
+would otherwise lead to hard understandable error messages.
+
+@item compile-only
+With this option, the C compiler will not be run on the generated C
+code.  This option is mainly useful for debugging the compiler.
+
+@item static
+Causes the linker to statically link the program.  Only has an effect if
+the @code{--main=@var{name}} option is also given.  This option may
+require GCC.
+
+@item turtledoc
+Instead of compiling the source files on the command line, the compiler
+will extract documentation comments and create Texinfo documentation for
+the modules.  For each module to be compiled, a Texinfo node will be
+written to standard output with documentation for all data types,
+variables and functions defined in the module.
+
+@item deps
+In addition to normal compilation, a the dependencies of the source file
+will be written to a file with the same basename as the input file, but
+with the extension @file{.P}.  The dependencies are formatted to be
+usable with @file{make}.
+
+@item deps-stdout
+Like the pragma @code{deps}, but instead of writing to a dependency
+file, the dependencies are written to standard output.
+@end table
+
+@item -O, --optimize=FLAGS
+Set some flags for the Turtle optimizer and the C compiler.  By default
+all Turtle optimizations are on and the C optimizations are off. One or
+more of the following flags can be given:
+
+@table @code
+@item C
+Optimize module-local calls.
+
+@item c
+Do not optimize module-local calls.
+
+@item J
+Convert module-local calls to jumps.
+
+@item j
+Do not convert module-local calls to jumps.
+
+@item G
+Merge all GC checks which appear in a basic block into one at the start
+of the block.
+
+@item g
+Do not merge all GC checks in one basic block.
+
+@item 0@dots{}6
+Set the optimization level for the C compiler to the given value.  This
+option may require GCC.
+@end table
+
+@end table
+
+
+@c ===================================================================
+@node Handcoding, Documenting Turtle Modules, Command line options, Using Turtle
+@section Handcoding
+
+A lot of low-level functions cannot be implemented in Turtle, because
+there is currently no way to access operating system features or the C
+library directly.  Therefore, `handcoded' modules have been added to
+the Turtle compiler.  
+
+Handcoded modules can contain normal Turtle definitions for functions,
+variables and data types, but additionally they can contain functions
+whose body has been omitted, and whose implementation is written in C in
+another place.  This other place is a C source code file which must be
+named like the module to be compiled, but with the added extension
+@file{.i}.  That means that the implementation of handcoded functions in
+the module file @file{core.t} must reside in the file called
+@file{core.t.i}.
+
+Currently, there are two kinds of handcoded functions.  The first is to
+simply omit the function body and give the implementation as a C macro
+which will be placed into the generated C code by the cmopiler.  This
+has the advantage that there is no runtime penalty for using a handcoded
+function, and that the macro can directly access all virtual registers
+without the need to flush them to their memory locations.  The
+disadvantage is that it is quite easy to mess up the virtual machine's
+state.  Handcoded functions written as macros are called
+``implementation macros''.
+
+The second method is to write down the function header, followed by an
+equal sign and a string which names a C function.  This function will
+then be called from the generated code.  The parameters to the declared
+Turtle function are passed as normal C parameters to the named function,
+so that there is no way to mess with the Turtle stack or registers.
+This method is recommended and should be used unless their is an urgent
+need for efficiency or access to the virtual machine from inside the
+handcoded function.  Functions of this kind are called ``mapped
+functions'', because their functionality is mapped directly to a C
+function.
+
+@menu
+* Compiling handcoded modules::  Compiler invocation for handcoded modules.
+* Implementation include file::  Details about the include file.
+* Implementation macros::       How to handcode implementation macros.
+* Mapped functions::            Details about mapped functions.
+@end menu
+
+
+@c ===================================================================
+@node Compiling handcoded modules, Implementation include file, Handcoding, Handcoding
+@subsection Compiling handcoded modules
+
+Because it is easy to break your programs with handcoded modules, the
+compiler will only accept such modules when explicitly instructed with
+the pragma option @code{handcoded}.  For example:
+
+@example
+turtle --pragma=handcoded math.t
+@end example
+
+
+@c ===================================================================
+@node Implementation include file, Implementation macros, Compiling handcoded modules, Handcoding
+@subsection Implementation include file
+
+An implementation include file must list all needed implementation
+macros and mapped function implementations.  If the macros or functions
+need any declaration from the C library, file inclusion statements can
+also appear in the file, and C variables and typedefs can also be
+written here.
+
+@c ===================================================================
+@node Implementation macros, Mapped functions, Implementation include file, Handcoding
+@subsection Implementation macros
+
+These macro definitions must be written in a file called like the Turtle
+source file, but with a @file{.i} added to the file name.  This file is
+included into the compiled C file.  The implementation macros are
+expected to be named like the mangled function names, appended with the
+string @code{_implementation}, and they must not have parameters.  The
+easiest way to get at the mangled name is to implement the function in
+the Turtle module, compile it with the @code{--pragma=handcoded} option,
+ignore the errors from the linker and take the mangled name from the C
+output file.  Additionally, you may want to add the function's signature
+to the implementation macro, for documentation purposes.
+
+Function entry and exit code are compiled like for normal Turtle
+functions, so that the parameters to the Turtle function can be found in
+the first elements of the array @code{env->locals}.
+
+This is an example for an implementation macro as used in the library
+module @code{core}.  The following is code from the module file
+@file{core.t}:
+
+@example
+fun version (): string;
+@end example
+
+And this is the corresponding implementation macro from the file
+@file{core.t.i}:
+
+@example
+#define core_version_F_0__To_S_implementation                   \
+@{                                                               \
+  TTL_SAVE_REGISTERS;                                           \
+  @{                                                             \
+    ttl_global_acc = ttl_string_to_value (ttl_version_string (),\
+                                          -1);                  \
+  @}                                                             \
+  TTL_RESTORE_REGISTERS;                                        \
+@}
+@end example
+
+There are some important rules to keep in mind when writing handcoded
+functions, but note that there may be other problems as well, which have
+just not yet come to the surface:
+
+@itemize @bullet
+@item
+They must expand into proper C compound statements (because the
+macro call is not terminated by a semicolon).
+
+@item
+They must not expect parameters.
+
+@item
+They must be called like the mangled name of the function they
+implement, with the string @code{_implementation} appended.
+
+@item
+When they call any runtime function which might invoke the garbage
+collector, the code must be surrounded by a
+@code{TTL_SAVE}/@code{RESTORE_REGISTERS} pair and operate on global
+registers
+
+@item
+The parameters to the functions must be taken from
+@code{env->locals[X]}, where @var{X} ranges from 0 to the number of
+parameters - 1.
+
+@item
+No higher-order programming is allowed. 
+
+@item
+Implementation macros may not call back to Turtle code, since there is
+no way to set up continuation labels, so the Turtle code would not be
+able to return.
+
+@item
+Boxing/unboxing of Turtle values must be done by hand.  Be careful
+not to screw up the tagging of Turtle values, or the program will
+most probably blow up.  Handcoding is your own risk, since the
+compiler cannot do anything about it.
+
+@item
+You are responsible for checking for null pointers as well when working
+with compound data types, and for raising the correct exception by hand.
+@end itemize
+
+@c ===================================================================
+@node Mapped functions,  , Implementation macros, Handcoding
+@subsection Mapped functions
+
+Mapped functions are much easier to write than implementation macros,
+because you don't have to take care of heap overflows causing garbage
+collection, for extracting the parameters from the correct environment
+locations or for finding the mangled name of functions from the
+generated C code.  As an example for a mapped functions, we'll examine
+the @code{getlogin} function from the @code{unix} module.
+
+This is the function declaration as it appears in the Turtle file:
+
+@example
+fun getlogin (): string = "ttl_getlogin";
+@end example
+
+The function is declared as a mapped function, which should be mapped to
+the C function @code{ttl_getlogin}.  This function is an additional
+layer between the code generated for the Turtle function and the C
+library function.  Its responsibility is to unbox the parameters (if
+any), call the C library function and to box the result and return it to
+the caller.  Here is how this looks like for the @code{getlogin}
+example:
+
+@example
+ttl_value
+ttl_getlogin (void)
+@{
+  char * val = getlogin ();
+  if (val)
+    return ttl_string_to_value (val, -1);
+  else
+    return ttl_string_to_value ("", 0);
+@}
+@end example
+
+Compared to the implementation macros described above, this is really
+easy.  But note that the same restrictions apply as for the
+implementation macros described in the previous subsection.
+
+In the future the Turtle compiler could be equipped with the additional
+functionality to generate such glue code itself, so that all
+boxing/unboxing etc. would be done by compiler-generated code, on the
+basis of some data type declrations.
+
+
+@c ===================================================================
+@node Documenting Turtle Modules,  , Handcoding, Using Turtle
+@section Documenting Turtle Modules
+
+Documentation is a very important part in software creation.  It is not
+only important for programmers using third-party modules, but also to
+make sure that one's own modules will be reusable and can be still
+understood in the future.
+
+The Turtle compiler has support for simple inline documentation of
+Turtle modules, called @emph{turtledoc}.  It is similar in spirit to the
+well-known @file{JavaDoc} program which extracts documentation comments
+from Java source files and creates fully indexed and linked HTML
+documentation for Java packages.  Though turtledoc is much simpler, it
+is nevertheless quite useful and has been used to create the
+documentation for the Turtle standard library in this manual
+(@pxref{Standard library}).
+
+@menu
+* Preparing Turtle Modules for turtledoc::  turtledoc markup.
+* Extracting the Documentation::  How to invoke the compiler for turtledoc.
+@end menu
+
+
+@c ===================================================================
+@node Preparing Turtle Modules for turtledoc, Extracting the Documentation, Documenting Turtle Modules, Documenting Turtle Modules
+@subsection Preparing Turtle Modules for turtledoc
+
+The basic concept of turtledoc are so-called ``documentation strings''.
+Each function, variable or data type of a module can have a
+documentation string attached, and even the module itself can have one.
+The first step in using turtledoc is to attach documentation strings to
+these entities, and the second step is to use the Turtle compiler to
+extract these strings from the module and have them printed together
+with the name, type and kind of the entity they document.
+
+This subsection documents the first step, the second step is described
+in the next subsection.
+
+For illustration, we will prepare an example module with documentation
+strings.  This is the example:
+
+@example
+module docex;
+
+fun do_nothing ()
+end;
+
+fun do_nothing2 ()
+end;
+
+fun ignored ()
+end;
+
+fun do_nothing_too ()
+  var i: int := 10000;
+  while i > 0 do
+    i := i - 1;
+  end;
+end;
+@end example
+
+We could already run the compiler on this and instruct it to extract documentation, but the result would be a bit disappointing:
+
+@example
+@@node docex module
+@@subsection docex module
+@@cpindex docex (Module)
+
+@@deftypefn @{Library function@} @{@} do_nothing ()
+@@end deftypefn
+
+@@deftypefn @{Library function@} @{@} do_nothing2 ()
+@@end deftypefn
+
+@@deftypefn @{Library function@} @{@} ignored ()
+@@end deftypefn
+
+@@deftypefn @{Library function@} @{@} do_nothing_too ()
+@@end deftypefn
+@end example
+
+Turtledoc comments are written like normal comments, but with an
+asterisk directly after the comment starting characters:
+
+@example
+//* Like this...
+/** ... or this.  */
+@end example
+
+The documentation strings must preceed the entity they document.  A
+module's documentation string will be written out preceeding the
+documentation of the variables, functions etc., Variable and function
+documentation will be placed between their Texinfo documentation
+constructs.  Datatype documentation is additionally equipped with the
+definition of the data type, which is normally very instructive for the
+reader who wishes to use the data type.
+
+A function can be ommitted from the output by providing it with a
+documentation string starting with a @code{-} (minus sign).
+
+Often it is useful to group several functions together with the same
+documentation, for example when they do similar things and only differ
+in the types of their arguments.  This can be accomplished by writing
+the documentation string down with the first of the functions to be
+grouped, and by placing the other functions of the group directly behind
+that, where each of the functions has a documentation string starting
+with @code{"} (doublequote).
+
+This is the example, now equipped with documentation strings:
+
+@example
+//* Example module for turtledoc.
+module docex;
+
+//* This function does nothing.
+fun do_nothing ()
+end;
+
+//* ""
+fun do_nothing2 ()
+end;
+
+//* -
+fun ignored ()
+end;
+
+//* This function does nothing too, but expensively.
+fun do_nothing_too ()
+  var i: int := 10000;
+  while i > 0 do
+    i := i - 1;
+  end;
+end;
+@end example
+
+And this is the output produced from the annotated source code:
+
+@example
+@@node docex module
+@@subsection docex module
+@@cpindex docex (Module)
+
+Example module for turtledoc.
+
+@@deftypefn @{Library function@} @{@} do_nothing ()
+@@deftypefnx @{Library function@} @{@} do_nothing2 ()
+This function does nothing.
+@@end deftypefn
+
+@@deftypefn @{Library function@} @{@} do_nothing_too ()
+This function does nothing too, but expensively.
+@@end deftypefn
+@end example
+
+We can see that the module's documentation comes directly after the node
+header.  The @code{do_nothing} and @code{do_nothing2} functions are
+grouped together and the @code{ignore} function is not documented at
+all.  The last function, @code{do_nothing_too}, is documented
+seperately.
+
+The documentation strings can contain arbitrary Texinfo markup, such as
+for tables or node references.  The strings are not interpreted or
+modified in any way.
+
+
+@c ===================================================================
+@node Extracting the Documentation,  , Preparing Turtle Modules for turtledoc, Documenting Turtle Modules
+@subsection Extracting the Documentation
+
+After having equipped the source code with properly marked documentation
+strings, you have to run the compiler on the source file and instruct it
+to create the turtledoc documentation.  This is done by simply giving
+the pragma option @code{turtledoc} to the compiler, like for the example
+module from the previous subsection:
+
+@example
+turtle --pragma=turtledoc docex.t
+@end example
+
+The documentation is then written to standard output and can be included
+into the Texinfo documentation for your project.
+
+
+@c ===================================================================
+@node Language Reference, Constraint Programming, Using Turtle, Top
+@chapter Language Reference
+
+This chapter describes the Turtle programming language.  First, the
+syntax and semantics of the language are presented, then the runtime
+environment and the standard library are documented.
+
+@menu
+* Turtle Grammar::              Syntactic definition of the Turtle language.
+* Turtle semantics::            Semantic definitions for Turtle.
+* Data Types::                  Data types provided in Turtle.
+* Runtime environment::         Turtle's runtime environment.
+@end menu
+
+
+@c ===================================================================
+@node Turtle Grammar, Turtle semantics, Language Reference, Language Reference
+@section Turtle Grammar
+
+This section describes the grammar of the Turtle programming language.
+
+@menu
+* Notation::                    The notation used in this section.
+* Lexical Structure::           Lexical entities (aka tokens).
+* Turtle Syntax::               The formal syntax of Turtle programs.
+@end menu
+
+
+@c ===================================================================
+@node Notation, Lexical Structure, Turtle Grammar, Turtle Grammar
+@subsection Notation
+
+The lexical and grammatical structure of Turtle is described using
+Extended Backus Naur Form (EBNF).  This notation is summarized below.
+
+@table @asis
+@item A ::= E
+The non-terminal A produces the form E.
+
+@item E | F
+Alternative; either E or F is produced.
+
+@item @{ E @}
+The form E is repeated, possibly zero times.
+
+@item [ E ]
+The form E is optional, it may be omitted completely.
+
+@item ( E )
+For grouping, denotes E itself.
+
+@item <empty>
+Denotes the empty string.
+@end table
+
+
+@c ===================================================================
+@node Lexical Structure, Turtle Syntax, Notation, Turtle Grammar
+@subsection Lexical Structure
+
+Turtle programs are composed by tokens of the following token classes:
+
+@table @code
+@item Reserved words
+Reserved words look like identifiers (see below), but they have
+special meanings in the source program.  They are summarized in the
+Reserved Words Table below.  Identifiers denoting reserved words
+cannot be used for other purposes (variable names, function names,
+etc.).
+
+@item Identifiers
+An identifier is used for naming semantic entities in the program
+text: variables, functions, constraints, modules, etc.
+
+Like in most other imperative languages descending from Algol,
+identifiers start with an alphabetic letter or an underscore, followed
+by a number of alphabetic letters, underscores or digits.
+Additionally, identifiers may be terminated with a question mark.
+
+There is no length restriction on identifiers.
+
+@example
+Ident ::= (Letter | Underscore) @{Letter | Underscore | Digit@} [?|!]
+@end example
+
+@item String constants
+Strings of characters are enclosed in double quotes.  Inside of the
+string, double quotes are denoted as the escape sequence @code{\"},
+backslashes as @code{\\}.  Additionally, some non-printing characters
+can be written as escape sequences as well:
+
+@table @code
+@item \n
+The newline character (ASCII 10).
+
+@item \r
+The carriage return character (ASCII 13).
+
+@item \t
+The tabulator character (ASCII 8).
+
+@item \b
+The backspace character (ASCII 9).
+@end table
+
+@example
+StringConst ::= "@{any except Special | \" | \\ | \n | \r | \t | \b@}"
+Special     ::= " | \
+@end example
+
+@item Character constants
+Characters are enclosed in single quotes.  As in string constants,
+escape characters can be used in character constants.  Only one
+character (resp. escape sequence) can be in a character constant.
+
+@example
+CharConst  ::= '(any except Special | \" | \\ | \n | \r | \t | \b)'
+@end example
+
+@item Integer constant
+Integer constants are currently limited to the range of @code{long}
+values in the C implementation used to compile Turtle.
+
+@example
+IntConst   ::= Digit@{Digit@}
+@end example
+
+@item Real constant
+Real constants denote floating point approximations of real numbers.
+They are currently limited to the range of @code{double} values in the
+C implementation used to compile Turtle.
+
+@example
+RealConst  ::= Digit@{Digit@}.Digit@{Digit@}[(e|E)[-|+]Digit@{Digit@}]
+@end example
+
+@item Operators
+The operators are summarized in the Operator Table below.
+@end table
+
+Reserved Words Table:
+
+@table @code
+@item module export import
+@code{module} introduces a module, the others manage the import and
+export of modules and identifiers.
+
+@item fun
+Used for declaring functions, function expressions and function types.
+
+@item constraint
+Used for declaring constraints and constraint expressions.
+
+@item if then else
+Used in if-then-else statements.
+
+@item while do
+Used in while-do statements.
+
+@item end
+Ends functions, constraints and compound statements.
+
+@item return
+Returns values from functions.
+
+@item var
+Variable declarations.
+
+@item type
+Type declarations.
+
+@item array list string of
+Used in type expressions, and in array, list and string constructors.
+
+@item and not or
+Logical operators.
+
+@item false true
+Truth constants.
+
+@item require prefer retract
+Used for managing the constraint store.
+
+@item hd tl null
+List operators and the empty list constant.
+
+@item sizeof
+Generic size operator.
+@end table
+
+
+Operator Table:
+
+@table @code
+@item .
+Dot.  Used to separate the components of qualified identifiers.
+
+@item ,
+Comma.  Separating items in parameter lists, variable declarations,
+lists, arrays tuples etc.
+
+@item ( )
+Parenthesis are used to group elements of value and type expressions,
+parameter lists etc.
+
+@item @{ @}
+Curly braces enclose array expressions.
+
+@item [ ]
+Square brackets are used as indexing operators for using in indexed
+(array) expressions and enclose list expressions.
+
+@item !
+Annotates constrained types.
+
+@item ;
+The semicolon terminates declarations and statements.
+
+@item + - * / %
+Arithmetic operators.
+
+@item = < <= > >= <>
+Comparison operators.
+
+@item :=
+Assignment operator.
+
+@item hd tl :
+List operators.
+
+@item sizeof
+Generic size operator.
+@end table
+
+
+@c ===================================================================
+@node Turtle Syntax,  , Lexical Structure, Turtle Grammar
+@subsection Turtle Syntax
+
+The description of the Turtle grammar is divided in various sections,
+and each section is provided with some additional comments.
+
+@menu
+* Module Syntax::               The syntax of compilation units.
+* Declaration Syntax::          Declarations in Turtle.
+* Statement Syntax::            Program statements.
+* Expression Syntax::           Expressions.
+* Basic syntax items::          Grammar leftovers.
+@end menu
+
+
+@c ===================================================================
+@node Module Syntax, Declaration Syntax, Turtle Syntax, Turtle Syntax
+@subsubsection Module Syntax
+
+Turtle programs are organized in compilation units.  These compilation
+units are called ``Modules''.  The head of a module consists of a
+module header which states the name of the module, and then the
+(possibly empty) import and export statements, followed by a sequence
+of declarations.  The import statements states which modules will be
+used in the module, and the export statement lists the bindings which
+are public.  These bindings can be variable, function and constraint
+definitions as well as type declarations.
+
+@example
+CompUnit     ::= Module
+Module       ::= 'module' QualIdent [ModuleParams] ';' 
+                 ModDecls Declarations
+ModuleParams ::= '<' ModuleParam @{',' ModuleParam@} '>'
+ModuleParam  ::= Ident
+ModDecls     ::= Imports Exports
+Imports      ::= <empty>
+              |  'import' ImportIdent @{, ImportIdent@} ';'
+Exports      ::= <empty>
+              |  'export' QualIdent @{, QualIdent@} ';'
+ImportIdent  ::= QualIdent [ImportAnnotation]
+ImportAnnotation ::= '<' Type @{',' Type@} '>'
+@end example
+
+
+@c ===================================================================
+@node Declaration Syntax, Statement Syntax, Module Syntax, Turtle Syntax
+@subsubsection Declaration Syntax
+
+Declarations in Turtle can be type, variable, function and constraint
+declarations.  Their syntax is given below.  In a program, more than
+one declarations can have the same name, provided that they can be
+distinguished by declaration kind (type declarations vs. the other
+kinds) or by type.
+
+@example
+Definitions     ::= @{ Definition ';' @}
+Definition      ::= TypeDef | DatatypeDef | VarDef | FunDef | ConstraintDef
+TypeDef         ::= 'type' Ident = Type
+DatatypeDef     ::= 'datatype' Ident '=' 
+                    DatatypeVariant @{'or' DatatypeVariant@}
+DatatypeVariant ::= Ident ['(' VariableList ')']
+
+FieldList       ::= Field @{',' Field@}
+Field           ::= Ident ':' Type
+
+VarDef          ::= 'var' VariableList
+
+VariableList    ::= Variable @{',' Variable@}
+Variable        ::= Ident ':' Type [':=' ConsExpression]
+
+FunDef          ::= 'fun' Ident ParameterList [':' Type] SubrBody
+ConstraintDef   ::= 'constraint' Ident ParameterList SubrBody
+
+ParameterList   ::= '(' [Parameter @{',' Parameter@}] ')' 
+Parameter       ::= ['out'] Ident ':' Type 
+
+Type            ::= QualIdent
+                 |  '!' Type
+                 |  '(' ')'
+                 |  '(' Type @{',' Type@} ')'
+                 |  'array' 'of' Type
+                 |  'list' 'of' Type
+                 |  'string'
+                 |  'fun' '(' [Type @{',' Type@}] ')' [':' Type]
+
+SubrBody        ::= StmtList 'end'
+@end example
+
+
+@c ===================================================================
+@node Statement Syntax, Expression Syntax, Declaration Syntax, Turtle Syntax
+@subsubsection Statement Syntax
+
+Statements are the basic entities of which imperative programs are
+based.  Statements in a statement list are executed in top-down
+direction, and statements can have side effects.  In Turtle, there are
+three statements uncommon in other languages, the constraint
+statements @code{require}, @code{prefer} and @code{retract}.  They are
+used for maintaining the constraint store.
+
+@example
+StmtList        ::= @{ Statement ';' @}
+Statement       ::= VarDef | FunDef | ConstraintDef
+                 |  IfStatement | WhileStatement |  ReturnStatement
+                 |  RequireStatement | PreferStatement |  RetractStatement 
+                 |  ExpressionStatement 
+IfStatement     ::= 'if' CompareExpression 'then' @{Statement@} 'end'
+                 |  'if' CompareExpression 'then' @{Statement@} 'else'
+                    @{Statement@} 'end'
+WhileStatement  ::= 'while' CompareExpression 'do' @{Statement@} 'end'
+ReturnStatement ::= 'return' [TupleExpression]
+RequireStatement::= 'require' CompareExpression
+PreferStatement ::= 'prefer' CompareExpression
+RetractStatement::= 'retract' CompareExpression
+ExpressionStatement ::= Expression
+@end example
+
+
+@c ===================================================================
+@node Expression Syntax, Basic syntax items, Statement Syntax, Turtle Syntax
+@subsubsection Expression Syntax
+
+Expressions consist of assignment expressions, comparing and boolean
+expressions and arithmetic expressions.  Additionally, functions and
+constraints can result from evaluating expressions, such as in
+functional programming languages.
+
+@example
+Expression           ::= AssignExpression
+AssignExpression     ::= TupleExpression [':=' TupleExpression]
+
+TupleExpression      ::= ConsExpression @{',' ConsExpression@} 
+
+ConsExpression       ::= CompareExpression ['::' ConsExpression]
+
+CompareExpression    ::= AddExpression [CompareOp AddExpression]
+AddExpression        ::= MulExpression @{AddOp MulExpression@}
+MulExpression        ::= Factor @{MulOp Factor@}
+Factor               ::= SimpleExpression
+                      |  '-' Factor
+                      |  'not' Factor
+                      |  'hd' Factor
+                      |  'tl' Factor
+                      |  'sizeof' Factor
+
+SimpleExpression     ::= AtomicExpression @{ActualParameters | Index@}
+ActualParameters     ::= '(' [ConsExpression @{',' ConsExpression@}] ')'
+Index                ::= '[' AddExpression ']'
+
+AtomicExpression     ::= QualIdent
+                      |  IntConst | RealConst | StringConst | CharConst
+                      |  BoolConst | ArrayExpr | ListExpr
+                      |  FunExpression | ConstraintExpression
+                      |  'array' AddExpression 'of' TupleExpression
+                      |  'list' AddExpression 'of' TupleExpression
+                      |  'string' AddExpression 'of' SimpleExpression
+                      |  '(' TupleExpression ')'
+                      |  'null'
+BoolConst           ::= 'false' | 'true'
+
+FunExpression        ::= 'fun' ParameterList [':' TypeExpr] SubrBody
+ConstraintExpression ::= 'constraint' ParameterList SubrBody
+ArrayExpr            ::= '@{' [@{ConsExpression@}
+                              @{',' ConsExpression@}] '@}'
+ListExpr             ::= '[' [@{ConsExpression@}
+                              @{',' ConsExpression@}] ']'
+
+MulOp                ::= '*' | '/' | 'and'
+AddOp                ::= '+' | '-' | 'or'
+CompareOp            ::= '=' | '<>' | '<' | '<=' | '>' | '>='
+@end example
+
+
+@c ===================================================================
+@node Basic syntax items,  , Expression Syntax, Turtle Syntax
+@subsubsection Basic syntax items
+
+In the beforementioned syntax descriptions, the following
+non-terminals have been used:
+
+@example
+QualIdent      ::= Ident @{'.' Ident@}
+@end example
+
+
+@c ===================================================================
+@node Turtle semantics, Data Types, Turtle Grammar, Language Reference
+@section Turtle semantics
+
+This section documents informally the static and synamic semantics of
+Turtle programs.
+
+@menu
+* Expression Types::            How expressions get types.
+* List operators::              Operators on lists.
+* Array operators::             Operators on arrays.
+* List and array expressions::  Compound expressions.
+* Return statements::           How values are returned from functions.
+* Overloading::                 Identifier overloading.
+* Generic Modules::             Parametrized modules.
+@end menu
+
+
+@c ===================================================================
+@node Expression Types, List operators, Turtle semantics, Turtle semantics
+@subsection Expression Types
+
+
+Arithmetic operators (AddOp and MulOp in the grammar, and unary @code{-})
+may only be applied to operands of numeric type, and the type for both
+operands of the binary operators must be the same.  The result type is
+the same type as the types of the operands.
+
+The comparison operators may only be applied to operands of comparable
+types, which are integers, reals, characters and booleans. Both operands
+must be of the same type.  They yield a result of type boolean.
+
+The operators @code{and}, @code{or} and @code{not} may only be applied
+to operands of boolean types.  The result type is boolean, too.  The
+evaluation of @code{and} and @code{or} expressions is short-circuited,
+that means that if in an @code{and} expression the first operand
+evaluates to @code{false}, the second operand is not evaluated, because
+the result of the overall expression is known.  Similarly, if the first
+operand to @code{or} evaluates to @code{true}, there is no need to
+evaluate the second operand.
+
+
+@c ===================================================================
+@node List operators, Array operators, Expression Types, Turtle semantics
+@subsection List operators
+
+The operators @code{hd} and @code{tl} return the head or tail of a list
+value, respectively.  If the list operand is @code{null} (the empty
+list), an exception is raised.
+
+The @code{:} (pronounced ``cons'') operator takes an expression and a
+list expression and creates a new list cell with the expression as the
+list head and the list expression as the list tail.
+
+In addition to the cons operation, lists can be created as documented in
+@ref{List and array expressions}.
+
+The empty list can be detected by comparing a list expression against
+@code{null}: all lists are terminated by this constant.
+
+
+@c ===================================================================
+@node Array operators, List and array expressions, List operators, Turtle semantics
+@subsection Array operators
+
+Arrays are aggregations of homogenous objects.  Arrays can have varying
+lengths, but the length must be specified when creating the array value.
+Arrays can be constructed by the means documented in @ref{List and array
+expressions}.
+
+Array elements are addressed by their index, which must be in the range
+0@dots{}@var{N}-1, where @var{N} is the length of the array.  An array
+index expression looks like this:
+
+@example
+A[2]
+@end example
+
+This expressions references the array element with index 2 (the
+@emph{third} element, because of zero-based indexing).  If written on
+the lefthand side of an assignment operator (@code{:=}), an array
+element can be overwritten with the expression on the right hand side.
+
+This indexing can be used for string in the same way.
+
+The length of an array expression (or string) can be determined with the
+@code{sizeof} operator.
+
+
+@c ===================================================================
+@node List and array expressions, Return statements, Array operators, Turtle semantics
+@subsection List and array expressions
+
+All elements of list and array expressions must have the same type.  The
+type of a list or array expression is @code{list of @var{element type}}
+or @code{array of @var{element type}}, respectively.  The empty list
+expression @code{[]} is equivalent to the constant @code{null} and is
+compatible with all list types.  The empty array expression @code{@{@}}
+is compatible with all array types.
+
+The special constant @code{null} is compatible to all list types.
+
+The array constructor @code{array @var{expr} of @var{expr}} has the
+type @code{array of @var{element type}}, where @var{element type} is
+the type of the second expression of the constructor.  The first
+expression must be of type @code{int}.  The constructor returns an
+array of the length given as the first expression, where each list
+element is initialized to the second expression.
+
+The list constructor @code{list @var{expr} of @var{expr}} has the type
+@code{list of @var{element type}}, where @var{element type} is the
+type of the second expression of the constructor.  The first
+expression must be of type @code{int}.  The constructor returns a list
+of the length given as the first expression, where each list element
+is initialized to the second expression.
+
+The string constructor @code{string @var{expr} [of @var{expr}]} has
+the type @code{string}.  The first expression must be of type
+@code{int}, the second expression, if given, must be of type
+@code{char}.  If omitted, the contents of the newly created string
+value is unspecified.
+
+
+@c ===================================================================
+@node Return statements, Overloading, List and array expressions, Turtle semantics
+@subsection Return statements
+
+Return statements are not followed by an expression if they are
+contained in a function of return type void.  Otherwise, the
+expression must have a type compatible with the return type of the
+enclosing function.  A function with non-void return type @emph{must}
+have a return expression in tail position.
+
+
+@c ===================================================================
+@node Overloading, Generic Modules, Return statements, Turtle semantics
+@subsection Overloading
+
+A Turtle module may declare more than one type, variable, function or
+constraint with the same name, as long as they are distinguishable by
+identifier kind (type vs. variable, function or constraint), or by
+type.  Consider the following Turtle fragment:
+
+@example
+var a: int, a: real;
+a := 1;
+a := 1.1;
+@end example
+
+This code is legal, because the compiler can determine unambiguously
+which variable is used in the second and third line.  The second line
+refers to the @code{int} variable, because an @code{int} value is
+assigned, and the third line modifies the @code{real} variable.
+
+Turtle's overloading is more powerful that in C++ or Java, because not
+only the parameter types of functions can be overloaded but also the
+return type and variables which don't have function types.  Because of
+these restrictions in C++/Java, the above code would not work there.
+Turtle is similar to Ada in that respect.
+
+When type-checking programs, the Turtle compiler considers every
+possible interpretation of a given expression, and then tries to find
+a unique type-consistent interpretation.  If this is not possible, an
+error message is issued, either stating that no possible typing was
+found or that the expression is ambiguous, that means, there is more
+than one legal interpretation.  Consider this example:
+
+@example
+var a: int, a: real;
+var b: array of int, b: array of real;
+b := @{a, a@};
+@end example
+
+Here, both the assignment of a two-element array of integers and reals
+to an integer or real array variable is legal.  The compile will
+signal an error for this example.
+
+
+@c ===================================================================
+@node Generic Modules,  , Overloading, Turtle semantics
+@subsection Generic Modules
+
+Turtle supports so-called generic modules.  They provide a restricted
+form of polymorphism.  Modules can be declared to have module
+parameters, which are types.  In the module, these parameters can be
+used for defining functions and data types.  When a generic module is
+then imported, it must be instantiated, that is, actual types must be
+provided for the module parameters.  The exported functions of the
+module are then available with the actual type substituted for the
+module parameter.  
+
+A module can be imported more than once into the same scope, provided
+that the combination of module parameters differ.
+
+Module parameters can be used to form the actual types in module
+import statements, too.
+
+
+@c ===================================================================
+@node Data Types, Runtime environment, Turtle semantics, Language Reference
+@section Data Types
+@cpindex Data Types
+
+Turtle provides a variety of builtin data types, such as integers,
+reals, strings etc., and support for arrays and lists is also built into
+the language.  Additionally, Turtle provides a powerful mechanism for
+defining new data types for specific purposes.  This functionality is
+used in the standard library, which provides a set of abstract data
+types such as binary trees, hash tables and so on.
+
+This subsection documents the basic data types, compound data types and
+user-defined data types.
+
+@menu
+* Basic data types::            Basic builtin data types.
+* Compound data types::         Data types made up of other data types.
+* User-defined data types::     Special-purpose self-made data types.
+@end menu
+
+
+@c ===================================================================
+@node Basic data types, Compound data types, Data Types, Data Types
+@subsection Basic data types
+@cpindex Basic data types
+
+Basic data types provide the most basic functionality for computing.
+For the numeric data types (integers and reals), arithmetic operations
+are defined, strings can be decomposed to characters and so on.
+
+@menu
+* Integers::                    Integer numbers.
+* Longs::                       Long integer numbers.
+* Reals::                       Real numbers.
+* Booleans::                    Truth values, @code{true} and @code{false}.
+* Characters::                  Characters.
+* Strings::                     Strings of characters.
+@end menu
+
+
+@c ===================================================================
+@node Integers, Longs, Basic data types, Basic data types
+@subsubsection Integers
+@cpindex Integers
+
+Integer numbers are numbers without a fraction part.
+
+Integer numbers are written as a non-empty sequence of the digits
+@code{0} to @code{9}.  The name of the data type is @code{int}, which is
+not a reserved word but defined in the standard outermost compilation
+environment.
+
+@example
+1
+10
+1000
+424242
+23
+@end example
+
+Turtle defines the arithmetic operators @code{+} (addition), @code{-}
+(subtraction), @code{*} (multiplication), @code{/} (division) and
+@code{%} (modulo).  Integers can be compared with the operators
+@code{=}, @code{<>}, @code{<}, @code{>}, @code{<=} and @code{>=}.
+
+The module @code{ints} (@pxref{ints module}) provides some useful
+constants and functions for integer values.
+
+
+@c ===================================================================
+@node Longs, Reals, Integers, Basic data types
+@subsubsection Longs
+@cpindex Longs
+
+While there is an integer data type called @code{int}, there is an
+additional integer data type supported, called @code{long}.  The
+difference between @code{int} and @code{long} is that integer values are
+restricted to the range @code{ints.min}@dots{}@code{ints.max}, which is
+not necessarily the complete 32-bit value space.  @code{long} values, on
+the other side, are guaranteed to have at least 32 bits, on 64 bit
+platforms, it can be even 64 bits.
+
+Long integer constants are written like integer constants, but must be
+appended with an uppercase @code{L}, as in the following examples:
+
+@example
+42L
+23L
+0L
+2147483647L
+@end example
+
+Note especially the last example, which is too large to fit into an
+@code{int} value on 32 bit systems.
+
+The same arithmetic operations as supported for @code{int} values are
+supported, that is, @code{+} (addition), @code{-} (subtraction),
+@code{*} (multiplication), @code{/} (division) and @code{%} (modulo).
+Long integers can be compared with the operators @code{=}, @code{<>},
+@code{<}, @code{>}, @code{<=} and @code{>=}.
+
+The module @code{longs} (@pxref{longs module}) provides some useful
+constants and functions for integer values.
+
+
+@c ===================================================================
+@node Reals, Booleans, Longs, Basic data types
+@subsubsection Reals
+@cpindex Reals
+
+In contrast to integers, reals can have a fraction part.  The fraction
+part is separated from the leading sequence of digits by a period, and
+can be followed by an optional exponent part, like in C or Java.  The
+name of the data type is @code{real}, which is not a reserved word but
+defined in the standard outermost compilation environment.
+
+@example
+1.0
+3.14159
+1.0e12
+20E-12
+@end example
+
+Turtle defines the arithmetic operators @code{+} (addition), @code{-}
+(subtraction), @code{*} (multiplication) and @code{/} (division).  Reals
+can be compared with the operators @code{=}, @code{<>}, @code{<},
+@code{>}, @code{<=} and @code{>=}.
+
+The module @code{reals} (@pxref{reals module}) provides some useful
+constants and functions for real values.
+
+
+@c ===================================================================
+@node Booleans, Characters, Reals, Basic data types
+@subsubsection Booleans
+@cpindex Booleans
+
+The booleans represent the two truth values @emph{true} and
+@emph{false}.  They are denoted by the reserved words @code{true} and
+@code{false}.  The name of the data type is @code{bool}, which is not a
+reserved word but defined in the standard outermost compilation
+environment.
+
+Boolean values can be compared with @code{=} and @code{<>}.  The
+operations @code{and} for conjunction, @code{or} for disjunction and
+@code{not} for negation can be used with expression of type @code{bool}.
+The @code{and} and @code{or} are evaluated with short-circuiting, that
+is if the first operand of @code{and} evaluates to false, the second
+operand is not evaluated, and if the first operand of @code{or} is true,
+the evaluation of the second is skipped.
+
+
+@c ===================================================================
+@node Characters, Strings, Booleans, Basic data types
+@subsubsection Characters
+@cpindex Characters
+
+Characters are used for storing character data.  Character constants are
+denoted by enclosing a character in single quotes, as in C/C++/Java.
+For denoting some special characters, the following escape sequences are
+defined:
+
+@table @code
+@item '\"'
+Denotes a double quote.
+
+@item '\''
+Denotes a single quote.
+
+@item '\\'
+Denotes a backslash character.
+
+@item '\n'
+Denotes a newline character.
+
+@item '\r'
+Denotes a carriage return character.
+
+@item '\t'
+Denotes a tab character.
+
+@item '\b'
+Denotes a backspace character.
+@end table
+
+The name of the data type is @code{char}, which is not a reserved word
+but defined in the standard outermost compilation environment.
+
+The module @code{chars} (@pxref{chars module}) provides some useful
+constants and functions for character values.
+
+
+@c ===================================================================
+@node Strings,  , Characters, Basic data types
+@subsubsection Strings
+@cpindex Strings
+
+Strings are sequences of characters.  They have a fixed length, which is
+specified when creating a new string value, or when writing down a
+string literal.  String literals consist of zero or more characters,
+enclosed in double quotes.  They may contain the same escape sequences
+as character literals @ref{Characters}, but they may not span a line
+boundary, that is they may not contain a character with the character
+code of '\n'.
+
+Strings are different than the former documented basic data types,
+because they contain zero or more values of another data type,
+character.  The reason for building this data type into Turtle is that
+it is so common, that using (for example) @code{array of char} or
+@code{list of char} is considered too inconvenient.
+
+The name of the data type is @code{string}, which is, unlike the other
+type names so far, a reserved word.
+
+Elements of a string can be extracted by applying the subscript
+operator, @code{[]}, to a string expression:
+
+@example
+var s: string := "Hallo";
+io.put (s[1]);    // Writes 'a' to stdout.
+@end example
+
+The same operator, when applied to the lefthand side of an assignment,
+will change an element of the string.
+
+@example
+var s: string := "Hallo";
+io.put (s[1]);    // Writes 'a' to stdout.
+s[1] := 'u';
+io.put (s);       // Writes "Hullo" to stdout.
+@end example
+
+Strings are either created by writing down string literals, like this:
+
+@example
+""       // Empty string.
+"Hello"
+"a"
+@end example
+
+or with a string constructor expression, which creates a string of a
+given length and initializes all elements to a given character:
+
+@example
+var s: string := string 12 of '!';
+@end example
+
+The length of a string can be determined with the @code{sizeof}
+operator.
+
+The module @code{strings} (@pxref{strings module}) provides some useful
+constants and functions for string values.
+
+
+@c ===================================================================
+@node Compound data types, User-defined data types, Basic data types, Data Types
+@subsection Compound data types
+@cpindex Compound data types
+
+Turtle provides three data types which are made up of other data types:
+arrays, lists and function types.
+
+@menu
+* Array data type::             Fixed-length random-access sequences.
+* List data type::              Varying-length, linear-access sequences.
+* Function data type::          Types for functions.
+* Tuple data type::             Fixed-length, varying-types aggregates.
+@end menu
+
+
+@c ===================================================================
+@node Array data type, List data type, Compound data types, Compound data types
+@subsubsection Array data type
+@cpindex Array data type
+
+An array data type is written as @code{array of} @var{basetype}.
+
+The length of an array is fixed when the array value is created and can
+be determined later with the @code{sizeof} operator.
+
+Elements of an array can be fetched from the array value or stored into
+it using the subscript operator @code{[]}.
+
+Arrays can be created with array constructor expressions or by writing
+down array expressions.
+
+Array constructor expressions create arrays of a specified length, where
+each element of the array is initialized to the same value.  It is
+important to note that the array elements are really initialized to the
+@emph{same} value, so that if this value is of an array, list, string or
+user-defined data type, the same value is shared by all array elements
+and by modifying one element, all other array elements are affected as
+well.
+
+@example
+var a: array of int := array 20 of 23;
+var l: array of string := array 12 of "Hello";
+@end example
+
+Array expressions are used to create array values with pre-defined
+contents.  They are written as comma-separated lists of array elements,
+enclosed in curly braces.
+
+@example
+var a: array of int := @{1, 3, 12, 4@};
+var a: array of string := @{"O", "sole", "mio"@};
+@end example
+
+The library module @code{arrays} (@pxref{arrays module}) provides some
+useful and functions for array values.  The library also contains the
+module @code{arraysort} (@pxref{arraysort module}) for sorting arrays of
+arbitrary contents and the module @code{arraysearch} (@pxref{arraysearch
+module}) for searching arrays linearly or by bisection.  The library
+module @code{arraymap} (@pxref{arraymap module}) exports a function for
+applying functions to all elements of an array in turn, returning an
+array of the function results
+
+
+@c ===================================================================
+@node List data type, Function data type, Array data type, Compound data types
+@subsubsection List data type
+@cpindex List data type
+
+A list data type is written as @code{list of} @var{basetype}.
+
+The length of a list is variable, a list can be extended by prepending
+values to the front of the list.
+
+The first element of a list (the head) is fetched from a list with the
+prefix operator @code{hd}, the list of the remaining elements (the tail)
+is fetched with the operator @code{tl}.  An element is added to the
+front with the so-called @emph{cons} operator, written as @code{::}.
+
+Lists can be created with list constructor expressions or by writing
+down list expressions.
+
+List constructor expressions create lists of a specified length, where
+each element of the list is initialized to the same value.  It is
+important to note that the list elements are really initialized to the
+@emph{same} value, so that if this value is of an array, list, string or
+user-defined data type, the same value is shared by all list elements
+and by modifying one element, all other list elements are affected as
+well.
+
+@example
+var l: list of int := list 20 of 23;
+var l: list of string := list 12 of "Hello";
+@end example
+
+List expressions are used to create lists with pre-defined
+contents.  They are written as comma-separated lists of list elements,
+enclosed in square brackets.
+
+@example
+var l: list of int := [1, 3, 12, 4];
+var l: list of string := ["O", "sole", "mio"];
+@end example
+
+The library module @code{lists} (@pxref{lists module}) provides some
+useful functions for lists.  The library also contains the module
+@code{listsort} (@pxref{listsort module}) for sorting lists of arbitrary
+contents and the module @code{listsearch} (@pxref{listsearch module})
+for searching lists.  The library module @code{listmap} (@pxref{listmap
+module}) exports a function for applying a function to all elements of a
+list, producing a list of the function's results.
+
+
+@c ===================================================================
+@node Function data type, Tuple data type, List data type, Compound data types
+@subsubsection Function data type
+@cpindex Function data type
+
+A function data type is written as
+@code{fun(}@var{paramtypes}@dots{}@code{):} @var{returntype}
+
+Functions can be created with function expressions or by function
+declarations..
+
+The standard module @code{compose} (@pxref{compose module}) provides a
+function for composing functions.
+
+
+@c ===================================================================
+@node Tuple data type,  , Function data type, Compound data types
+@subsubsection Tuple data type
+@cpindex Tuple data type
+
+Values can be composed to form tuples.  Tuples are ordered sequences of
+fixed length, where the data types of the elements can be different.
+
+A tuple type is written by enclosing more than one type expression in
+parentheses, seperated by commas, for example:
+
+@example
+(int, string, array of string)
+@end example
+
+Tuple values are created by writing down comma-separated list of more
+than one expression.
+
+Tuple values are decomposed by assigning to a tuple of variables, such
+as in:
+
+@example
+var a: int, b: int, c: (int, int);
+c := 1, 2;
+a, b := c;
+@end example
+
+For programming convenience, the standard library contains two modules
+which export functions for dealing with two very common tuple types.
+The modules @code{pairs} (@pxref{pairs module}) and @code{triples}
+(@pxref{triples module}) export selector functions for tuple components.
+
+
+@c ===================================================================
+@node User-defined data types,  , Compound data types, Data Types
+@subsection User-defined data types
+@cpindex User-defined data types
+@cpindex constructor
+@cpindex discriminator
+@cpindex selector
+@cpindex setter
+
+User-defined data types are defined using the @code{datatype}
+declaration.  As an example, we will define a data type representing a
+binary tree.  The name of the new type will be @code{tree}, and there
+are two variants for objects of this type: First, there will be a
+variant for interior node, which consist of a left and a right subtree,
+and second there must be a variant for the leafs of the tree.  This is how such a datatype declration looks like in Turtle:
+
+@example
+datatype tree = node (left: tree, right: tree) or
+                leaf (value: int);
+@end example
+
+There are several things to note here.  The variants of the data type
+are listed on the right hand side of the declaration, separated by the
+reserved word @code{or}.  User-defined data types can be recursive, that
+means that the left hand side of the declaration may appear on the right
+hand side as well.
+
+Each variant has a number of data fields. This field list can be empty,
+and if it is empty, the parenthesis can be omitted.  Fields in different
+variants can have the same name and must not have the same types if they
+have the same name, but the fields of one variant must be distinct
+either in name or in type.
+
+A datatype declaration causes the compiler to create several functions
+automatically:
+
+@table @asis
+@item Constructor functions
+For each variant a constructor function is created which can be called
+to create objects of this variant.  Constructor functions are called
+like the variant and expect the fields' data types as arguments.
+
+@item Discriminator functions
+For each variant a discriminator function is created which expects an
+object of the data type and returns @code{true} if the object is of the
+correct variant, and @code{false} otherwise.  The name of the
+discriminator function is the name of the variant with an appended
+@code{?} (question mark).
+
+@item Selector functions
+For each name/type combination of the fields a selector function is
+created which extract the field from an object of the data type.  If the
+object is of a variant which does not have a field with the name/type
+combination, an exception is raised.  The name of the selector functions
+is simply the name of the fields.
+
+@item Setter functions
+For each name/type combination of the fields a selector function is
+created which sets the field to an object of type of the field.  If the
+object is of a variant which does not have a field with the name/type
+combination, an exception is raised.  The name of the setter functions
+is derived from the field names by appending a @code{!} (exclamation
+point).
+@end table
+
+For our example above, the following functions are automatically
+created:
+
+@example
+// Constructors
+fun node (tree, tree): tree;
+fun leaf (int): tree;
+
+// Discriminators
+fun node? (tree): bool
+fun leaf? (tree): bool
+
+// Selectors
+fun left (tree): tree;
+fun right (tree): tree;
+fun value (tree): int
+
+// Setters
+fun left! (tree, tree);
+fun right! (tree, tree);
+fun value! (tree, int);
+@end example
+
+@c ===================================================================
+@node Runtime environment,  , Data Types, Language Reference
+@section Runtime environment
+
+The Turtle runtime environment consists of a standard virtual machine
+like the ones used for other imperative programming languages,
+enriched with a constraint solver interface, a constraint store and
+several constraint solvers for solving primitive constraints.
+User-defined constraints are either translated by the compiler or
+dynamically by the runtime library to primitive constraints, which are
+then solved using the primitive solvers.
+
+
+@c ===================================================================
+@node Constraint Programming, Standard library, Language Reference, Top
+@chapter Constraint Programming
+
+Turtle is a constraint-imperative language.  That means that the normal
+imperative language constructs found in today's imperative programming
+languages are present in Turtle as well as more declarative language
+elements.  This chapter gives an introduction to constraint programming
+in Turtle, will describe the principles of constraint programming and
+the interaction between imperative and constraint features, and will
+give some hints about what can be accomplished with constraints in
+Turtle.
+
+@menu
+* Constraints and the Constraint Store::  Basic definitions.
+* Constrainable Variables::     Variables for constraints.
+* Constraint Statements::       Statements for constraint programming.
+* Constraints as Assertions::   Constraint application as runtime checks.
+@end menu
+
+@c ===================================================================
+@node Constraints and the Constraint Store, Constrainable Variables, Constraint Programming, Constraint Programming
+@section Constraints and the Constraint Store
+@cpindex constraint store
+@cpindex constraints
+
+Before we jump into constraint programming, we have to give a brief
+introduction to constraints and the mechanisms necessary to manage and
+solve constraint systems.
+
+One basic notion is the @emph{constraint}.  A constraint is a formula,
+in Turtle it is defined to be either an expression of type boolean, or
+the application of a user-defined constraint.  All constraints which are
+to be solved in a program are added to the so-called @emph{constraint
+store}, which is simply a set of constraints.
+
+In Turtle, constraints are added to or removed from the store by using
+@emph{constraint statements} (@pxref{Constraint Statements}).  Whenever
+a constraint is added to or removed from the store, the constraint
+solver tries to enforce as many constraints as possible.
+
+Since Turtle supports @emph{constraint hierarchies}, that is,
+constraints of different strength, each constraint in the constraint
+store is labelled with its associated strength.  Strengths are given to
+constraints when adding them to the store.  One special strength is
+called @emph{required}, and constraints of this strength must hold
+during program execution, or otherwise an exception will be raised.
+
+@c ===================================================================
+@node Constrainable Variables, Constraint Statements, Constraints and the Constraint Store, Constraint Programming
+@section Constrainable Variables
+@cpindex constrainable variable
+
+In Turtle, variables are either normal variables or @emph{constrainable
+variables}.  Constrainable variables have the special property that they
+can not be set by assignment statements, but only by constraints.  The
+following example will demonstrate the difference:
+
+@example
+var x: int;
+x := 2;
+@end example
+
+@samp{x} is a normal variable, and is set to the value 2 by assignment.
+In the next example, the variable @samp{y} is declared as a
+constrainable variable (note the @code{!} (exclamation point) in the
+type declaration of the variable), and can thus be used in a constraint
+to set its value.
+
+@example
+var x: !int;
+require y = 2;
+@end example
+
+@c ===================================================================
+@node Constraint Statements, Constraints as Assertions, Constrainable Variables, Constraint Programming
+@section Constraint Statements
+@cpindex constraint statements
+
+The language Turtle knows about three statement kinds normally not found
+in imperative languages: @code{require}, @code{prefer} and
+@code{retract} statements.  These commands are used to maintain the
+constraint store (@pxref{Constraints and the Constraint Store}).
+
+This example adds a constraint to the store:
+
+@example
+require x > 3;
+@end example
+
+Executing this constraint statements will cause the Turtle runtime to
+add the constraint @samp{x > 3} to the store, and to try to satisfy it.
+If the current value of the variable @samp{x} is greater than 3, nothing
+will happen.  If not, an exception will be raised saying that a required
+constraint was not satisfued.  The statement @code{prefer}, on the other
+hand, will only try to satisfy a constraint if possible.  For the
+constraint example above, this would not make sense, but if instead a
+constrainable variable was involve in the constraint, the solver would
+try to satisfy it as well as possible by adjusting the variable's value:
+
+@example
+var x: !int := 2;
+prefer x > 3;
+@end example
+
+The constraint will set the variable to 4, because this will cause the
+constraint to be satisfied.
+
+
+@c ===================================================================
+@node Constraints as Assertions,  , Constraint Statements, Constraint Programming
+@section Constraints as Assertions
+
+For the start, constraints can simply be used to code checks for program
+invariants.  If a utility function you write expects that an integer
+parameter be always greater than zero, you can add the constraint
+statement
+
+@example
+require x > 0;
+@end example
+
+at the beginning of the function.  This is similar to the use of the
+@code{assert()} macro in C source code.  Since no constrainable
+variables appear in the constraint, the constraint does not get added to
+the constraint store, but only tested.  If the test fails, an exception
+is raised.  In this way, preconditions can be tested by adding
+constraint statements at the beginning of functions, and postconditions
+by adding such statements at the end, just before any @code{return}
+statements.
+
+Of course this is not real constraint programming, but it shows that
+sometimes new features can be adapted to old needs.
+
+@c ===================================================================
+@node Standard library, Glossary, Constraint Programming, Top
+@chapter Standard library
+
+The Turtle standard library comes with a couple of modules for commonly
+needed programming tasks, such as input/output, string handling, list
+manipulation etc.
+
+The functions in the standard library are documented like shown below:
+
+@deftypefn {Library function} {} bla (@var{foo}: bar): baz
+Description of function@dots{}
+@end deftypefn
+
+This means that a library function called @code{bla} is documented.  The
+function expects one parameter, called @var{foo} which is of type
+@code{bar}.  The type of the return value is called @var{baz}.  The
+function header is then followed by a description of what the function
+does, and which preconditions must be fulfilled when calling the
+function.
+
+Remember that in Turtle all references to functions and variables in
+other modules must be fully qualified, so if you want to call the
+function @code{map} of module @code{listmap} from your main program, you have
+to write:
+
+@example
+l := listmap.map (proc, l);
+@end example
+
+@menu
+* General modules::             Generally useful utilities.
+* Input and output modules::    Input and output.
+* Data type related modules::   Modules for handling specific data types.
+* List utility modules::        List functions.
+* Array utility modules::       Array functions.
+* Tuple utility modules::       Modules for accessing tuple elements.
+* Low level modules::           Low-level system functions.
+* Modules in the subsystem sys::  System-dependant modules.
+* Modules in the subsystem internal::  Internal modules.
+@end menu
+
+
+@c ===================================================================
+@node General modules, Input and output modules, Standard library, Standard library
+@section General modules
+@cpindex General modules
+
+This section documents general useful modules, which are not closely
+related to specific data structures or application fields like
+input/output or systems programming.
+
+@menu
+* math module::                 Mathematical constants and functions.
+* random module::               Random number generation.
+* compose module::              Function composition.
+* identity module::             The identity function.
+* compare module::              Functions for comparing basic data types.
+* option module::               The @code{option} data type.
+* cmdline module::              Command line parsing.
+* hash module::                 Functions for calculating hash values.
+* hashtab module::              Hash table implementation.
+* trees module::                Module for binary trees.
+* bstrees module::              Binary search trees.
+* bintree module::              Binary search trees (older version).
+* binary module::               Byte-arrays.
+* exceptions module::           Exception handling.
+* filenames module::            Filename manipulation.
+@end menu
+
+
+@c ===================================================================
+@node math module, random module, General modules, General modules
+@subsection math module
+@cpindex @code{math} (Module)
+
+This module provides mathematical constants and functions.
+
+@deftypevr Constant {} pi : real
+This is the constant @code{pi}.
+@end deftypevr
+
+@deftypefn {Function} {} sin (@var{x}: real): real
+@deftypefnx {Function} {} asin (@var{x}: real): real
+@deftypefnx {Function} {} cos (@var{x}: real): real
+@deftypefnx {Function} {} acos (@var{x}: real): real
+@deftypefnx {Function} {} tan (@var{x}: real): real
+@deftypefnx {Function} {} atan (@var{x}: real): real
+@deftypefnx {Function} {} atan (@var{x}: real, @var{y}: real): real
+These are the common trigonometric functions.  They are mapped
+directly to the functions in the C library.
+@end deftypefn
+
+
+@c ===================================================================
+@node random module, compose module, math module, General modules
+@subsection random module
+@cpindex @code{random} (Module)
+
+The exported functions @code{rand} delivers a random number in the range
+0..@code{ints.max}.  The current implementation uses the C library
+function @code{rand()} for obtaining the random numbers and the
+C library function @code{srand()} for seeding the generator.
+
+@deftypefn {Function} {} seed (@var{seed}: int)
+Seed the random number generator with the given seed value 
+@var{seed}.
+@end deftypefn
+
+@deftypefn {Function} {} rand (): int
+Return a random number in the range 0..@code{ints.max}.
+@end deftypefn
+
+
+@c ===================================================================
+@node compose module, identity module, random module, General modules
+@subsection compose module
+@cpindex @code{compose} (Module)
+
+This module exports one function, @code{compose}, which implements
+function composition.
+
+@deftypefn {Function} {} compose (@var{f}: fun(inter): res, @var{g}: fun(arg): inter): fun(arg): res
+Return a function of one argument, which first applies @var{g}
+to its argument and then @var{f} to the result of this
+function application.
+@end deftypefn
+
+
+@c ===================================================================
+@node identity module, compare module, compose module, General modules
+@subsection identity module
+@cpindex @code{identity} (Module)
+
+This module exports the function @code{id}, which is the identity
+on values of the type given as the module parameter @var{A}.
+
+@deftypefn {Function} {} id (@var{data}: A): A
+Return the argument @var{data} unchanged. This function is especially
+useful for higher-order functions which expect a function to apply to
+all members of a collection, such as @code{map}.  For example,
+
+@example
+l := listmap.map (identity.id, l)
+@end example
+
+can be used to copy a list.
+@end deftypefn
+
+
+@c ===================================================================
+@node compare module, option module, identity module, General modules
+@subsection compare module
+@cpindex @code{compare} (Module)
+
+The module @code{compare} exports several comparison functions,
+where each of the functions compares two values of a basic data
+type.  These functions are especially useful as parameters for
+the higher-order functions, such as the sorting functions in
+the listsort or arraysort modules.  
+
+@deftypefn {Function} {} cmp (@var{x}: bool, @var{y}: bool): int
+@deftypefnx {Function} {} cmp (@var{x}: int, @var{y}: int): int
+@deftypefnx {Function} {} cmp (@var{x}: long, @var{y}: long): int
+@deftypefnx {Function} {} cmp (@var{x}: real, @var{y}: real): int
+@deftypefnx {Function} {} cmp (@var{x}: char, @var{y}: char): int
+@deftypefnx {Function} {} cmp (@var{x}: string, @var{y}: string): int
+Compare the values @var{x} and @var{y}, and return -1 if the first
+argument is to be considered smaller, 0 if they are equal, and
+1 if the first argument is greater than the second.
+@end deftypefn
+
+
+@c ===================================================================
+@node option module, cmdline module, compare module, General modules
+@subsection option module
+@cpindex @code{option} (Module)
+
+This module exports one data type, @code{option}, and the corresponding
+constructor, accessor and discriminator functions.
+
+The @code{option} type is intended to be the result of partial functions,
+which can either succeed and return a useful value, or fail.
+The former result will be of variant @code{some} with the useful
+packaged in the @code{data} field, whereas the latter will yield a
+value of variant @code{none}.
+
+This is (of course) inspired by the @code{option} type in ML.
+
+@deftp {Data type} option
+Defined as:
+
+@example
+datatype option<A> =
+  none or
+  some(data: A)
+@end example
+
+The @code{option} data type.  It either represents nothing
+(variant @code{none}), or a value of the data type @var{A},
+which is a parameter to this module.
+@end deftp
+
+
+@c ===================================================================
+@node cmdline module, hash module, option module, General modules
+@subsection cmdline module
+@cpindex @code{cmdline} (Module)
+
+The function @code{getopt}, exported by this module, deconstructs a
+command line into options, option parameters and other parameters.
+
+@deftp {Data type} optspec
+Defined as:
+
+@example
+datatype optspec =
+  flag(flag_char: char, flag_string: string) or
+  option(option_char: char, option_string: string)
+@end example
+
+Values of type @code{optspec} define the possibilities of command line
+flags (parameterless options) and options (which have parameters).
+@end deftp
+
+@deftp {Data type} option
+Defined as:
+
+@example
+datatype option =
+  flag(flag_char: char) or
+  option(option_char: char, argument: string) or
+  parameter(param: string)
+@end example
+
+Calls to the @code{getopt} function return lists of this type.
+Each element of the list stands for one of three different
+argument types:
+
+@table @asis
+@item Flag
+A flag is a parameterless option, which acts as a switch.
+
+@item Option
+An option has an associated argument, which gives the program
+additional information about the option.
+
+@item Parameter
+Everything not beginning with one or two dashes is considered
+a normal parameter, such as a filename to act on.  Everything
+following the special option @code{--} will also be treated as
+a parameter, even if it starts with a dash.  Note that a
+single dash is also a normal parameter.
+@end table
+@end deftp
+
+@deftypefn {Function} {} getopt (@var{specs}: list of optspec, @var{args}: list of string): list of option
+Given a list of option specifications and a list of command line
+arguments (as passed to the @code{main} function, for example),
+return a list of options, classified and deconstructed as flags,
+options or parameters.
+@end deftypefn
+
+
+@c ===================================================================
+@node hash module, hashtab module, cmdline module, General modules
+@subsection hash module
+@cpindex @code{hash} (Module)
+
+This module exports hash functions for the basic data types.
+
+@deftypefn {Function} {} hash (@var{i}: int): int
+@deftypefnx {Function} {} hash (@var{l}: long): int
+@deftypefnx {Function} {} hash (@var{r}: real): int
+@deftypefnx {Function} {} hash (@var{b}: bool): int
+@deftypefnx {Function} {} hash (@var{c}: char): int
+@deftypefnx {Function} {} hash (@var{s}: string): int
+Calculate a hash value for the given argument.  The returned 
+value is in the range 0@dots{}@code{ints.max}.
+@end deftypefn
+
+
+@c ===================================================================
+@node hashtab module, trees module, hash module, General modules
+@subsection hashtab module
+@cpindex @code{hashtab} (Module)
+
+This is a generic implementation for hash table.  The range and
+domain types for the partial mapping implemented by the hash table are
+supplied as module parameters and the hash function for mapping the
+keys to integers must be given when constructing a hash table.
+
+The module expects two module parameters, @var{range} and @var{domain},
+where @var{range} is the type of the keys in the hash table and
+@var{domain} is the type of the associated values.
+
+@deftp {Data type} hashtable
+Defined as:
+
+@example
+datatype hashtable =
+  tab(size: int, data: array of bucket, hashfn: fun(range): int, cmpfn: fun(range, range): bool)
+@end example
+
+This is the hastable data type.  It stores the hashing and comparison
+functions to be used with the keys, so that these functions must
+not be passed to the insertion/search functions each time they
+are invoked.
+@end deftp
+
+@deftypefn {Function} {} make (@var{hashfn}: fun(range): int, @var{cmpfn}: fun(range, range): bool): hashtable
+Create a new hash table which maps keys of type @var{range} to
+values of type @var{domain}.  @var{hashfn} is a function which
+determines the hash value of a key and @var{cmdfn} is a function
+which determines whether two keys are actually the same.
+@end deftypefn
+
+@deftypefn {Function} {} insert (@var{tab}: hashtable, @var{key}: range, @var{val}: domain)
+Insert the @var{key}/@var{value} pair into the hash table @var{tab}.
+If @var{key} is already in the table, its value is overwritten.
+@end deftypefn
+
+@deftypefn {Function} {} delete (@var{tab}: hashtable, @var{key}: range)
+Remove the entry with key @var{key} from the hash table @var{tab}.
+Do nothing, if the key is not present in the table.
+@end deftypefn
+
+@deftypefn {Function} {} lookup (@var{tab}: hashtable, @var{key}: range): option.option
+Search the hash table @var{tab} for an entry with key @var{key} and
+return @code{some(value)} if the key was found, and @code{none()}
+if not found in the table.
+@end deftypefn
+
+
+@c ===================================================================
+@node trees module, bstrees module, hashtab module, General modules
+@subsection trees module
+@cpindex @code{trees} (Module)
+
+Functions for creating and inspecting binary trees of type
+@code{A}, where @var{A} must be instantiated when importing
+this module.
+
+@deftp {Data type} tree
+Defined as:
+
+@example
+datatype tree<A> =
+  nil or
+  node(data: A, left: tree, right: tree)
+@end example
+
+Data type for binary trees.  The empty tree is created with a
+call to the constructor @code{nil}, and a non-empty tree with
+the constructor @code{node}.
+@end deftp
+
+@deftypefn {Function} {} node (@var{d}: A): tree
+Utility function for creating a singleton tree.
+@end deftypefn
+
+@deftypefn {Function} {} preorder (@var{t}: tree, @var{f}: fun(A))
+@deftypefnx {Function} {} inorder (@var{t}: tree, @var{f}: fun(A))
+@deftypefnx {Function} {} postorder (@var{t}: tree, @var{f}: fun(A))
+Iterate over the tree @var{t} in preorder, inorder or
+postorder, respectively and call function @var{f} at every
+node, with the data element of the node as argument.
+@end deftypefn
+
+@deftypefn {Function} {} copy (@var{t}: tree): tree
+Create a deep copy of the tree @var{t}.
+@end deftypefn
+
+
+@c ===================================================================
+@node bstrees module, bintree module, trees module, General modules
+@subsection bstrees module
+@cpindex @code{bstrees} (Module)
+
+Functions for creating and inspecting binary search trees with
+a key of type @code{A}, and a data object of type @var{B},
+where @var{A} and @var{B} must be instantiated when importing
+this module.
+
+@deftp {Data type} tree
+Defined as:
+
+@example
+datatype tree<A, B> =
+  tree(cmpfn: fun(A, A): int, root: trees.tree<(A, B)>)
+@end example
+
+Data type for binary search trees.
+@end deftp
+
+@deftypefn {Function} {} tree (@var{cmpfn}: fun(A, A): int): bstrees.tree<A, B>
+
+@end deftypefn
+
+@deftypefn {Function} {} insert (@var{t}: bstrees.tree<A, B>, @var{key}: A, @var{val}: B): bstrees.tree<A, B>
+Insert the pair (@var{key}, @var{val}) into the binary search
+tree @var{t} and return the updated tree.  The old copy of the
+search tree remains usable; the binary search tree implemented
+by this module is persistent.
+@end deftypefn
+
+@deftypefn {Function} {} search (@var{t}: bstrees.tree<A, B>, @var{key}: A): option.option<B>
+Search the binary search tree @var{t} for the key @var{key} and
+return the associated value, if found, packaged in an
+@code{option.option} type.  If not found, the variant
+@code{option.none} is returned.
+@end deftypefn
+
+
+@c ===================================================================
+@node bintree module, binary module, bstrees module, General modules
+@subsection bintree module
+@cpindex @code{bintree} (Module)
+
+Simple, but working binary tree implementation for building search
+trees.  A binary tree is parametrized by two types, one for the key
+and one for the associated value.  Both the insertion and the
+search function require a comparison function to be passed, so that
+an order on the keys can be established.
+
+The module expects two module parameters, @var{A} and @var{B},
+where @var{A} is the type of the keys in the search tree and
+@var{B} is the type of the associated values.
+
+@deftp {Data type} tree
+Defined as:
+
+@example
+datatype tree<A, B> =
+  empty or
+  leaf(element: A, data: B) or
+  node(left: tree, right: tree, key: A)
+@end example
+
+The binary search trees are made up of this data type.
+@end deftp
+
+@deftypefn {Function} {} insert (@var{t}: bintree.tree<A, B>, @var{key}: A, @var{data}: B, @var{cmp}: fun(A, A): int): bintree.tree<A, B>
+Return a new search tree in which all key/value pairs from the
+input tree @var{t} are stored and additionally a pair of the
+parameters @var{key} and @var{data} is stored.  @var{cmp} is
+a comparison function used to determine the order in the tree.
+@var{cmp} is expected to return a value less than 0 if the first
+argument is smaller than the second, a value greater than 0 if the
+first argument is greater and 0 if they are equal.
+@end deftypefn
+
+@deftypefn {Function} {} find (@var{t}: bintree.tree<A, B>, @var{key}: A, @var{cmp}: fun(A, A): int): option.option<B>
+Search the binary search tree @var{t} for an entry with key 
+@var{key}.  Return @code{option.some (data)} with the data value
+associated with @var{key} if @var{key} was found, otherwise
+return @code{option.none ()}.  Note that it is not specified
+which data value will be returned if the key @var{key} appears
+more than once in the tree.
+@end deftypefn
+
+
+@c ===================================================================
+@node binary module, exceptions module, bintree module, General modules
+@subsection binary module
+@cpindex @code{binary} (Module)
+
+Support module for binary (byte-) arrays.
+
+@deftp {Data type} binary
+Defined as:
+
+@example
+type binary = internal.binary.binary
+@end example
+
+The @code{binary} data type is an alias for the type of the
+same name from the module @code{internal.binary}, where the
+real type and function definitions reside.
+@end deftp
+
+@deftypevr Constant {} make_binary : fun(int): binary
+@deftypevrx Constant {} binary_get : fun(binary, int): int
+@deftypevrx Constant {} binary_set : fun(binary, int, int)
+@deftypevrx Constant {} binary_size : fun(binary): int
+These functions create binary arrays of a given size, extract an
+element from these arrays or stores an integer into a specified
+location.  @code{binary_size} returns the number of elements in the
+binary array @var{b}.
+@end deftypevr
+
+@deftypefn {Function} {} to_string (@var{b}: internal.binary.binary): string
+Convert the binary array @var{b} to a string by simply converting
+the integer values in @var{b} to characters using the function
+@code{chars.chr}.
+@end deftypefn
+
+@deftypefn {Function} {} from_string (@var{s}: string): internal.binary.binary
+Convert the string @var{s} to a binary array by converting the
+characters in the string to their code values using the function
+@code{chars.ord}.
+@end deftypefn
+
+
+@c ===================================================================
+@node exceptions module, filenames module, binary module, General modules
+@subsection exceptions module
+@cpindex @code{exceptions} (Module)
+
+This module exports some functions for raising and handling
+exceptions.
+
+Exceptions are raised by calling the function
+@code{exceptions.raise}, which has the same effect as
+performing some illegal operation such as taking the head of
+the empty list.  The argument to @code{raise} is the name of
+the exception.
+
+Exception handling is done by calling the function
+@code{exceptions.handle}.  The first argument is a functions
+which might possibly raise an exception, while the second is a
+function which will be called when an exception occurs.  If no
+exception is raised, @code{handle} returns without calling the
+handler function.
+
+@deftypefn {Function} {} raise (@var{s}: string)
+Raise an exception with name @var{s}.
+@end deftypefn
+
+@deftypefn {Function} {} handle (@var{thunk}: fun(): (), @var{handler}: fun(string))
+Call the function @var{thunk}.  If any exception is raised
+while @var{thunk} is running, the function @var{handler} will
+be called with the exception name as the only argument.  When
+@var{handler} returns, it will return to the caller of
+@code{exceptions.handle}, in the same way as the call would
+return when @var{thunk} was returning without an exception.
+@end deftypefn
+
+@deftypefn {Function} {} null_pointer_ex (): string
+@deftypefnx {Function} {} out_of_range_ex (): string
+@deftypefnx {Function} {} subscript_ex (): string
+@deftypefnx {Function} {} wrong_variant_ex (): string
+@deftypefnx {Function} {} require_ex (): string
+The return value of these functions is the corresponding
+exception name, which is the same that would be used if the
+illegal operation would be performed.
+
+That means that
+
+@example
+exceptions.raise (exceptions.subscript_ex ())
+@end example
+
+has the same effect as
+
+@example
+var s: string;
+s[-1] := 'a'
+@end example
+@end deftypefn
+
+
+@c ===================================================================
+@node filenames module,  , exceptions module, General modules
+@subsection filenames module
+@cpindex @code{filenames} (Module)
+
+Library module for filename manipulation functions.
+
+@deftypevar {} path_seperator : char
+The path name element seperator used by the module.
+@end deftypevar
+
+@deftypefn {Function} {} basename (@var{s}: string): string
+@deftypefnx {Function} {} basename (@var{s}: string, @var{ext}: string): string
+Return the filename @var{s} without any directory component.
+If the parameter @var{ext} is specified and matches the file
+name extension of @var{s}, this is removed also.
+@end deftypefn
+
+@deftypefn {Function} {} dirname (@var{s}: string): string
+Return the directory component of the filename @var{s}, without
+any trailing path seperator.
+@end deftypefn
+
+
+@c ===================================================================
+@node Input and output modules, Data type related modules, General modules, Standard library
+@section Input and output modules
+@cpindex Input and output modules
+
+This section collects all input/output related modules of the standard
+library.  The most basic module in this group is @code{io}, which
+provides basic input and output operations for basic data types.
+
+@menu
+* io module::                   Basic input and output.
+@end menu
+
+
+@c ===================================================================
+@node io module,  , Input and output modules, Input and output modules
+@subsection io module
+@cpindex @code{io} (Module)
+
+This module provides basic input and output functions for some of
+the builtin data types.  Also some functions for handling files
+are defined.
+
+@deftp {Data type} file
+Defined as:
+
+@example
+datatype file =
+  file(fd: int, buf: string, pos: int, fill: int, writable: bool)
+@end example
+
+The @code{file} data type represents input and output streams.
+Values of this type are either found in one of the pre-defined
+variables @var{input}, @var{output} or @var{error}, or are
+obtained by calling functions like @code{open}. 
+@end deftp
+
+@deftypevar {} input : file
+Standard input file.  
+@end deftypevar
+
+@deftypevar {} output : file
+Standard output file.  
+@end deftypevar
+
+@deftypevar {} error : file
+Standard output file for error messages.  
+@end deftypevar
+
+@deftypefn {Function} {} put (@var{f}: file, @var{s}: string)
+@deftypefnx {Function} {} put (@var{s}: string)
+@deftypefnx {Function} {} put (@var{f}: file, @var{i}: int)
+@deftypefnx {Function} {} put (@var{i}: int)
+@deftypefnx {Function} {} put (@var{f}: file, @var{l}: long)
+@deftypefnx {Function} {} put (@var{l}: long)
+@deftypefnx {Function} {} put (@var{f}: file, @var{r}: real)
+@deftypefnx {Function} {} put (@var{r}: real)
+@deftypefnx {Function} {} put (@var{f}: file, @var{b}: bool)
+@deftypefnx {Function} {} put (@var{b}: bool)
+@deftypefnx {Function} {} put (@var{f}: file, @var{c}: char)
+@deftypefnx {Function} {} put (@var{c}: char)
+Write the string representation of the argument to the file @var{f}
+or the standard output file, respectively.
+@end deftypefn
+
+@deftypefn {Function} {} put (@var{f}: file, @var{ls}: list of string)
+@deftypefnx {Function} {} put (@var{ls}: list of string)
+Write all strings in the argument list to the given file, or
+standard output, respectively.  The strings are separated by
+newline characters in the output.
+@end deftypefn
+
+@deftypefn {Function} {} nl (@var{f}: file)
+@deftypefnx {Function} {} nl ()
+Terminate the current output line by writing a newline character
+to the given file or standard output, respectively.
+@end deftypefn
+
+@deftypefn {Function} {} putln (@var{s}: string)
+@deftypefnx {Function} {} putln (@var{f}: file, @var{s}: string)
+@deftypefnx {Function} {} putln (@var{c}: char)
+@deftypefnx {Function} {} putln (@var{f}: file, @var{c}: char)
+@deftypefnx {Function} {} putln (@var{i}: int)
+@deftypefnx {Function} {} putln (@var{f}: file, @var{i}: int)
+@deftypefnx {Function} {} putln (@var{l}: long)
+@deftypefnx {Function} {} putln (@var{f}: file, @var{l}: long)
+@deftypefnx {Function} {} putln (@var{r}: real)
+@deftypefnx {Function} {} putln (@var{f}: file, @var{r}: real)
+@deftypefnx {Function} {} putln (@var{b}: bool)
+@deftypefnx {Function} {} putln (@var{f}: file, @var{b}: bool)
+Write the textual representation of the argument to standard
+output or the given file, respectively.  Then terminate the
+output with a newline character.
+@end deftypefn
+
+@deftypefn {Function} {} get (@var{f}: file): string
+@deftypefnx {Function} {} get (): string
+@deftypefnx {Function} {} get (@var{f}: file): int
+@deftypefnx {Function} {} get (): int
+@deftypefnx {Function} {} get (@var{f}: file): bool
+@deftypefnx {Function} {} get (): bool
+@deftypefnx {Function} {} get (@var{f}: file): char
+@deftypefnx {Function} {} get (): char
+@deftypefnx {Function} {} get (@var{f}: file): real
+@deftypefnx {Function} {} get (): real
+Read the string representation of a value matching the return type,
+convert it, and return that value.  If the string cannot be
+converted, return an unspecified value.
+
+The string reading functions returns @code{null} when the
+end-of-file is reached.
+@end deftypefn
+
+@deftypefn {Function} {} get (@var{f}: file): list of string
+@deftypefnx {Function} {} get (): list of string
+Read all lines from the file @var{f} and return them as a list
+of strings.  For an empty file, return @code{null}.
+@end deftypefn
+
+@deftypefn {Function} {} unget (@var{f}: file, @var{c}: char)
+@deftypefnx {Function} {} unget (@var{c}: char)
+Put the character @var{c} back into the input file @var{f}
+or standard input, respectively.
+@end deftypefn
+
+@deftypefn {Function} {} open (@var{name}: string): file
+Open the file called @var{name} for reading.  Return a
+@code{file} object for reading from the opened file,
+or return @code{null} if the file can't be opened.
+@end deftypefn
+
+@deftypefn {Function} {} create (@var{name}: string): file
+Create a new file called @var{name} and open if for writing.  
+Return a @code{file} object for writing to the opened file,
+or return @code{null} if the file can't be opened.
+@end deftypefn
+
+@deftypefn {Function} {} close (@var{f}: file)
+Close the file object @var{f}.  After calling this function,
+@var{f} may not be used for file operations anymore.
+@end deftypefn
+
+@deftypefn {Function} {} flush (@var{f}: file)
+Flush all buffered output to the underlying operating system
+file descriptor.
+@end deftypefn
+
+
+@c ===================================================================
+@node Data type related modules, List utility modules, Input and output modules, Standard library
+@section Data type related modules
+@cpindex data type related modules
+
+This section documents the modules for handling values of the various
+basic data types.  The modules for the numeric data types export some
+important constants and utility functions, for example for determining
+the minimum or maximum of two values.  The character handling module
+exports conversion functions, and the string module functions for
+deconstructing, composing and examining strings, etc.
+
+@menu
+* ints module::                 Integer constants and functions.
+* longs module::                Long integer functions.
+* reals module::                Real constants and functions.
+* bools module::                Boolean value utilities.
+* chars module::                Character handling.
+* strings module::              Basic string operations.
+* union module::                Union data type of the buildin types.
+* strformat module::            String formatting a la sprintf ().
+@end menu
+
+
+@c ===================================================================
+@node ints module, longs module, Data type related modules, Data type related modules
+@subsection ints module
+@cpindex @code{ints} (Module)
+
+This is a library module exporting integer data type related 
+constants and functions.
+
+@deftypevr Constant {} min : int
+@code{min} is the smallest representable integer value.
+This value may (and most probably will) differ from the minimum
+integer value representable on the underlying hardware.
+@end deftypevr
+
+@deftypevr Constant {} max : int
+@code{max} is the largest representable integer value.
+This value may (and most probably will) differ from the maximum
+integer value representable on the underlying hardware.
+@end deftypevr
+
+@deftypefn {Function} {} min (@var{x}: int, @var{y}: int): int
+Return the minimum of two integer values.
+@end deftypefn
+
+@deftypefn {Function} {} max (@var{x}: int, @var{y}: int): int
+Return the maximum of two integer values.
+@end deftypefn
+
+@deftypefn {Function} {} from_string (@var{s}: string): int
+Convert the string value @var{s} to the integer number it 
+represents.  If @var{s} does not represent any integer number,
+or if the resulting integer is not in the range 
+@code{ints.min}@dots{}@code{inits.max}, the return value is 
+unspecified.
+@end deftypefn
+
+@deftypefn {Function} {} to_string (@var{i}: int): string
+Convert the integer value @var{i} to its string representation.
+@end deftypefn
+
+@deftypefn {Function} {} to_real (@var{i}: int): real
+Convert the integer value @var{i} to a real value.
+@end deftypefn
+
+@deftypefn {Function} {} from_real (@var{r}: real): int
+Convert the real value @var{r} to an integer value.  Decimal
+places are stripped.
+@end deftypefn
+
+@deftypefn {Function} {} even? (@var{i}: int): bool
+@deftypefnx {Function} {} odd? (@var{i}: int): bool
+@deftypefnx {Function} {} zero? (@var{i}: int): bool
+@deftypefnx {Function} {} positive? (@var{i}: int): bool
+@deftypefnx {Function} {} negative? (@var{i}: int): bool
+Return true iff @var{i} is even, odd, equal to zero, positive
+or negative, respectively.
+@end deftypefn
+
+@deftypefn {Function} {} abs (@var{i}: int): int
+Return the absolute value of @var{i}, that is, remove @var{i}'s
+sign.
+@end deftypefn
+
+@deftypefn {Function} {} signum (@var{i}: int): int
+Return 1 if @var{i} is greater than zero, 0 if @var{i} is equal
+to zero and -1 if @var{i} is less than zero.
+@end deftypefn
+
+@deftypefn {Function} {} pred (@var{i}: int): int
+@deftypefnx {Function} {} succ (@var{i}: int): int
+Return the predecessor or successor of @var{i}, respectively.
+@end deftypefn
+
+@deftypefn {Function} {} pow (@var{b}: int, @var{e}: int): int
+Return @var{b} raised to the power of @var{e}.
+@end deftypefn
+
+
+@c ===================================================================
+@node longs module, reals module, ints module, Data type related modules
+@subsection longs module
+@cpindex @code{longs} (Module)
+
+This is a library module which exports long data type related
+functions.
+
+@deftypevr Constant {} min : long
+@code{min} is the smallest representable long value.
+@end deftypevr
+
+@deftypevr Constant {} max : long
+@code{max} is the largest representable long value.
+@end deftypevr
+
+@deftypefn {Function} {} min (@var{x}: long, @var{y}: long): long
+Return the minimum of two long values.
+@end deftypefn
+
+@deftypefn {Function} {} max (@var{x}: long, @var{y}: long): long
+Return the maximum of two long values.
+@end deftypefn
+
+@deftypefn {Function} {} from_string (@var{s}: string): long
+Convert the string value @var{s} to the long number it represents.
+If @var{s} does not represent any long integer number,
+the return value is unspecified.
+@end deftypefn
+
+@deftypefn {Function} {} to_string (@var{l}: long): string
+Convert the long number @var{l} to its string representation.
+@end deftypefn
+
+@deftypefn {Function} {} from_int (@var{i}: int): long
+Convert the integer value @var{i} to a long value.
+@end deftypefn
+
+@deftypefn {Function} {} to_int (@var{l}: long): int
+Convert the long value @var{l} to an integer value.
+@end deftypefn
+
+@deftypefn {Function} {} from_real (@var{r}: real): long
+Conver the real number @var{r} to a long value, stripping off
+any decimal places.
+@end deftypefn
+
+@deftypefn {Function} {} to_real (@var{l}: long): real
+Conver the long value @var{l} to a real value.
+@end deftypefn
+
+@deftypefn {Function} {} even? (@var{l}: long): bool
+@deftypefnx {Function} {} odd? (@var{l}: long): bool
+@deftypefnx {Function} {} zero? (@var{l}: long): bool
+@deftypefnx {Function} {} positive? (@var{l}: long): bool
+@deftypefnx {Function} {} negative? (@var{l}: long): bool
+Return true iff @var{l} is even, odd, equal to zero, positive
+or negative, respectively.
+@end deftypefn
+
+@deftypefn {Function} {} abs (@var{l}: long): long
+Return the absolute value of @var{l}, that is, remove @var{l}'s
+sign.
+@end deftypefn
+
+@deftypefn {Function} {} signum (@var{l}: long): long
+Return 1L if @var{l} is greater than zero, 0L if @var{l} is
+equal to zero and -1L if @var{l} is less than zero.
+@end deftypefn
+
+@deftypefn {Function} {} pred (@var{l}: long): long
+@deftypefnx {Function} {} succ (@var{l}: long): long
+Return the predecessor or successor of @var{i}, respectively.
+@end deftypefn
+
+@deftypefn {Function} {} pow (@var{b}: long, @var{e}: int): long
+Return @var{b} raised to the power of @var{e}.
+@end deftypefn
+
+
+@c ===================================================================
+@node reals module, bools module, longs module, Data type related modules
+@subsection reals module
+@cpindex @code{reals} (Module)
+
+This is a library module which exports real data type related
+functions.
+
+@deftypefn {Function} {} min (@var{x}: real, @var{y}: real): real
+Return the minimum of two real values.
+@end deftypefn
+
+@deftypefn {Function} {} max (@var{x}: real, @var{y}: real): real
+Return the maximum of two real values.
+@end deftypefn
+
+@deftypefn {Function} {} from_string (@var{s}: string): real
+Convert the string value @var{s} to the real number it represents.
+If @var{s} does not represent any integer number,
+the return value is unspecified.
+@end deftypefn
+
+@deftypefn {Function} {} to_string (@var{r}: real): string
+Convert the real number @var{r} to its string representation.
+@end deftypefn
+
+@deftypefn {Function} {} from_int (@var{i}: int): real
+Convert the integer value @var{i} to a real value.
+@end deftypefn
+
+@deftypefn {Function} {} to_int (@var{r}: real): int
+Convert the real value @var{r} to an integer value.  Decimal
+places are stripped.
+@end deftypefn
+
+@deftypefn {Function} {} zero? (@var{r}: real): bool
+@deftypefnx {Function} {} positive? (@var{r}: real): bool
+@deftypefnx {Function} {} negative? (@var{r}: real): bool
+Return true iff @var{i} is equal to zero, positive or negative,
+respectively.
+@end deftypefn
+
+@deftypefn {Function} {} abs (@var{r}: real): real
+Return the absolute value of @var{r}, that is, remove @var{r}'s
+sign.
+@end deftypefn
+
+@deftypefn {Function} {} signum (@var{r}: real): real
+Return 1.0 if @var{r} is greater than zero, 0.0 if @var{r} is
+equal to zero and -1.0 if @var{r} is less than zero.
+@end deftypefn
+
+@deftypefn {Function} {} pow (@var{a}: real, @var{b}: int): real
+Return @var{a} raised to the power of @var{b}.
+@end deftypefn
+
+
+@c ===================================================================
+@node bools module, chars module, reals module, Data type related modules
+@subsection bools module
+@cpindex @code{bools} (Module)
+
+Library module for utility functions for boolean values.
+
+@deftypefn {Function} {} to_string (@var{b}: bool): string
+Convert the boolean value @var{b} to a string.  The result will
+be either the string @code{"true"} or the string @code{"false"}.
+@end deftypefn
+
+@deftypefn {Function} {} from_string (@var{s}: string): bool
+Convert a string to a boolean value.  The two recognized strings
+are @code{"true"} and @code{"false"}.  Any other string will
+cause an unspecified value to be returned.
+@end deftypefn
+
+
+@c ===================================================================
+@node chars module, strings module, bools module, Data type related modules
+@subsection chars module
+@cpindex @code{chars} (Module)
+
+Library module for character utilities.
+
+@deftypevr Constant {} min : char
+
+@end deftypevr
+
+@deftypevr Constant {} max : char
+
+@end deftypevr
+
+@deftypevr Constant {} EOF : char
+@code{EOF} is the character which is returned by input functions
+when the end of an input file is reached.
+@end deftypevr
+
+@deftypevr Constant {} tab : char
+Convenience variable containing the character @code{'\t'}.
+@end deftypevr
+
+@deftypevr Constant {} newline : char
+Convenience variable containing the character @code{'\n'}.
+@end deftypevr
+
+@deftypevr Constant {} carriage_return : char
+Convenience variable containing the character @code{'\r'}.
+@end deftypevr
+
+@deftypevr Constant {} blank : char
+Convenience variable containing the character @code{' '}.
+@end deftypevr
+
+@deftypevr Constant {} space : char
+Convenience variable containing the character @code{' '}.
+@end deftypevr
+
+@deftypevr Constant {} vtab : char
+Convenience variable containing the character @code{'\v'}.
+@end deftypevr
+
+@deftypevr Constant {} backspace : char
+Convenience variable containing the character @code{'\b'}.
+@end deftypevr
+
+@deftypevr Constant {} formfeed : char
+Convenience variable containing the character @code{'\f'}.
+@end deftypevr
+
+@deftypevr Constant {} bell : char
+Convenience variable containing the character @code{'\a'}.
+@end deftypevr
+
+@deftypefn {Function} {} ord (@var{c}: char): int
+Return the character code of character @var{c}.
+@end deftypefn
+
+@deftypefn {Function} {} chr (@var{i}: int): char
+Return the character which has character code @var{i}.
+@end deftypefn
+
+@deftypefn {Function} {} to_string (@var{c}: char): string
+Convert the character @var{c} to a string of length one which
+only contains @var{c}.
+@end deftypefn
+
+@deftypefn {Function} {} from_string (@var{s}: string): char
+Convert a string to a character value by simply extracting the
+first character.  An exception will be raised if the string is
+empty.
+@end deftypefn
+
+@deftypefn {Function} {} digit? (@var{c}: char): bool
+@deftypefnx {Function} {} letter? (@var{c}: char): bool
+@deftypefnx {Function} {} uppercase? (@var{c}: char): bool
+@deftypefnx {Function} {} lowercase? (@var{c}: char): bool
+@deftypefnx {Function} {} control? (@var{c}: char): bool
+@deftypefnx {Function} {} punctuation? (@var{c}: char): bool
+@deftypefnx {Function} {} letgit? (@var{c}: char): bool
+@deftypefnx {Function} {} space? (@var{c}: char): bool
+@deftypefnx {Function} {} whitespace? (@var{c}: char): bool
+@deftypefnx {Function} {} printable? (@var{c}: char): bool
+Return @code{true}, if @var{c} is a digit, a letter, an
+uppercase letter or a lowercase letter, respectively.
+@end deftypefn
+
+@deftypefn {Function} {} upcase (@var{c}: char): char
+If @var{c} is a lowercase letter, return its uppercase
+equivalent, otherwise, return @var{c}.
+@end deftypefn
+
+@deftypefn {Function} {} downcase (@var{c}: char): char
+If @var{c} is an uppercase letter, return its lowercase
+equivalent, otherwise, return @var{c}.
+@end deftypefn
+
+@deftypefn {Function} {} pred (@var{c}: char): char
+@deftypefnx {Function} {} succ (@var{c}: char): char
+Return the predecessor or successor of @var{c}, respectively.
+@end deftypefn
+
+
+@c ===================================================================
+@node strings module, union module, chars module, Data type related modules
+@subsection strings module
+@cpindex @code{strings} (Module)
+
+Library module for string utilities.
+
+@deftypefn {Function} {} length (@var{s}: string): int
+Return the number of characters in @var{s}.
+@end deftypefn
+
+@deftypefn {Function} {} copy (@var{s}: string): string
+Return a freshly allocated string with the same length and 
+contents as the given string @var{s}.
+@end deftypefn
+
+@deftypefn {Function} {} substring (@var{s}: string, @var{from}: int, @var{to}: int): string
+Return a string containing the characters from @var{s} starting at
+index @var{from} (inclusive), up to @var{to} (exclusive).
+@end deftypefn
+
+@deftypefn {Function} {} substring (@var{s}: string, @var{from}: int): string
+Similar to @code{substring(string, int, int)}, where the last
+argument defaults to the length of the string.
+@end deftypefn
+
+@deftypefn {Function} {} append (@var{s1}: string, @var{s2}: string): string
+@deftypefnx {Function} {} append (@var{s1}: string, @var{s2}: string, @var{s3}: string): string
+Return a string which is the concatenation of the argument strings.
+@end deftypefn
+
+@deftypefn {Function} {} to_string (@var{b}: bool): string
+@deftypefnx {Function} {} to_string (@var{i}: int): string
+@deftypefnx {Function} {} to_string (@var{l}: long): string
+@deftypefnx {Function} {} to_string (@var{r}: real): string
+@deftypefnx {Function} {} to_string (@var{c}: char): string
+Return the string representation of the argument.
+@end deftypefn
+
+@deftypefn {Function} {} index (@var{s}: string, @var{c}: char): int
+Return the smallest index of any appearence of character @var{c} in
+the string @var{s}.  Return -1 if not found.
+@end deftypefn
+
+@deftypefn {Function} {} rindex (@var{s}: string, @var{c}: char): int
+Return the largest index of any appearence of character @var{c} in
+the string @var{s}.  Return -1 if not found.
+@end deftypefn
+
+@deftypefn {Function} {} indices (@var{s}: string, @var{c}: char): list of int
+Return a list containing all indices of the appearences of
+character @var{c} in the string @var{s}.  An empty list is
+returned if @var{c} does not appear in @var{s}.
+@end deftypefn
+
+@deftypefn {Function} {} eq (@var{s1}: string, @var{s2}: string): bool
+Return true if the two strings have the same length and contents,
+false otherwise.
+@end deftypefn
+
+@deftypefn {Function} {} explode (@var{s}: string): list of char
+Return a list of characters containing the characters of string 
+@var{s}, in the same order.
+@end deftypefn
+
+@deftypefn {Function} {} rexplode (@var{s}: string): list of char
+Return a list of characters containing the characters of string
+@var{s}, in reversed order.  This function is often convenient
+when constructing strings from character lists.
+@end deftypefn
+
+@deftypefn {Function} {} implode (@var{l}: list of char): string
+Return a string with the same length as the list @var{l}, and with the
+elements of @var{l} as string contents, in the same order.
+@end deftypefn
+
+@deftypefn {Function} {} rimplode (@var{l}: list of char): string
+Return a string with the same length as the list @var{l} and
+with the elements of @var{l} as string contents, but in reverse
+order.  The same result would be obtained by calling
+
+@example
+strings.implode (lists.reverse (l));
+@end example
+
+but calling @code{rimplode} is more efficient.
+@end deftypefn
+
+@deftypefn {Function} {} split (@var{s}: string, @var{c}: char): list of string
+Split up the string @var{s} at all occurences of the character
+@var{c} and return a list of the strings between these
+occurences.  Note that occurences of @var{c} without any
+characters between will result in empty strings in the
+resulting list.
+
+@example
+strings.split ("root:x:0:0:root:/root:/bin/bash", ':')
+@result{}
+["root", "x", "0", "0", "root", "/root", "/bin/bash"]
+
+strings.split (":x:0:0:root::/bin/bash", ':')
+@result{}
+["", "x", "0", "0", "root", "", "/bin/bash"]
+@end example
+@end deftypefn
+
+@deftypefn {Function} {} replicate (@var{elem}: char, @var{len}: int): string
+Return a string of length @var{len}, consisting of the
+character @var{elem}.
+@end deftypefn
+
+@deftypefn {Function} {} rpad (@var{s}: string, @var{places}: int, @var{ch}: char): string
+@deftypefnx {Function} {} lpad (@var{s}: string, @var{places}: int, @var{ch}: char): string
+Return a string of at least @var{places} characters which
+contains @var{s}, padded on the right (for @code{rpad}) or left
+(for @code{lpad}) with character @var{ch}.
+@end deftypefn
+
+@deftypefn {Function} {} upcase (@var{s}: string): string
+@deftypefnx {Function} {} downcase (@var{s}: string): string
+Return a newly allocated string containing the characters from
+@var{s} converted to upper case or lower case, respectively.
+@end deftypefn
+
+
+@c ===================================================================
+@node union module, strformat module, strings module, Data type related modules
+@subsection union module
+@cpindex @code{union} (Module)
+
+This module exports an union type for the builtin data types.
+
+@deftp {Data type} union
+Defined as:
+
+@example
+datatype union =
+  i(i: int) or
+  l(l: long) or
+  r(r: real) or
+  b(b: bool) or
+  c(c: char) or
+  s(s: string)
+@end example
+
+This data type is intended to be used for functions which
+should be able to deal with all or some of the builtin data
+types.
+@end deftp
+
+
+@c ===================================================================
+@node strformat module,  , union module, Data type related modules
+@subsection strformat module
+@cpindex @code{strformat} (Module)
+
+Library module for string formatting.
+
+@deftypefn {Function} {} fmt (@var{fmt}: string, @var{args}: list of string): string
+String formatting function.  This is similar to the
+@code{sprintf()} function in C, but much more limited.
+@var{fmt} is expected to be a string with embedded formatting
+instruction.  A formatting instruction is a @code{%} character
+followed by an @code{s} character.  In the result string, each
+occurence of a formatting instruction is replaced by the
+corresponding element in the argument list.
+@end deftypefn
+
+@deftypefn {Function} {} fmt (@var{fmt}: string, @var{s}: string): string
+@deftypefnx {Function} {} fmt (@var{fmt}: string, @var{s1}: string, @var{s2}: string): string
+Convenience versions of the function above, to be used for one
+or two argument strings.
+@end deftypefn
+
+@deftypefn {Function} {} fmt (@var{fmt}: string, @var{args}: list of union.union): string
+Generalized version of the formatting function.  This accepts a
+list of @code{union.union} values, which can hold different
+data values.  The supported formatting sequences are:
+
+@table @code
+@item %s
+Format a string.
+
+@item %i, %d
+Format an integer value.
+
+@item %l
+Format a long value.
+
+@item %r
+Format a real value.
+
+@item %c
+Format a character.
+
+@item %b
+Format a boolean value.
+@end table
+
+@end deftypefn
+
+
+@c ===================================================================
+@node List utility modules, Array utility modules, Data type related modules, Standard library
+@section List utility modules
+@cpindex List modules
+@cpindex List utilities
+
+Turtle comes with a set of list utility functions, for example for
+constructing, investigating, searching or sorting.
+
+
+@menu
+* lists module::                General list functions.
+* listmap module::              Mapping functions over lists.
+* listfold module::             Folding a function over lists.
+* listreduce module::           Reducing lists with initial value.
+* listzip module::              Combine two lists into one and the reverse.
+* listindex module::            Functions on lists operating with indices.
+* listsearch module::           Searching in lists.
+* listsort module::             Sorting lists.
+@end menu
+
+
+@c ===================================================================
+@node lists module, listmap module, List utility modules, List utility modules
+@subsection lists module
+@cpindex @code{lists} (Module)
+
+The module file @file{lists} exports list manipulation functions.  It
+is a generic module with one module parameter, which is the type of
+the list elements.  The name of this parameter is @var{A}.
+
+@deftypefn {Function} {} empty? (@var{l}: list of A): bool
+Return true if @var{l} is the empty list, false otherwise.
+@end deftypefn
+
+@deftypefn {Function} {} cons (@var{a}: A, @var{b}: list of A): list of A
+Cons the element @var{a} onto the head of list @var{b}.
+@end deftypefn
+
+@deftypefn {Function} {} head (@var{l}: list of A): A
+Return the head of list @var{l}.  An exception is raised if @var{l} is
+empty.
+@end deftypefn
+
+@deftypefn {Function} {} tail (@var{l}: list of A): list of A
+Return the tail of list @var{l}.  An exception is raised if @var{l} is
+empty.
+@end deftypefn
+
+@deftypefn {Function} {} last (@var{l}: list of A): A
+Return the last element of list @var{l}.  An exception is
+raised if @var{l} is empty.
+@end deftypefn
+
+@deftypefn {Function} {} init (@var{l}: list of A): list of A
+Return the initial sequence of list @var{l}, excluding the last
+element.  An exception is raised if @var{l} is empty.
+@end deftypefn
+
+@deftypefn {Function} {} append (@var{a}: list of A, @var{b}: list of A): list of A
+Append the lists @var{a} and @var{b}.
+@end deftypefn
+
+@deftypefn {Function} {} concat (@var{lists}: list of list of A): list of A
+Return a list which is the concatenation of the lists in
+@var{lists}.
+@end deftypefn
+
+@deftypefn {Function} {} length (@var{a}: list of A): int
+Return the length of list @var{a}.
+@end deftypefn
+
+@deftypefn {Function} {} reverse (@var{l}: list of A): list of A
+Return a list with the elements of @var{l} in reserved order.
+@end deftypefn
+
+@deftypefn {Function} {} foreach (@var{p}: fun(A), @var{l}: list of A)
+Apply the procedure @var{p} to each element of the list @var{l}, 
+in order.  For a function which returns a list of the results
+of the function application, see module @code{listmap}
+(@pxref{listmap module}).
+@end deftypefn
+
+@deftypefn {Function} {} iota (@var{count}: int): list of int
+Return an integer list of @var{count} elements, with the number 0 to
+@var{count}-1 as the list elements.
+@end deftypefn
+
+@deftypefn {Function} {} filter (@var{p}: fun(A): bool, @var{l}: list of A): list of A
+Return a list with all elements from @var{l} which satisfy predicate
+@var{p}, in the same order as in @var{l}.
+@end deftypefn
+
+@deftypefn {Function} {} insert (@var{s}: A, @var{l}: list of A, @var{cmp}: fun(A, A): int): list of A
+Insert the element @var{s} into the list @var{l}, maintaining
+the order as defined by the comparison function @var{cmp} which
+takes two elements of type A and returns a value less then 0 if
+the first is smaller than the second, 0 if they are to be
+considered equal and a value greater than 0 if the second is
+greater.
+@end deftypefn
+
+@deftypefn {Function} {} index (@var{elem}: A, @var{l}: list of A, @var{cmp}: fun(A, A): int): int
+Return the index of element @var{elem} in list @var{l},
+according to the comparison function @var{cmp}.  Return -1 if
+@var{elem} does not appear in @var{l}.
+@end deftypefn
+
+@deftypefn {Function} {} indices (@var{elem}: A, @var{l}: list of A, @var{cmp}: fun(A, A): int): list of int
+Return a list of the indices of all appearences of @var{elem}
+in @var{l}, according to the comparison function @var{cmp}.
+Return the empty list of @var{elem} does not appear in @var{l}.
+@end deftypefn
+
+@deftypefn {Function} {} replicate (@var{elem}: A, @var{len}: int): list of A
+Create a list of length @var{l}, where all list elemens are
+initialized to @var{elem}.
+@end deftypefn
+
+@deftypefn {Function} {} copy (@var{l}: list of A): list of A
+Create a copy of the list @var{l}.  Note that only the spine of
+the list is copied, not the elements.
+@end deftypefn
+
+@deftypefn {Function} {} take (@var{l}: list of A, @var{n}: int): list of A
+Take the first @var{n} elements from the list @var{l}, dropping
+the following elements.
+@end deftypefn
+
+@deftypefn {Function} {} drop (@var{l}: list of A, @var{n}: int): list of A
+Drop the first @var{n} elements from list @var{l} and return
+the remaining list.
+@end deftypefn
+
+
+@c ===================================================================
+@node listmap module, listfold module, lists module, List utility modules
+@subsection listmap module
+@cpindex @code{listmap} (Module)
+
+The module file @file{listmap} exports higher-order functions for
+iterating over lists.  It is a generic module with two module
+parameters, which are the types of the list elements.  The name of the
+first parameter is @var{A} and denotes the element type of the
+input lists, the name of the second is @var{B} and stands for the
+element type of the output lists of @code{map}.
+
+@deftypefn {Function} {} map (@var{f}: fun(A): B, @var{l}: list of A): list of B
+Apply the function @var{f} to every element of @var{l}, return a list
+containing the results of the function applications.
+The order in which @var{f} is applied to the list elements is not 
+specified.
+@end deftypefn
+
+
+@c ===================================================================
+@node listfold module, listreduce module, listmap module, List utility modules
+@subsection listfold module
+@cpindex @code{listfold} (Module)
+
+The module file @file{listfold} implements the functions
+@code{foldl} and @code{foldr} for folding functions over lists.
+
+@deftypefn {Function} {} foldl (@var{f}: fun(A, A): A, @var{l}: list of A): A
+Fold the function @var{f} from left to right over the list
+@var{l} and return the result.
+
+@example
+fun sub(x: int, y: int): int
+return x - y;
+end;
+foldl (sub, [4, 3, 1])
+@result{}
+(4 - 3) - 1
+@result{}
+0
+@end example
+@end deftypefn
+
+@deftypefn {Function} {} foldr (@var{f}: fun(A, A): A, @var{l}: list of A): A
+Fold the function @var{f} from to left right over the list
+@var{l} and return the result.
+
+@example
+fun sub(x: int, y: int): int
+return x - y;
+end;
+foldr (sub, [4, 3, 1])
+@result{}
+4 - (3 - 1)
+@result{}
+2
+@end example
+@end deftypefn
+
+
+@c ===================================================================
+@node listreduce module, listzip module, listfold module, List utility modules
+@subsection listreduce module
+@cpindex @code{listreduce} (Module)
+
+The module file @file{listreduce} implements the functions
+@code{reducel} and @code{reducer} for reducint functions over
+lists.
+
+@deftypefn {Function} {} reducel (@var{f}: fun(from, to): to, @var{init}: to, @var{l}: list of from): to
+Reduce the list @var{l} with function @var{f}, bracketing on
+the left.
+
+@example
+fun sub (x: int, y: int): int
+return x - y;
+end;
+reducel (sub, 12, [2, 5, 3])
+@result{}
+3 - (5 - (2 - 12))
+@result{}
+-12
+@end example
+@end deftypefn
+
+@deftypefn {Function} {} reducer (@var{f}: fun(from, to): to, @var{init}: to, @var{l}: list of from): to
+Reduce the list @var{l} with function @var{f}, bracketing on
+the right.
+
+@example
+fun sub (x: int, y: int): int
+return x - y;
+end;
+reducel (sub, 12, [2, 5, 3])
+@result{}
+2 - (5 - (3 - 12))
+@result{}
+-12
+@end example
+@end deftypefn
+
+
+@c ===================================================================
+@node listzip module, listindex module, listreduce module, List utility modules
+@subsection listzip module
+@cpindex @code{listzip} (Module)
+
+Functions for combining two lists into one element-wise, and
+the reverse.
+
+@deftypefn {Function} {} zip (@var{f}: fun(from1, from2): to, @var{l1}: list of from1, @var{l2}: list of from2): list of to
+Zip two lists of equal length together by applying the function
+@var{f} to the corresponding elements of the lists and forming
+the result lists from the function result(s).
+@end deftypefn
+
+@deftypefn {Function} {} unzip (@var{f}: fun(to): (from1, from2), @var{l}: list of to): (list of from1, list of from2)
+Decompose the list @var{l} by applying the function @var{f} to
+the successive list elements and returning the two lists of the
+function results.
+@end deftypefn
+
+
+@c ===================================================================
+@node listindex module, listsearch module, listzip module, List utility modules
+@subsection listindex module
+@cpindex @code{listindex} (Module)
+
+Some utility functions for lists which work on indices into the
+list.
+
+@deftypefn {Function} {} nth (@var{l}: list of A, @var{idx}: int): A
+Return the element at index @var{idx} in list @var{l}.
+@end deftypefn
+
+@deftypefn {Function} {} pos (@var{p}: fun(A): bool, @var{l}: list of A): int
+Return the index of the first element in list @var{l} which
+satisfies predicate @var{p}.  Return -1 if no element satisfies
+@var{p}.
+@end deftypefn
+
+@deftypefn {Function} {} slice (@var{l}: list of A, @var{start}: int, @var{ende}: int): list of A
+Return the sublist of @var{l} which starts at index @var{start}
+(inclusive) and ends at index @var{ende} (exclusive).
+@end deftypefn
+
+
+@c ===================================================================
+@node listsearch module, listsort module, listindex module, List utility modules
+@subsection listsearch module
+@cpindex @code{listsearch} (Module)
+
+Function for searching in lists of type
+
+@example
+list of @var{A}
+@end example
+
+where @var{A} must be instantiated when importing this module.
+
+The comparison function @var{cmp} is used for comparing elements of the
+input arrays.  @var{cmp} is expected to return a value less than 0 if
+the first argument is to be considered smaller than the second, a
+value greater than 0 if it is greater, and exactly 0 if the two
+arguments are equivalent.
+
+@deftypefn {Function} {} lsearch (@var{l}: list of A, @var{elem}: A, @var{cmp}: fun(A, A): int): list of A
+Search linearly through the list @var{l}, until an element equal
+to @var{elem} is found.  Use @var{cmp} for comparing the elements of
+the list to @var{elem}.  Return the first list cell whose head is
+equal to @var{elem}, or @code{null} if not found.
+@end deftypefn
+
+
+@c ===================================================================
+@node listsort module,  , listsearch module, List utility modules
+@subsection listsort module
+@cpindex @code{listsort} (Module)
+
+Function for sorting lists of type
+
+@example
+list of @var{A}
+@end example
+
+where @var{A} must be instantiated when importing this module.
+
+The comparison function @var{cmp} is used for comparing elements of the
+input arrays.  @var{cmp} is expected to return a value less than 0 if
+the first argument is to be considered smaller than the second, a
+value greater than 0 if it is greater, and exactly 0 if the two
+arguments are equivalent.
+
+@deftypefn {Function} {} sort (@var{a}: list of A, @var{cmp}: fun(A, A): int): list of A
+Sort the list @var{a}, using @var{cmp} as the comparison function.
+The parameter @var{a} is not modified for performing the sort,
+instead a freshly allocated list is returned.
+@end deftypefn
+
+
+@c ===================================================================
+@node Array utility modules, Tuple utility modules, List utility modules, Standard library
+@section Array utility modules
+@cpindex array modules
+@cpindex array utilities
+
+Several modules for manipulating arrays are included in the standard
+library.  They are structured similarly to the modules for list
+handling.
+
+@menu
+* arrays module::               Basic array operations.
+* arraymap module::             Mapping functions over arrays.
+* arraysearch module::          Searching in arrays.
+* arraysort module::            Sorting arrays.
+@end menu
+
+
+@c ===================================================================
+@node arrays module, arraymap module, Array utility modules, Array utility modules
+@subsection arrays module
+@cpindex @code{arrays} (Module)
+
+Utility functions for handling objects of type
+
+@example
+array of @var{A}
+@end example
+
+where @var{A} must be instantiated when importing this module.
+
+@deftypefn {Function} {} length (@var{a}: array of A): int
+Return the number of elements of array `a'.
+@end deftypefn
+
+@deftypefn {Function} {} foreach (@var{p}: fun(A), @var{a}: array of A)
+Apply the procedure @var{p} to each element of the array @var{a}, 
+in order.
+@end deftypefn
+
+@deftypefn {Function} {} copy (@var{a}: array of A): array of A
+Create a copy of array @var{a}.  Note that only the array
+holding the elements is copied, not the elements themselves.
+The result is the same as @var{a} if @var{a} is empty.
+@end deftypefn
+
+@deftypefn {Function} {} reverse (@var{a}: array of A): array of A
+Return a new array which contains the elements of @var{a}, but
+in reverse order.  The result is the same as @var{a} if @var{a}
+is empty.
+@end deftypefn
+
+@deftypefn {Function} {} replicate (@var{elem}: A, @var{len}: int): array of A
+Create an array of @var{len} elements, where each element is
+initialized to @var{elem}.
+@end deftypefn
+
+
+@c ===================================================================
+@node arraymap module, arraysearch module, arrays module, Array utility modules
+@subsection arraymap module
+@cpindex @code{arraymap} (Module)
+
+Utility function for applying functions to arrays of type
+
+@example
+array of @var{A}.
+@end example
+
+@code{Map} returns values of type
+
+@example
+array of @var{B}.
+@end example
+
+@var{A} and @var{B} are type variables which must be instantiated when 
+importing this module.
+
+@deftypefn {Function} {} map (@var{f}: fun(A): B, @var{l}: array of A): array of B
+Apply the function @var{f} to every element of the array @var{a},
+return an
+array containing the results of the function applications.  The
+order in which @var{f} is applied to the array elements is not
+specified.
+@end deftypefn
+
+
+@c ===================================================================
+@node arraysearch module, arraysort module, arraymap module, Array utility modules
+@subsection arraysearch module
+@cpindex @code{arraysearch} (Module)
+
+This module exports a functions for sorting objects of type
+
+@example
+array of @var{A}
+@end example
+
+where @var{A} must be instantiated when importing this module.
+
+The comparison function @code{cmp} is used for comparing elements of the
+input arrays.  @code{cmp} is expected to return a value less than 0 if
+the first argument is to be considered smaller than the second, a
+value greater than 0 if it is greater, and exactly 0 if the two
+arguments are equivalent.
+
+@deftypefn {Function} {} lsearch (@var{a}: array of A, @var{elem}: A, @var{cmp}: fun(A, A): int): int
+Search linearly through the array @var{a}, until an element equal
+to @var{elem} is found.  Use @var{cmp} for comparing the elements of
+the array to @var{elem}.  Return the index of the first occurence
+if found; return -1 otherwise.
+
+Note that if @var{elem} appear more than once in the array, the
+index of the first occurence is returned.
+@end deftypefn
+
+@deftypefn {Function} {} bsearch (@var{a}: array of A, @var{elem}: A, @var{cmp}: fun(A, A): int): int
+Binary search.  Search in the array @var{a} for an element equal to 
+@var{elem}, using @var{cmp} as the comparison function.  Return the
+index of the element if found, return -1 otherwise.
+
+The array @var{a} must be sorted according to the comparison function
+@var{cmp}, otherwise the search will most probably fail, even if
+@var{elem} does appear in @var{a}.
+
+Note that if @var{elem} appear more than once in the array, 
+it is not specified the index of which will be returned.
+@end deftypefn
+
+
+@c ===================================================================
+@node arraysort module,  , arraysearch module, Array utility modules
+@subsection arraysort module
+@cpindex @code{arraysort} (Module)
+
+This module exports a functions for sorting objects of type
+
+@example
+array of @var{A}
+@end example
+
+where @var{A} must be instantiated when importing this module.
+
+The comparison function @code{cmp} is used for comparing elements of the
+input arrays.  @code{cmp} is expected to return a value less than 0 if
+the first argument is to be considered smaller than the second, a
+value greater than 0 if it is greater, and exactly 0 if the two
+arguments are equivalent.
+
+@deftypefn {Function} {} sort (@var{a}: array of A, @var{cmp}: fun(A, A): int)
+Sort the array @var{a}, using @code{cmp} as the comparison function.
+The parameter @var{a} is modified for performing the sort.
+@end deftypefn
+
+
+@c ===================================================================
+@node Tuple utility modules, Low level modules, Array utility modules, Standard library
+@section Tuple utility modules
+@cpindex tuple modules
+@cpindex tuple utilities
+
+Two modules for handling common tuple types are also in the
+distribution, one for handling pairs of two data types, and one for
+handling triples of three data types.
+
+@menu
+* pairs module::                Module for handling 2-tuples.
+* triples module::              Module for handling 3-tuples.
+@end menu
+
+
+@c ===================================================================
+@node pairs module, triples module, Tuple utility modules, Tuple utility modules
+@subsection pairs module
+@cpindex @code{pairs} (Module)
+
+Utility functions for tuples of type
+
+@example
+(A, B)
+@end example
+
+where @var{A} and @var{B} must be instantiated when importing
+this module.
+
+@deftp {Data type} pair
+Defined as:
+
+@example
+datatype pair<A, B> =
+  pair(first: A, second: B)
+@end example
+
+This datatype wraps a pair of values in an user-defined data type.
+@end deftp
+
+@deftypefn {Function} {} unpair (@var{p}: pair): (A, B)
+@deftypefnx {Function} {} pair (@var{p}: (A, B)): pair
+These are conversion functions between the user-defined
+@code{pair} data type and 2-tuples.
+@end deftypefn
+
+@deftypefn {Function} {} first (@var{p}: (A, B)): A
+@deftypefnx {Function} {} second (@var{p}: (A, B)): B
+Return the first or second component of the argument tuple,
+respectively.
+@end deftypefn
+
+
+@c ===================================================================
+@node triples module,  , pairs module, Tuple utility modules
+@subsection triples module
+@cpindex @code{triples} (Module)
+
+Utility functions for tuples of type
+
+@example
+(A, B, C)
+@end example
+
+where @var{A}, @var{B} and @var{C} must be instantiated when
+importing this module.
+
+@deftp {Data type} triple
+Defined as:
+
+@example
+datatype triple<A, B> =
+  triple(first: A, second: B, third: C)
+@end example
+
+This datatype wraps a 3-tuples of values in an user-defined
+data type.
+@end deftp
+
+@deftypefn {Function} {} untriple (@var{t}: triple): (A, B, C)
+@deftypefnx {Function} {} triple (@var{t}: (A, B, C)): triple
+These are conversion functions between the user-defined
+@code{triple} data type and 3-tuples.
+@end deftypefn
+
+@deftypefn {Function} {} first (@var{p}: (A, B, C)): A
+@deftypefnx {Function} {} second (@var{p}: (A, B, C)): B
+@deftypefnx {Function} {} third (@var{p}: (A, B, C)): C
+Return the first, second or third component of the argument
+tuple, respectively.
+@end deftypefn
+
+
+@c ===================================================================
+@node Low level modules, Modules in the subsystem sys, Tuple utility modules, Standard library
+@section Low level modules
+@cpindex low level modules
+
+Some of the modules in the standard library are very low-level.  These
+modules are either not convenient to use, or are machine or system
+dependent, so it is a good idea to avoid using them as far as possible,
+and rather use the functionality implemented by the higher-level modules
+in the previous sections.
+
+A lot of functions in the higher-level modules are implemented in terms
+of the low-level ones, and sometimes access to low-level features is
+useful.  That is the reason why these modules are documented here even
+though their use is discouraged.
+
+@menu
+* core module::                 Some low-level utilities.
+@end menu
+
+
+@c ===================================================================
+@node core module,  , Low level modules, Low level modules
+@subsection core module
+@cpindex @code{core} (Module)
+
+This file defines some useful low-level functions, but does not
+implement all of them.  For some of the functions only the
+declaration is given, and the implementation is written in C in the
+file core.t.i.
+
+The module @code{core} is a very basic library module.  Very low-level
+functions for input and output are provided.  The user should not use
+these functions directly, but use one of the higher-level modules like
+@code{io} instead.
+
+@deftypefn {Function} {} write_char (@var{fd}: int, @var{c}: char)
+Write the character @var{c} to the file descriptor @var{fd}.
+@end deftypefn
+
+@deftypefn {Function} {} read_char (@var{fd}: int): char
+Read a character from file descriptor @var{fd}.
+On end-of-file, the constant @code{chars.EOF} is returned.
+@end deftypefn
+
+@deftypefn {Function} {} real_to_string (@var{r}: real): string
+Convert the real number @var{r} to its string representation.
+@end deftypefn
+
+@deftypefn {Function} {} string_to_real (@var{s}: string): real
+Convert the string value @var{s} to a real value.  If @var{s} is
+not a valid real number representation, the returned value is
+undefined.
+@end deftypefn
+
+@deftypefn {Function} {} chr (@var{i}: int): char
+Return the character with character code @var{i}.
+@end deftypefn
+
+@deftypefn {Function} {} ord (@var{c}: char): int
+Return the character code of the character @var{c}.
+@end deftypefn
+
+@deftypefn {Function} {} int_to_real (@var{i}: int): real
+Convert the integer value @var{i} to a real value.
+@end deftypefn
+
+@deftypefn {Function} {} real_to_int (@var{r}: real): int
+Convert the real value @var{r} to an integer value, stripping off
+any decimal places.
+@end deftypefn
+
+
+@c ===================================================================
+@node Modules in the subsystem sys, Modules in the subsystem internal, Low level modules, Standard library
+@section Subsystem sys
+@cpindex subsystem sys
+
+The subsystem @code{sys} contains some system-dependant modules which
+access operating system specific functions.
+
+All functions and variables in these modules are close to the underlying
+operating system calls and C library functions of the same name, and the
+semantics are the same as far as possible.  Only some minor changes to
+the semantics have been made in order to map the different data types in
+Turtle and C onto each other.
+
+@menu
+* sys.files module::            Low-level file handling.
+* sys.dirs module::             Directory handling.
+* sys.net module::              Low-level network programming.
+* sys.times module::            
+* sys.users module::            Accessing the user data base.
+* sys.procs module::            Handling operating system processes.
+* sys.errno module::            Accessing the errno variable.
+* sys.signal module::           
+@end menu
+
+
+@c ===================================================================
+@node sys.files module, sys.dirs module, Modules in the subsystem sys, Modules in the subsystem sys
+@subsection sys.files module
+@cpindex @code{sys.files} (Module)
+
+Module for handling files.
+
+@deftypevr Constant {} stdin : int
+@deftypevrx Constant {} stdout : int
+@deftypevrx Constant {} stderr : int
+File descriptors for standard input, output and error..
+@end deftypevr
+
+@deftypefn {Function} {} open (@var{fname}: string): int
+Open the existing file named @var{fname} for reading and return a file
+descriptor; or return -1 on error.
+@end deftypefn
+
+@deftypefn {Function} {} create (@var{fname}: string): int
+Create a new file named @var{fname} and open it for writing and
+return a file descriptor; or return -1 on error.  An existing
+file named @var{fname} will be overwritten, so use with
+caution.
+@end deftypefn
+
+@deftypefn {Function} {} close (@var{fd}: int): int
+Close the file associated with file descriptor @var{fd}, and
+return 0 on success or -1 on error.
+@end deftypefn
+
+@deftypefn {Function} {} close (@var{fd}: int)
+Close the file associated with file descriptor @var{fd}. Ignore
+any errors.
+@end deftypefn
+
+@deftypefn {Function} {} write (@var{fd}: int, @var{b}: internal.binary.binary, @var{len}: int): int
+Write @var{len} bytes from the byte array @var{b} to the file
+descriptor @var{fd}, starting at offset 0 of the byte array.
+Return the number of bytes actually written, or -1 if an error
+occurs.  The variable @code{sys.errno.errno} is set accordingly.
+@end deftypefn
+
+@deftypefn {Function} {} read (@var{fd}: int, @var{b}: internal.binary.binary, @var{len}: int): int
+Read @var{len} bytes from the file descriptor @var{fd} into the
+byte array @var{b}.  Return the number of bytes read, or -1 if
+an error occurs.  The variable @code{sys.errno.errno} is set
+accordingly.
+@end deftypefn
+
+@deftypefn {Function} {} unlink (@var{filename}: string): int
+Delete a name from the filesystem.  If that name was the alst
+linkt to a file and no processes have the file open the file is
+deleted and the space it was using is made available for reuse.
+
+On success, zero is returned.  On error, -1 is returned and the
+variable @code{sys.errno.errno} is set appropriately.
+@end deftypefn
+
+
+@c ===================================================================
+@node sys.dirs module, sys.net module, sys.files module, Modules in the subsystem sys
+@subsection sys.dirs module
+@cpindex @code{sys.dirs} (Module)
+
+Module for handling directories.  The exported data type
+@code{dirs} serves as a handle for directories and must be
+obtained by calling the function @code{opendir}.  Calling
+@code{readdir} repeatedly on a valid @code{dir} value will
+return all entries of a directory, and the directory stream can
+then be closed with @code{closedir} or reset to the beginning
+with @code{rewinddir}.
+
+@deftp {Data type} dir
+Defined as:
+
+@example
+datatype dir =
+  adir
+@end example
+
+Directory handle for use with the directory functions below.
+@end deftp
+
+@deftypefn {Function} {} opendir (@var{name}: string): dir
+Open a directory stream corresponding with the directory called
+@var{name}, and return a handle for that stream.  The stream is
+positioned at the first entry in the directory.  Return a
+handle for the opened stream on success, or @code{null} if an
+error occurs.  The variable @code{sys.errno.errno} will be set
+accordingly.
+@end deftypefn
+
+@deftypefn {Function} {} readdir (@var{d}: dir): string
+Return a string representing the next directory entry in the
+directory stream @var{d}.  Return @code{null} if the end of the
+stream is reached or an error occurs.  @code{sys.errno.errno}
+will be set accordingly.
+@end deftypefn
+
+@deftypefn {Function} {} closedir (@var{d}: dir): int
+Close the directory stream associated with the handle @var{d}.
+The stream descriptor @var{d} cannot be used anymore after this
+call.  Return 0 on success or -1 on failure, and set
+@code{sys.errno.errno} accordingly.
+@end deftypefn
+
+@deftypefn {Function} {} rewinddir (@var{d}: dir)
+Reset the position of the directory stream @var{d} to the
+beginning of the directory.
+@end deftypefn
+
+
+@c ===================================================================
+@node sys.net module, sys.times module, sys.dirs module, Modules in the subsystem sys
+@subsection sys.net module
+@cpindex @code{sys.net} (Module)
+
+Module for network programming.
+
+Currently, only IPv4 is supported, and only the most basic
+operations are provided.
+
+@deftypevr Constant {} PF_UNSPEC : int
+@deftypevrx Constant {} PF_UNIX : int
+@deftypevrx Constant {} PF_LOCAL : int
+@deftypevrx Constant {} PF_INET : int
+These constants are to be used as the @var{domain} parameter to
+the @code{socket} function.  Note that currently only IPv4
+(@code{PF_INET}) sockets are supported.
+@end deftypevr
+
+@deftypevr Constant {} SOCK_STREAM : int
+@deftypevrx Constant {} SOCK_DGRAM : int
+@deftypevrx Constant {} SOCK_RAW : int
+These are the socket type constants for calls to the
+@code{socket} function.  Only stream sockets
+(@code{SOCK_STREAM}) have been tested yet.
+@end deftypevr
+
+@deftypefn {Function} {} socket (@var{domain}: int, @var{typ}: int, @var{protocol}: int): int
+Create an endpoint for communication and return a descriptor.
+
+The @var{domain} parameter specifies a communication domain;
+this selects the protocol family which will be used for
+communication.  These families are defined as the @code{PF_*}
+constants.
+
+The socket has the indicated type @var{typ}, which specifies
+the communication semantics.  The currently defined types are
+the @code{SOCK_*} constants.
+
+-1 is returned if an error occurs and @code{sys.errno.errno} is
+set accordingly, othersie the return value is a descriptor
+referencing the socket.
+@end deftypefn
+
+@deftp {Data type} sockaddr
+Defined as:
+
+@example
+datatype sockaddr =
+  inet(port: int, addr: internal.binary.binary)
+@end example
+
+Data type for specifying network addresses.  Currently only
+IPv4 is supported.
+@end deftp
+
+@deftypefn {Function} {} sockaddr_addr (@var{addr}: sockaddr): internal.binary.binary
+@deftypefnx {Function} {} sockaddr_port (@var{addr}: sockaddr): int
+Return the IP number or the port of the socket address
+@var{addr}, respectively.
+@end deftypefn
+
+@deftypefn {Function} {} bind (@var{sockfd}: int, @var{addr}: sockaddr): int
+Give the socket @var{sockfd} the local address @var{addr}.
+This is necessary for a stream socket may receive connections
+with @code{accept}.
+@end deftypefn
+
+@deftypefn {Function} {} connect (@var{sockfd}: int, @var{serv_addr}: sockaddr): int
+Establish a connection for socket descriptor @var{sockfd} to
+the server specified by @var{serv_addr}.  The return value is
+-1 if an error occurs and zero on success.
+@end deftypefn
+
+@deftypefn {Function} {} listen (@var{sockfd}: int, @var{backlog}: int): int
+Before accepting connections with @code{accept}, the
+willingness to accept incoming connections and a queue limit
+for incoming connections are specified with @code{listen}.
+@end deftypefn
+
+@deftypefn {Function} {} accept (@var{sockfd}: int): (int, sockaddr)
+Accept a client connection on the given socket @var{sockfd}.
+Return a pair of a socket descriptor for the connection to the
+client, and the address of the client.
+@end deftypefn
+
+@deftypefn {Function} {} inetaddr (@var{port}: int, @var{b0}: int, @var{b1}: int, @var{b2}: int, @var{b3}: int): sockaddr
+@deftypefnx {Function} {} inetaddr (@var{port}: int): sockaddr
+@deftypefnx {Function} {} inetaddr (@var{port}: int, @var{b}: internal.binary.binary): sockaddr
+Create an internet address structure with a given @var{port}
+and the given bytes of the internet address.  The bytes are to
+be passed highest-order byte first, for example:
+
+@example
+"127.0.0.1"
+@result{}
+127, 0, 0, 1
+@end example
+
+The second version of the function will set the address to zero
+and can be used when binding an address for a server socket
+where the address should be the default.
+@end deftypefn
+
+@deftypefn {Function} {} gethostbyname (@var{name}: string): internal.binary.binary
+Return the IPv4 address of host @var{name}.  @var{name} must be
+either a valid host name or an internet address in dotted
+decimal notation.
+
+The return value is a byte array representing the internet
+address or @code{null}, if the host name cannot be resolved.
+@end deftypefn
+
+==========================================================
+@node sys.times module, sys.users module, sys.net module, Modules in the subsystem sys
+@subsection sys.times module
+@cpindex @code{sys.times} (Module)
+
+Module for handling times.
+
+@deftp {Data type} tm
+Defined as:
+
+@example
+datatype tm =
+  tm(sec: int, min: int, hour: int, mday: int, mon: int, year: int, wday: int, yday: int, isdst: int)
+@end example
+
+This data type represents date and time information.
+@end deftp
+
+@deftypefn {Function} {} gmtime (@var{t}: long): tm
+Return a @code{tm} structure representing the current time in
+Universal Coordinated Time (UTC).
+@end deftypefn
+
+@deftypefn {Function} {} localtime (@var{t}: long): tm
+Return a @code{tm} structure representing the current time in
+local time.
+@end deftypefn
+
+@deftypefn {Function} {} time (): long
+Return the current time in seconds since the Epoch (00:00:00
+UTC, January 1, 1970), measured in seconds.
+@end deftypefn
+
+@deftypefn {Function} {} asctime (@var{tm}: tm): string
+Return a string representation of the time @var{tm} or @var{t},
+respectively.
+@end deftypefn
+
+@deftypefn {Function} {} ctime (@var{t}: long): string
+
+@end deftypefn
+
+
+@c ===================================================================
+@node sys.users module, sys.procs module, sys.times module, Modules in the subsystem sys
+@subsection sys.users module
+@cpindex @code{sys.users} (Module)
+
+Module for accessing user information.
+
+@deftypefn {Function} {} getuid (): int
+@deftypefnx {Function} {} geteuid (): int
+@code{getuid} returns the real user ID of the calling process.
+
+@code{geteuid} returns the effective user ID of the current
+process.  The effective ID corresponds to the set ID bit on the
+file being executed.
+@end deftypefn
+
+@deftp {Data type} passwd
+Defined as:
+
+@example
+datatype passwd =
+  passwd(name: string, passwd: string, uid: int, gid: int, gecos: string, dir: string, shell: string)
+@end example
+@end deftp
+
+@deftp {Data type} group
+Defined as:
+
+@example
+datatype group =
+  group(name: string, passwd: string, gid: int, members: array of string)
+@end example
+@end deftp
+
+@deftypefn {Function} {} getpwnam (@var{name}: string): passwd
+@deftypefnx {Function} {} getpwuid (@var{uid}: int): passwd
+Return the password file structure for the user with the given
+user name or user id, respectively.  If the user name or id is
+not valid on the system the program runs on, @code{null} is
+returned.
+@end deftypefn
+
+@deftypefn {Function} {} getpwent (): passwd
+Return the next entry from the password file, as a value of the
+data type @code{sys.users.passwd}.  If called for the first
+time, the first entry will be returned, then successive entries
+until the end of the user data base is reached.  The end of the
+file is indicated by returning @code{null}.
+@end deftypefn
+
+@deftypefn {Function} {} setpwent ()
+Reset the read pointer for the user data base so that the next
+call to @code{getpwent} will return the first entry.
+@end deftypefn
+
+@deftypefn {Function} {} endpwent ()
+Close the password file.  Use this function when you are ready
+with the user data base.
+@end deftypefn
+
+@deftypefn {Function} {} getgrnam (@var{name}: string): group
+@deftypefnx {Function} {} getgrgid (@var{uid}: int): group
+Return the group file structure for the group with the given
+group name or group id, respectively.  If the group name or id is
+not valid on the system the program runs on, @code{null} is
+returned.
+@end deftypefn
+
+@deftypefn {Function} {} getgrent (): group
+Return the next entry from the group file, as a value of the
+data type @code{sys.users.group}.  If called for the first
+time, the first entry will be returned, then successive entries
+until the end of the group data base is reached.  The end of the
+file is indicated by returning @code{null}.
+@end deftypefn
+
+@deftypefn {Function} {} setgrent ()
+Reset the read pointer for the group data base so that the next
+call to @code{getgrent} will return the first entry.
+@end deftypefn
+
+@deftypefn {Function} {} endgrent ()
+Close the group file.  Use this function when you are ready
+with the group data base.
+@end deftypefn
+
+@deftypefn {Function} {} getlogin (): string
+Return a string containing the name of the user logged in on
+the controlling terminal of the process, or an empty string
+if this information cannot be determined.
+@end deftypefn
+
+
+@c ===================================================================
+@node sys.procs module, sys.errno module, sys.users module, Modules in the subsystem sys
+@subsection sys.procs module
+@cpindex @code{sys.procs} (Module)
+
+Module for accessing process information and dealing with processes.
+
+@deftypefn {Function} {} getpid (): int
+Return the process identifier of the current process.
+@end deftypefn
+
+@deftypefn {Function} {} getppid (): int
+Return the process identifier of the parent of the current
+process.
+@end deftypefn
+
+@deftypefn {Function} {} sleep (@var{sec}: int): int
+@deftypefnx {Function} {} sleep (@var{sec}: int)
+Make the current process sleep until @var{sec} seconds have
+elapsed or a signal arrives which is not ignored.
+
+The first version returns zero if the requested time has
+elapsed, or the number of seconds left to sleep.  The second
+version does not return anything.
+@end deftypefn
+
+@deftypefn {Function} {} exit (@var{status}: int)
+Terminate the current process normally and return the value of
+@var{status} to the parent.
+@end deftypefn
+
+@deftypefn {Function} {} kill (@var{pid}: int, @var{sig}: int): int
+@deftypefnx {Function} {} kill (@var{pid}: int, @var{sig}: int)
+@code{kill} can be used to send any signal to any process group
+or process.
+
+If @var{pid} is positive, then signal @var{sig} is sent to
+@var{pid}.  If @var{pid} equals 0, then @var{sig} is sent to
+every process in the process group of the current process.  If
+@var{pid} equals -1, then @var{sig} is sent to every process
+except for the first one, from higher numbers in the process
+table to lower.  If @var{pid} is less than -1, then @var{sig}
+is sent to every process in the process group @var{-pid}.
+
+If @var{sig} is 0, then no signal is sent, but error checking
+is still performed.
+
+On sucess, zero is returned, On error, -1 is returned and
+@code{errno} is set appropriately.  The second version of the
+@code{kill} function does not return anything and ignores any
+errors.
+@end deftypefn
+
+@deftypefn {Function} {} fork (): int
+Create a child process that differs from the parent process
+only in its PID and PPID, and in the fact that resource
+utilizations are set to 0.  File locks and pending signals are
+not inherited.
+
+On success, the process identifier of the child process is
+returned in the parent's thread of execution, and a 0 is
+returned in the child's thread of execution.  On failure, -1
+will be returned in the parent's context, no child process will
+be created, and the variable @code{errno.errno} will be set
+appropriately.
+@end deftypefn
+
+@deftypefn {Function} {} wait (): (int, int)
+Suspend execution of the current process until a child has
+exited, or until a signal is delivered whose action is to
+terminate the current process or to call a signal handling
+function.  If a child has already exited by the time of the
+call (a so-called "zombie" process), the function returns
+immediately.  Any system resources used by the child are freed.
+
+
+The return value is a pair of the process ID of the exited
+child (or -1 on error) and the status of the exited child.
+@end deftypefn
+
+@deftypevr Constant {} WNOHANG : int
+@deftypevrx Constant {} WUNTRACED : int
+Constants to be used as the options argument to @code{waitpid}.
+@end deftypevr
+
+@deftypefn {Function} {} waitpid (@var{pid}: int, @var{options}: int): int
+Suspend execution of the current process until a child as
+specified by the @var{pid} argument, or until a signal is
+delivered whose action is to terminate the current process or
+to call a signal handling function.  If a child as requested by
+@var{pid} has already exited by the time of the call (a
+so-called "zombie" process", the function returns immediately.
+Any system resources used by the child are freed.
+
+The value of @var{pid} can be one of
+
+@table @asis
+@item < -1
+which means to wait for any child process whose process group
+ID is equal to the absolute value of @var{pid}.
+
+@item -1
+which means to wait for any child process; this is the same
+behaviour which @code{wait} exhibits.
+
+@item 0
+which means to wait for any child process whose process group
+ID is equal to that of the calling process.
+
+@item > 0
+which means to wait for the child whose process ID is equal to
+the value of @var{pid}.
+@end table
+
+The value of @var{options} is an OR of zero or more of the
+following constants:
+
+@table @code
+@item WNOHANG
+which means to return immediately if no child has exited.
+
+@item WUNTRACED
+which means to also return for children which are stopped, and
+whose status has not been reported.
+@end table
+
+The return value is a pair of the process ID of the exited
+child (or -1 on error) and the status of the exited child.
+
+If @code{WNOHANG} was given as an option, and no child has
+exited, 0 is returned as the process ID.
+@end deftypefn
+
+@deftypefn {Function} {} WIFEXITED (@var{status}: int): bool
+Return @code{true}, if the status code indicates that the
+process has exited normally.
+@end deftypefn
+
+@deftypefn {Function} {} WEXITSTATUS (@var{status}: int): int
+Return the exit status of the exited process.  This may only be
+called if @code{WIFEXITED} returned true for @var{status}.
+@end deftypefn
+
+@deftypefn {Function} {} WIFSIGNALED (@var{status}: int): bool
+Return @code{true}, if the status code indicates that the
+process was terminated by a signal.
+@end deftypefn
+
+@deftypefn {Function} {} WTERMSIG (@var{status}: int): int
+Return the number of the signal which terminated the process.
+This may only be called if @code{WIFSIGNALED} returned true for
+@var{status}.
+@end deftypefn
+
+@deftypefn {Function} {} WIFSTOPPED (@var{status}: int): bool
+Return @code{true}, if the status code indicates that the
+process was stopped by a signal.
+@end deftypefn
+
+@deftypefn {Function} {} WSTOPSIG (@var{status}: int): int
+Return the number of the signal which stopped the process.
+This may only be called if @code{WIFSTOPPED} returned true for
+@var{status}.
+@end deftypefn
+
+@deftypefn {Function} {} execve (@var{filename}: string, @var{argv}: array of string, @var{envp}: array of string): int
+@deftypefnx {Function} {} execve (@var{filename}: string, @var{argv}: array of string, @var{envp}: array of string)
+@deftypefnx {Function} {} execve (@var{filename}: string, @var{argv}: list of string, @var{envp}: list of string): int
+@deftypefnx {Function} {} execve (@var{filename}: string, @var{argv}: list of string, @var{envp}: list of string)
+@deftypefnx {Function} {} execve (@var{filename}: string, @var{argv}: array of string): int
+@deftypefnx {Function} {} execve (@var{filename}: string, @var{argv}: array of string)
+@deftypefnx {Function} {} execve (@var{filename}: string, @var{argv}: list of string): int
+@deftypefnx {Function} {} execve (@var{filename}: string, @var{argv}: list of string)
+Execute the program called @var{filename}.  @var{argv} is an
+array or list of argument strings passed to the new program.
+@var{envp} is an array of string, conventionally of the form
+@code{key=value}, which are passed as environment to the new
+program.
+
+Normally these functions do not return, on error, the value -1
+is returned and the appropriate error code is placed in
+the variable @code{sys.errno.errno}.
+@end deftypefn
+
+@deftypefn {Function} {} getenv (@var{varname}: string): string
+Return the value of the environment variable called
+@var{varname}
+@end deftypefn
+
+
+@c ===================================================================
+@node sys.errno module, sys.signal module, sys.procs module, Modules in the subsystem sys
+@subsection sys.errno module
+@cpindex @code{sys.errno} (Module)
+
+Module for accessing operating system errors.
+
+@deftypevar {} errno : int
+The variable @var{errno} contains the result code set by the
+last operating system call.  A value of 0 means success, all
+other values indicate failure.  The value can be translated to
+a readable error message using the @code{strerror} function
+below.
+@end deftypevar
+
+@deftypefn {Function} {} strerror (@var{errnum}: int): string
+Return a string describing the error code passed in the
+argument @var{errnum}.
+@end deftypefn
+
+
+@c ===================================================================
+@node sys.signal module,  , sys.errno module, Modules in the subsystem sys
+@subsection sys.signal module
+@cpindex @code{sys.signal} (Module)
+
+Module for installing a signal function, that is a function
+which gets called whenever the process receives an operating
+system signal.
+
+In Turtle, signals are handled synchroneously, that means that
+a Turtle process repeatedly checks whether a signal has arrived
+and then calls the signal handler function.  
+
+@deftypevar {} SIGHUP : int
+@deftypevarx {} SIGINT : int
+@deftypevarx {} SIGQUIT : int
+@deftypevarx {} SIGILL : int
+@deftypevarx {} SIGABRT : int
+@deftypevarx {} SIGFPE : int
+@deftypevarx {} SIGKILL : int
+@deftypevarx {} SIGSEGV : int
+@deftypevarx {} SIGPIPE : int
+@deftypevarx {} SIGALRM : int
+@deftypevarx {} SIGTERM : int
+@deftypevarx {} SIGUSR1 : int
+@deftypevarx {} SIGUSR2 : int
+@deftypevarx {} SIGCHLD : int
+@deftypevarx {} SIGCONT : int
+@deftypevarx {} SIGSTOP : int
+@deftypevarx {} SIGTSTP : int
+@deftypevarx {} SIGTTIN : int
+@deftypevarx {} SIGTTOU : int
+These are the signals defined in POSIX.1.
+@end deftypevar
+
+@deftypefn {Function} {} signal (@var{no}: int, @var{handler}: fun(int))
+Install a signal handler for signal number @var{no}.  Whenever
+a signal is received, the process will stop at the next safe
+point and call the handler function. with the signal number as
+the argument.
+@end deftypefn
+
+
+@c ===================================================================
+@node Modules in the subsystem internal,  , Modules in the subsystem sys, Standard library
+@section Subsystem internal
+@cpindex subsystem internal
+
+Some of the modules in the standard library are very low-level.  These
+modules are either not convenient to use, or are machine or system
+dependent, so it is a good idea to avoid using them as far as possible,
+and rather use the functionality implemented by the higher-level modules
+in the previous sections.
+
+A lot of functions in the higher-level modules are implemented in terms
+of the low-level ones, and sometimes access to low-level features is
+useful.  That is the reason why these modules are documented here even
+though their use is discouraged.
+
+@menu
+* internal.version module::     Version information.
+* internal.random module::      Random number functions.
+* internal.stats module::       
+* internal.gc module::          Garbage collection interface.
+* internal.ex module::          Exception raising and handling.
+* internal.timeout module::     
+* internal.limits module::      System limits.
+@end menu
+
+
+@c ===================================================================
+@node internal.version module, internal.random module, Modules in the subsystem internal, Modules in the subsystem internal
+@subsection internal.version module
+@cpindex @code{internal.version} (Module)
+
+Low-level module for version information.
+
+@deftypefn {Function} {} version (): string
+Return the version number of the running Turtle runtime in string
+form, e.g "0.1.1".
+@end deftypefn
+
+
+@c ===================================================================
+@node internal.random module, internal.stats module, internal.version module, Modules in the subsystem internal
+@subsection internal.random module
+@cpindex @code{internal.random} (Module)
+
+Low-level module for random numbers.
+
+@deftypefn {Function} {} srand (@var{seed}: int)
+Set the seed of the random number generator to @var{seed}.
+@end deftypefn
+
+@deftypefn {Function} {} rand (): int
+Return a random number in the range 0 to @code{ints.max}.
+@end deftypefn
+
+
+@c ===================================================================
+@node internal.stats module, internal.gc module, internal.random module, Modules in the subsystem internal
+@subsection internal.stats module
+@cpindex @code{internal.stats} (Module)
+
+Low-level module for interfacing to the runtime system
+statistics.
+
+@deftypefn {Function} {} dispatch_call_count (): int
+@deftypefnx {Function} {} direct_call_count (): int
+@deftypefnx {Function} {} local_call_count (): int
+@deftypefnx {Function} {} closure_call_count (): int
+@deftypefnx {Function} {} gc_checks (): int
+@deftypefnx {Function} {} gc_calls (): int
+@deftypefnx {Function} {} allocations (): int
+@deftypefnx {Function} {} alloced_words (): int
+@deftypefnx {Function} {} forwarded_words (): int
+@deftypefnx {Function} {} save_cont_count (): int
+@deftypefnx {Function} {} restore_cont_count (): int
+@deftypefnx {Function} {} total_gc_time (): int
+@deftypefnx {Function} {} min_gc_time (): int
+@deftypefnx {Function} {} max_gc_time (): int
+These functions deliver some statistics gathered by the runtime
+system.
+@end deftypefn
+
+
+@c ===================================================================
+@node internal.gc module, internal.ex module, internal.stats module, Modules in the subsystem internal
+@subsection internal.gc module
+@cpindex @code{internal.gc} (Module)
+
+Low-level module for interfacing to the garbage collector.
+
+@deftypefn {Function} {} gc_calls (): int
+Return the number of heap garbage collections since the program 
+started.
+@end deftypefn
+
+@deftypefn {Function} {} gc_checks (): int
+Return the number of heap overflow checks since the program 
+started.
+@end deftypefn
+
+@deftypefn {Function} {} garbage_collect ()
+Force a garbage collection.
+@end deftypefn
+
+
+@c ===================================================================
+@node internal.ex module, internal.timeout module, internal.gc module, Modules in the subsystem internal
+@subsection internal.ex module
+@cpindex @code{internal.ex} (Module)
+
+Low-level module for raising and handling exceptions.  Do not use this
+module directly, rather use the standard library module
+@code{exception} (@pxref{exceptions module}).
+
+@deftypefn {Function} {} raise (@var{s}: string)
+Raise an exception with name @var{s}.
+@end deftypefn
+
+@deftypefn {Function} {} handle (@var{thunk}: fun(): (), @var{handler}: fun(string))
+Call the function @var{thunk}.  If any exception is raised
+while @var{thunk} is running, the function @var{handler} will
+be called with the exception name as the only argument.  When
+@var{handler} returns, it will return to the caller of
+@code{ex.handle}, in the same way as the call would return when
+@var{thunk} was returning without an exception.
+@end deftypefn
+
+@deftypefn {Function} {} null_pointer_exception (): string
+@deftypefnx {Function} {} out_of_range_exception (): string
+@deftypefnx {Function} {} subscript_exception (): string
+@deftypefnx {Function} {} wrong_variant_exception (): string
+@deftypefnx {Function} {} require_exception (): string
+The return value of these functions is the corresponding
+exception name, which is the same that would be used if the
+illegal operation would be performed.
+
+That means that
+
+@example
+internal.ex.raise (internal.ex.subscript_ex ())
+@end example
+
+has the same effect as
+
+@example
+var s: string;
+s[-1] := 'a'
+@end example
+@end deftypefn
+
+
+@c ===================================================================
+@node internal.timeout module, internal.limits module, internal.ex module, Modules in the subsystem internal
+@subsection internal.timeout module
+@cpindex @code{internal.timeout} (Module)
+
+Module for installing a timeout function, that is a function
+which gets called repeatedly in some interval.
+
+@deftypefn {Function} {} set (@var{handler}: fun())
+Register @var{handler} as the timeout function for the Turtle
+runtime.  The timeout function gets called repeatedly, but
+there is no guarantee on how often it will be called.
+
+On a 800Mhz AMD Duron(tm) processor, the function is called
+about every 0.1 seconds.
+@end deftypefn
+
+@deftypefn {Function} {} clear ()
+Remove the current timeout function, so that no function will
+be called until another handler is registered with the function
+@code{set} above.
+@end deftypefn
+
+
+@c ===================================================================
+@node internal.limits module,  , internal.timeout module, Modules in the subsystem internal
+@subsection internal.limits module
+@cpindex @code{internal.limits} (Module)
+
+Low-level module defining certain system limits.
+
+There are no exports yet, but that may change in the future.
+
+
+@c ===================================================================
+@node Glossary, Index, Standard library, Top
+@comment  node-name,  next,  previous,  up
+@unnumbered Glossary
+
+@table @var
+@item basic constraint
+A basic constraint is a linear equation, which may contain constrainable
+and unconstrainable variables.
+ 
+@item constrainable variable
+A constrainable variable is a variable whose value can be determined by
+a constraint.  Unconstrainable variables can only be changed by assignment.
+
+@item constraint
+A constraint is a condition which specifies the properties of the values
+a solution to a certain problem must have.
+
+@item declarative
+With declarative programming, we name the programming style where the
+computer is told which properties a problem's solutions must have, but
+not how to compute the solution.  The compiler and runtime system of the
+language implementation is responsible for determining an efficient way
+to compute the solution.
+
+@item imperative
+Imperative programming means the programming style where the computer is
+explicitly told which steps to perform when and in which order, to find
+the solution to a problem.  Imperative programs are rather low-level,
+compared to declarative programs.
+
+@item module
+A module is a collection of functions, variables, constraints and type
+declarations, which can be compiled independently of other modules.  A
+collection of modules forms a program.
+
+@item variable
+A variable is a storage location.  The contents of variables can be
+fetched and new values can be stored into variables, using assignment.
+In Turtle, the values of variables can also be determined by using
+constraints on constrainable variables.
+
+@end table
+
+
+@c ===================================================================
+@node Index,  , Glossary, Top
+@comment    node-name,         next,       previous, up
+@unnumbered Index
+     
+@printindex cp
+
+@contents
+
+@bye

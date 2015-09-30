@@ -1,0 +1,326 @@
+%% introduction.tex -- Introduction to the Diplomarbeit.
+%%
+%% Copyright (C) 2003 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+\chapter{Introduction}
+\label{cha:introduction}
+
+\section{Motivation}
+\label{sec:motivation}
+
+Problems are solved by computer programs by first developing
+simplified models of the real world which capture the objects and
+relations of interest.  These models must be represented inside the
+computer in a form suitable for machine processing.  The computer can
+then manipulate the models' representations to create one or more
+solutions and these results must be interpreted in the context of the
+original problem.  The task of the programmer consists of the
+necessary modelling and the translation of the model into a language
+the computer can work with.  Programming languages should help the
+programmer with this task, so that the data models and algorithms for
+finding solutions can be expressed correctly and conveniently, and
+that the computer can find them as fast as possible.
+
+The desire to have both correct and efficient computer programs often
+results in two conflicting goals.  Often the first wish is addressed
+by using high-level programming languages, which offer a clear syntax
+and well-defined semantics, so that the correctness of a program can
+be proved using mathematical properties of the semantics.
+Additionally, modern high-level languages provide features which are
+convenient for modelling and handling data structures, such as
+algebraic data types\index{algebraic data type}, pattern
+matching\index{pattern matching}, higher-order
+functions\index{higher-order function}, unification\index{unification}
+and built-in search\index{built-in seach}\index{search} facilities.
+Unfortunately, today's implementations of these high-level languages
+are often still slower than their lower-level counterparts, the
+imperative programming languages.  Many programmers still neglect
+higher-level languages as being too slow for their purposes, despite
+the incredible advances in compiler technology\footnote{Of course, the
+  advances in hardware are important as well, because they change the
+  sets of programs which are considered ``slow'' or ``fast''.}, which
+let optimizing compilers produce machine code which performs nearly as
+efficient as hand-written imperative code. Even though the difference
+in performance between low- and high-level languages is insignificant
+for most programming problems, many programmers are still using
+imperative languages.  There are several reasons for that:
+
+\begin{description}
+\item[Performance.\index{performance}] For some tasks, higher-level
+  language implementations still do not have the necessary
+  performance, e.g.~for real-time systems\index{real-time system}
+  where guaranteed response times and low memory usage are often the
+  most important requirements.  Higher-level languages normally need a
+  large run-time system\index{run-time system} and garbage
+  collection\index{garbage collection}, which are hard to be made
+  suitable for real-time systems.
+  
+\item[Development Environments.\index{development environment}] There
+  are very good development environments for imperative languages,
+  which are convenient to use and generate very efficient programs,
+  for instance the integrated development
+  environments\index{integrated development environment} from
+  companies like Microsoft\index{Microsoft}, Borland\index{Borland},
+  IBM\index{IBM} or Sun\index{Sun} for programming
+  \cplusplus{}\index{C++} or \java{}.\index{Java} These environments
+  contain very good debuggers\index{debugger}, and the elimination of
+  program errors is often thought of as the important last phase
+  before delivering software, and the need to avoid such errors early
+  in the development process is not considered important.
+  
+\item[Education.]  Imperative programming languages are often the
+  first languages which are taught at school, in university and in
+  programming courses.  Since most companies look for imperative
+  programmers and not for functional or logic programmers, there is
+  some pressure on the educators to teach these languages, even if
+  they know about the advantages of higher-level languages.
+
+\item[Availability.] Higher-level language implementations are not as
+  widely available as imperative ones, at least from commercial
+  vendors.  A lot of software companies do not use them at all.
+  
+\item[Legacy\index{legacy} Software.]  Most of old but still important
+  software is written in imperative languages like
+  \cobol{}\index{Cobol}, \fortran{}\index{Fortran} or
+  \cee{}\index{C}/\cplusplus{}\index{C++} and still needs to be
+  maintained and extended.
+  
+\item[Tools and Libraries.] For older languages, there exist many well
+  tested and efficient tools and libraries which help in programming.
+  For newer systems, less libraries for addressing every-day problems
+  in industry have been written---not because it is not possible, but
+  simply because there has not been enough time and personnel to do
+  it.
+  
+\item[Literature.]  A lot of literature is dedicated to imperative
+  languages.  Again, this is mostly caused by the fact that there is
+  not yet such a wide audience for books on higher-level languages as
+  there is for imperative languages.
+\end{description}
+
+\noindent
+Despite the wide use of imperative languages, it is consensus that
+high-level languages decrease the number of errors in software systems
+and lead to faster development.
+
+So what is necessary to make programmers use high-level languages?
+
+Most of the problems mentioned above have already been addressed by
+research in these fields and the development of hardware and tools.
+Compilers for high-level languages produce acceptable code.  Memory
+needs of higher-level languages are normally larger than for
+imperative languages, but today every personal computer is equipped
+with hundreds of megabytes of memory.  The mainstream and the research
+results are approaching the same requirements of hardware as
+functional and logic language compilers become better and imperative
+language implementations become slower, due to widespread use of byte
+codes%
+\index{byte code} and virtual machines%
+\index{virtual machine} to obtain portability, which seems to be more
+important nowadays than pure number-crunching performance.  At the
+same time, as high-level language implementations grow more mature,
+they gain more interest in the programmer community, which leads to
+more tools and libraries (often freely available) and encourages
+publishers to publish books on this topic.  That is why the author
+believes that most of the problems listed above will be simply solved
+by the time which is needed to let ideas spread from academia to the
+mainstream, as could be witnessed with the success of object-oriented%
+\index{object-oriented programming} programming in recent years, which
+took more than twenty years until it was widely used.
+
+Unfortunately, one problem has not been mentioned yet:
+
+\begin{description}
+\item[Habits.]  Most programmers are used to their favourite
+  programming language, which most probably is an imperative one.  And
+  habits do not change easily.
+\end{description}
+
+\noindent
+The idea for solving this problem is to combine technical measures
+with ``psychological'' ones, that is, to design a programming language
+which lets the programmer get used to declarative programming
+incrementally.  That is why a language should have both low-level
+concepts with predictable and guaranteed time and space requirements
+as well as high-level concepts such as higher-order functions%
+\index{higher-order function} for programming more abstractly. Then
+the programmer can choose whatever language feature is suitable for a
+given task.
+
+Such a strategy in language design leads to multiparadigm programming
+languages%
+\index{multiparadigm!programming language}%
+\index{multiparadigm}, as described by Budd%
+\index{Budd}, Justice%
+\index{Justice} and Pandey%
+\index{Pandey} in~\cite{buddGeneral}.  The idea is to offer the best
+in existing programming paradigms and let the user decide which
+language features to use when.  The language Leda%
+\index{Leda}, for example, designed by Budd%
+\index{Budd} and described in~\cite{budd94leda, budd95mppil}, combines
+imperative and relational programming in one language.
+
+The language \turtle{}%
+\index{Turtle} developed in this thesis merges imperative and
+constraint programming\footnote{Actually, functional language elements
+  are also added, as far as they fit into the constraint imperative
+  framework.}  into one language, resulting in a powerful language
+with a wide area of applicability.
+
+Constraints are relations in the mathematical sense, which are used in
+constraint-based programming languages for specifying the relations
+which hold between different entities of interest.  Since objects and
+their relations change over time (for example in interactive
+applications or simulations), it is necessary to check continuously
+whether these state transitions violate the specification of the
+model.  The specification must then be restored by modifying the
+objects or their relations.  Additionally, the set of relations must
+be capable of changing over time, as well as the set of objects.
+
+This work investigates the integration of two very different
+programming paradigms.  On the one hand declarative programming with
+constraints, the specification of the properties of objects and their
+relations, and on the other hand imperative programming, which deals
+explicitly with statements and the change of the program state over
+time.  So we have a programming style in which we tell the machine
+{\em what} to calculate, and a style in which we tell {\em how} to do
+it.  The main goal of this work is to find out how these different
+styles can be integrated smoothly, so that we can obtain ``the optimum
+of both worlds.''
+
+
+\section{Background}
+\label{sec:background}
+
+This work was motivated mainly by two existing language designs which
+integrate imperative and declarative programming.  The first is the
+language Alma-0%
+\index{Alma-0}, developed by Apt%
+\index{Apt} et al.~\cite{apt97search, apt98alma, apt98almaproject},
+which is an intermediate result of the Alma%
+\index{Alma} project.  This project aims to lead to the design of a
+constraint imperative language.  While Alma-0 is on its way to a
+constraint imperative language, its designers decided to proceed
+step by step by starting with an imperative language, then adding
+declarative language elements such as logical variables, the notion of
+success/failure and backtracking to their language and then, at later
+stages, to integrate constraints.  Alma-0 is based on Modula-2, both
+in syntax and semantics.
+
+Borning%
+\index{Borning} et
+al.~\cite{lopez94kaleidoscope,freemanbenson90design} developed a
+family of constraint imperative languages called Kaleidoscope%
+\index{Kaleidoscope}.  The first version, Kaleidoscope '90 was
+designed to be a constraint imperative language from the beginning.
+The language is object-oriented and allows to place constraints on
+primitive data types as well as user-defined objects. Later versions
+of the language changed in syntax and semantics to solve various
+problems of the original design.
+
+Both languages and other approaches are described in
+Chapter~\ref{cha:constraint-imperative-programming}.
+
+As already mentioned in section~\ref{sec:motivation}, Budd's works on
+multiparadigm languages also influenced this thesis. General work on
+constraint solving and satisfaction, constraint hierarchies,
+constraint logic and constraint functional programming languages also
+had an impact on the statements following.
+
+
+\section{Goals}
+\label{sec:goals}
+
+First, the existing work in the field of constraint imperative
+programming will be summarized, so that the following parts can build
+on previous results of research in this area.
+
+The next goal for this work is the design and implementation of a
+programming language which is suitable for both imperative and
+constraint programming.  The design is guided by the investigation of
+previous approaches to this problem and related fields, such as
+general programming language design, constraint logic programming and
+other work on integrating programming language paradigms.  Besides the
+design and the specification of the semantics of our integrated
+approach, the implementation problems and possible solutions will be
+addressed as well.
+
+The final goal is to investigate how well the resulting language meets
+the requirements for such a language, such as ease of programming,
+easy adaptability for imperative programmers, reduced sources of
+programming errors and reasonable efficiency.  This goal is addressed
+by using the resulting language in implementing and examining test
+programs.
+
+
+\section{Outline}
+\label{sec:outline}
+
+This thesis is organized as follows: after this Introduction,
+Chapter~\ref{cha:constraint-programming} gives a general view on
+constraint programming.  We give definitions of the notations which
+will be used in subsequent chapters, then we present some variations
+of constraint problems and their solution techniques.  Finally the
+existing approaches to integrate constraint programming with other
+(mostly declarative) languages are summarized.
+
+A special combination of constraints and traditional
+programming---constraint im\-pe\-ra\-tive programming---is described
+in Chapter~\ref{cha:constraint-imperative-programming}. Here the
+origins as well as existing approaches and implementations are
+presented and we will review the literature on constraint
+im\-pe\-ra\-tive programming.  In this chapter, goals for a successful
+merge of low- and high-level languages are defined, and possible
+problems are identified.
+
+Chapter~\ref{cha:turtle} describes the constraint imperative
+programming language \turtle{}, which was designed to address the
+problems arising in the integration of these two paradigms.  After
+presenting the syntax we specify the semantics of constraint
+imperative programs in \turtle{}.  Following the presentation of the
+language design, the implementation of the compiler and the run-time
+system will be described in Chapter~\ref{cha:turtle-impl} together
+with a discussion of efficiency and effectiveness of constraint
+imperative programs written in \turtle{}.
+
+In Chapter~\ref{cha:summary} the thesis is summarized and compared to
+previous work on the design and implementation of constraint languages
+and constraint imperative languages.  Also, ideas for future
+directions in the work on constraint imperative and multiparadigm
+programming in general, and especially with regard to \turtle{} and
+its implementations are outlined.
+
+The Appendix contains a formal description of the grammar of \turtle,
+a description of the modules available in the standard library and the
+definitions of three \turtle{} modules for illustrating the syntax of
+\turtle{} programs.  The Appendix also contains information about the
+availability of the \turtle{} system which was developed as a part of
+this thesis.
+
+
+\section{Notation}
+
+In the following chapters, some terms in the text and the example
+programs will be emphasized by typesetting them differently.
+%
+\begin{itemize}
+\item Reserved words are written in boldface, for example {\bf if},
+  {\bf string} and {\bf module}.
+
+\item Variables will be written in italics, e.g. {\em x} and {\em
+    counter}.
+
+\item Function and module names will be written in italics in the
+  text, but in normal font in the example programs.
+\end{itemize}
+%
+Since some type names are reserved names and some are not, the names
+of data types will sometimes written in boldface and sometimes in
+italics, e.g. {\bf string} and {\em bool}.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "da.tex"
+%%% End: 
+
+%% End of introduction.tex.

@@ -1,0 +1,688 @@
+%% constraint-imperative.tex -- Introduction to CIP.
+%%
+%% Copyright (C) 2003 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+\chapter{Constraint Imperative Programming}
+\label{cha:constraint-imperative-programming}
+\index{constraint imperative programming}
+
+Constraint imperative programming combines language elements of
+traditional imperative programming languages with techniques from
+constraint programming.
+
+The advantages of constraint imperative programming will be introduced
+by presenting an example adapted from literature \cite{lopez97phd,
+  lopez94kaleidoscope}.  Fig.~\ref{pic:temperature} shows a
+thermometer widget\footnote{widget = {\em wi}ndow ga{\em dget}, a
+  graphical metaphor for human-machine interaction.}, whose ``mercury
+column'' can be adjusted by dragging the mouse.  Input elements like
+this thermometer are very common in graphical user interfaces (GUIs)
+and lend themselves perfectly to demonstrating the advantages of
+constraint support in interactive applications.  The upper end of the
+column can be dragged up and down, but is of course restricted to stay
+within the bounds of the scale.  Program~\ref{prog:imperative-example}
+is a solution to this problem, presented in a language with typical
+imperative features.  This example shows how closely connected the
+program logic (reading the position of the mouse pointer and adjusting
+the mercury column) and the maintenance of the program constraints
+are.
+%
+\begin{figure}[h]
+\begin{center}
+\input{temperature.epic}
+\end{center}
+\caption{Thermometer widget}
+\label{pic:temperature}
+\end{figure}
+
+%
+\begin{Program}
+\begin{ttlprog}
+1\>\ttlWhile{} {\em mouse.pressed} \ttlDo{}\\
+2\>\>\ttlVar{} {\em y}: int;\\
+3\>\>{\em y} $\leftarrow$ {\em mouse.y};\`{\em read the position of the mouse pointer}\\
+4\>\>\ttlIf{} {\em y} $>$ {\em scale.max} \ttlThen{}\`{\em restrict y-component to valid range}\\
+5\>\>\>{\em y} $\leftarrow$ {\em scale.max};\\
+6\>\>\ttlElse{}\\
+7\>\>\>\ttlIf{} {\em y} $<$ {\em scale.min} \ttlThen{}\\
+8\>\>\>\>{\em y} $\leftarrow$ {\em scale.min};\\
+9\>\>\>\ttlEnd{};\\
+10\>\>\ttlEnd{};\\
+11\>\>{\em temp.max} $\leftarrow$ {\em y};\`{\em adjust the column}\\
+12\>\ttlEnd{};
+\end{ttlprog}
+\caption{Imperative approach}
+\label{prog:imperative-example}
+\end{Program}
+%% while mouse.pressed do
+%%   var y: int;
+%%   y := mouse.z;
+%%   if y < scale.max then
+%%     y := scale.max;
+%%   else
+%%     if y > scale.min then
+%%       y := scale.min;
+%%     end;
+%%   end;
+%%   temp.max := y;
+%% end;
+%
+Program~\ref{prog:constrained-example} presents the constraint
+imperative approach to this problem.  In this typical constraint
+imperative language, the constraints are explicitly formulated and
+their maintenance is delegated to the run-time constraint solver.
+Since the constraints which limit the range of the column are
+required, the equality constraint between the upper end of the mercury
+column and the mouse pointer will only be enforced if the other two
+constraints are not violated.
+%
+\begin{Program}
+\begin{ttlprog}
+1\>\ttlRequire{} {\em temp.max} $\leq$ {\em scale.max};\\
+2\>\ttlRequire{} {\em temp.max} $\geq$ {\em scale.min};\\
+3\>\ttlWhile{} {\em mouse.pressed} \ttlPrefer{} {\em temp.max} = {\em mouse.y};
+\end{ttlprog}
+\caption{Constraint imperative solution}
+\label{prog:constrained-example}
+\end{Program}
+%% require temp.max <= scale.max;
+%% require temp.max >= scale.min;
+%% while mouse.pressed prefer temp.max = mouse.y;
+
+The constraint imperative version is not only shorter and easier to
+read and modify than the imperative one, but it is also easier to
+check its correctness.  These are the main advantages of constraint
+imperative programming.  This example shows how well constraints and
+interactive, graphical applications interact, but as
+Lopez~\cite{lopez97phd} noted, constraint imperative languages are
+actually general-purpose languages, since they are a superset of
+traditional programming languages.\footnote{Lopez writes about
+  object-oriented programming languages, whereas this work is more
+  targeted to traditional imperative languages without
+  object-orientation.}
+
+In this chapter, we will first review the existing literature about
+constraint imperative programming.  Then we will identify the general
+characteristics of constraint imperative programming languages and
+summarize the main problems of this approach.
+
+\section{Constraint Imperative Languages and Systems}
+
+This section summarizes literature on constraint imperative
+programming and on related topics like object-oriented programming
+languages with constraint integration.  Constraint imperative systems
+have been developed both as integrated programming languages where
+constraints are added to some imperative base language, and as
+programming libraries in various languages, which can be added to
+existing programs without requiring the programmer to learn a new
+language.
+
+\subsection{\cool}
+\index{COOL}
+\index{Avesani}
+\index{Perini}
+\index{Ricci}
+%
+Avesani, Perini and Ricci~\cite{avesani90cool} describe the constraint
+language \cool{} which is built on top of an object-oriented system.
+Their goal was to develop an architecture for solving combinatorial
+optimization problems.  In \cool{}, it is possible to create classes
+and objects, and both of these can have slots.  Slots are used to
+store values, and it is possible to declare slots as {\em
+  constrainable}, what means constraints can be placed on slots, thus
+constraining the values which can be stored into these slots.
+Constraints are placed on slots by calling the built-in function {\em
+  assert-constraint}.  The same function, called with different
+parameters, is also used for removing constraints again. When all the
+necessary constraints for modelling a problem have been placed on
+slots, the built-in function {\em find} will calculate all solutions.
+Interestingly, constraints can have an associated strength, similar to
+the ones used in constraint hierarchies, but they are only used in
+internal algorithms to the solver, and their semantics are not
+precisely specified.
+
+COOL is very tightly integrated with the underlying object-oriented
+system and very specific to combinatorial problem solving.  It is not
+well suited as a general purpose programming language.
+
+\subsection{Alma-0: Embedded Search}
+\index{Alma-0}
+\index{Apt}
+
+Alma-0 is the first language which was designed by Apt et al. for the
+Alma project~\cite{apt98almaproject}.  The goal of this ongoing
+project is the combination of imperative and declarative programming.
+The designers decided to start with an imperative programming language
+(\modula) and to add declarative features step by step.  First, only a
+few language constructs for non-deterministic choice, succeeding and
+failing statements and built-in backtracking were added to the
+imperative base language, and the resulting language was called
+Alma-0, showing that the language is only the first version of a
+series of improving languages.
+
+\index{trail}
+%
+With the embedded search capabilities, Alma-0 is already well suited
+for solving many combinatorial problems and many illustrating examples
+can be found in literature \cite{apt97search, apt98alma}.  The
+implementation is that of traditional imperative languages with the
+addition of a {\em trail} for storing variable assignments which might
+need to be undone on backtracking.
+
+The Alma project designers have written about the integration of
+constraint into the language~\cite{apt98almaproject}, but there does
+not exist a detailed description of these plans nor any implementation
+yet.
+
+The Alma-0 language could be called a logic imperative language,
+rather than a constraint imperative language, because its semantics is
+closer to logic programming languages than to constraint languages.
+The planned extensions are more suited for constraint imperative
+programming.  In~\cite{apt98almaproject}, the language is called an
+``imperative constraint programming language'' and is introduced as
+the natural extension of the concept of uninitialized variables as
+they exist in Alma-0.  In Alma-0, variables can be uninitialized, and
+when such a variable is used in an equality test, it gets initialized
+with the other operand of the equality.  This concept will be
+generalized for the planned constraint integration: variables will
+then be initialized whenever they appear in constraint statements, of
+which the equality test is a simple example.
+
+\index{unknown}
+\index{known, but varying}
+%
+In the planned language extension, variables are either ``unknowns''
+or ``known, but varying''~\cite[p.~5]{apt98almaproject}.  The former
+are variables in the mathematical sense, whereas the latter are
+variables as in traditional imperative languages, where they stand for
+storage locations which hold values.  Only ``unknowns'' can be
+constrained in the proposed language.
+
+The Alma project ``is a proposal for integrating constraints into ANY
+imperative language''~\cite[p.~6]{apt98almaproject}, and some of the
+proposed language elements will be used in the present thesis as well
+(see Chapter~\ref{cha:turtle}).
+
+\subsection{Kaleidoscope}
+\index{Kaleidoscope}
+
+\index{Lopez}
+\index{Borning}
+\index{Freeman-Benson}
+
+Kaleidoscope is an object-oriented programming language which
+integrates constraints as a fundamental concept.  It is described
+in~\cite{lopez94kaleidoscope}, and the implementation is presented in
+\cite{lopez94implementing}.  Benson et al. describe the principles
+upon which it is based in~\cite{benson92int, benson91cip}.
+
+\index{constraint!constructor}
+
+Most of the imperative language constructs are modelled as
+constraints, which are solved by a constraint solver integrated into
+the run-time system.  The language provides primitive constraints, and
+the user can define higher-level constraints which are then executed
+in terms of the primitive ones by writing so-called {\em constraint
+  constructors}.
+
+A Kaleidoscope program consists of class definitions, which contain
+attribute and method declarations.  In method bodies, all traditional
+imperative statements like assignment, conditionals and loops can be
+used.  Additionally, three different constraint statements are
+available for placing constraints on object attributes.  The first one
+enforces a constraint only once ({\em once}), the second for the rest
+of the program execution ({\em always}) and the third as long as a
+given condition remains true ({\em assert-during}).  The life-time of
+constraints is also called {\em duration} (see
+section~\ref{sec:constraints-in-an-imperative-environment}).
+
+Constraints are tagged by {\em constraint strengths}, which indicate
+the importance of the individual constraints.  Since Kaleidoscope
+supports constraint hierarchies, weaker (less important) constraints
+are not enforced when this is necessary to make stronger (more
+important) constraints satisfiable.  For example, in the two
+constraint statements,
+%
+\begin{ttlprog}
+\>{\bf always} required {\em x} $>$ 0;\\
+\>{\bf always} weak {\em x} = {\em y};
+\end{ttlprog}
+%
+the second constraint will only have an effect on $x$ when the first
+is not violated, that is, when $y$ has a value greater than $0$.  (The
+words {\em required} and {\em weak} are symbolic names for constraint
+strengths and can be defined by the programmer.  See also section
+\ref{sec:constraints-in-an-imperative-environment}.)
+
+The most interesting aspect of the Kaleidoscope approach is that the
+semantics of imperative constructs such as assignment is modelled as
+constraint statements.  This simplifies the language semantics as well
+as the implementation, because fewer language constructs need to be
+specified and implemented.  Variables in Kaleidoscope do not contain a
+single value which varies, instead they contain an infinite sequence
+of fixed values, where each element in this sequence corresponds to a
+given point in time.  That means that a variable assignment as the
+following
+%
+\begin{ttlprog}
+\>$x$ $\leftarrow$ $x$ $+$ 1;
+\end{ttlprog}
+%
+can be modelled as a constraint statement, where the indices indicate
+the time points for which the variables stand:
+%
+\begin{ttlprog}
+\>{\bf always} required $x_{i}$ $=$ $x_{i-1}$ $+$ 1.
+\end{ttlprog}
+%
+The system automatically maintains the constraint
+%
+\begin{ttlprog}
+\>{\bf always} weak $x_i = x_{i-1}$
+\end{ttlprog}
+%
+for all variables, which ensures that each variable which is not
+changed by an assignment between two time points has the same value as
+it had before the last time step.
+
+In constraint statements, data can flow in any direction between the
+variables contained in constraints.  Sometimes, this is not what the
+programmer wants, and Kaleidoscope provides {\em read-only}%
+\index{read-only annotation}%
+\index{?!read-only annotation} and {\em
+  write-only annotations}%
+\index{write-only annotation}%
+\index{"!!write-only annotation}.  These specify which variables can
+only be read but not modified, and which can only be stored into, but
+not be used otherwise.  This is best shown by describing how an
+assignment statement is translated from Kaleidoscope code
+%
+\begin{ttlprog}
+\>$x \leftarrow y$;
+\end{ttlprog}
+%
+into more basic constraint statements:
+%
+\begin{ttlprog}
+\>{\bf always} required $tmp$ $=$ $y_{i-1}$?\\
+\>{\bf always} required $x_i$ $=$ $tmp$?
+\end{ttlprog}
+%
+The read-only annotations (written as question marks) specify that in
+the first assignment, the information must flow from $y$ to $tmp$, and
+in the second assignment from $tmp$ to $x$ because the variables on
+the right can only be read, not written.  Write-only annotations are
+written with an exclamation mark.
+
+\index{constructor}
+\index{constraint!constructor}
+\index{splitting}
+%
+Besides the built-in primitive constraints, such as equality, identity
+and linear arithmetic constraints over integers and real numbers,
+Kaleidoscope supports the definition of higher-level constraints
+(constraint constructors).  These can constrain variables of more
+complex types, such as user-defined objects.  Whenever a constraint
+constructor on complex data types appears in a constraint statement
+and the statement is executed, the constructor is called in order to
+place primitive or other user-defined constraints on the parts of the
+complex object.  This evaluation scheme for constructors is called
+{\em splitting} \cite{lopez97phd}, because it splits complex
+constraints into simpler ones.  Figure~\ref{pic:splitting} shows how
+splitting works for an equality constraint on two point objects, both
+having attributes $x$ and $y$, standing for cartesian coordinates.
+%
+\begin{figure}[h]
+\begin{center}
+\input{splitting.epic}
+\end{center}
+\caption{Splitting}
+\label{pic:splitting}
+\end{figure}
+
+It should be noted that splitting makes it possible to handle
+constraints on complex data structures even when the constraint
+solvers are not powerful enough for working on these data structures,
+since they must only provide constraints on numbers.  On the other
+hand, the splitting of complex data structures loses higher-level
+information on the overall problem specification which could be useful
+for more powerful constraint solvers.
+
+The philosophy behind the Kaleidoscope design is quite different from
+all the other systems presented in this section, and from the
+\turtle{} language developed in this thesis.  In Kaleidoscope,
+constraints are employed to automatically maintain invariants on the
+relations between objects and the values of their attributes.  The
+other constraint programming systems are more oriented towards problem
+solving: they support the modelling of problems using constraints and
+the search for solutions by global resolution algorithms.  They
+concentrate on inferring values for variables or attributes and ignore
+the relations between complex objects.
+
+Kaleidoscope is designed to be a general purpose language, but only
+research prototypes have been implemented, and it is not clear from
+literature whether they are useful for real-life applications.
+
+\subsection{JACK}
+\index{JACK}
+\index{Java Constraint Kit}
+\index{Abdennadher}
+
+\jack{} (\java{} Constraint Kit) \cite{abdennadher01:jack:inp,Jack2}
+is a preprocessor and library which supports constraint programming in
+\java{}.
+
+Constraint problems are formulated by writing \java{} constraint
+handling rules (JCHR), which are similar to the constraint handling
+rules developed by Fr\"uhwirth \cite{fruehwirth98chr}. CHR programs
+define rules for the propagation and simplification of constraints and
+are well suited for writing constraint solvers, or for extending
+existing constraint solvers.  In \jack{}, the programmer defines
+handlers (also called constraint solvers) which include a set of rules
+for handling constraints.  These CHR programs can be translated to
+\java{} code and compiled by a \java{} compiler.
+
+In addition to JCHR, \jack{} contains a tool for graphically
+displaying constraint stores and the relations between the constraints
+in the store.  This visualization can be used for debugging JCHR
+programs and for improving their efficiency by investigating how the
+various constraint handling rules are applied.  With this knowledge,
+the rules can be re-written to make them more efficient.
+
+\subsection{\djava{}: Declarative Java}
+
+\djava{} is also an extension of the \java{} language with integration
+of constraints~\cite{zhou98dj}.  In \djava{}, classes can include
+component declarations, attribute declarations, constraints and
+actions.  Components are the graphical components which are parts of
+the class, and attributes are similar to member variables in \java{},
+but their values are determined by the system as specified by the
+constraints.  Actions are used to add behaviour to components.  As in
+Kaleidoscope, user-defined constraints combine built-in and other
+user-defined constraints to form more complex constraints on primitive
+data types or classes.
+
+\djava{} is implemented as a compiler which translates \djava{}
+programs to \java{} code.  The emphasis of the \djava{} approach is on
+the creation of graphical programs, but the language can also be used
+for solving arbitrary combinatorial constraint problems.  The system
+also includes facilities for specifying how the solutions to these
+problems are displayed graphically.
+
+The constraint capabilities of \djava{} are designed for graphical
+user interface programming, so only the imperative part of the
+language (which is essentially \java{}) is useful as a general purpose
+language.
+
+\subsection{Constraint Libraries}
+
+\index{Koalog}
+\index{ILOG}
+
+There are several commercial constraint solving libraries available,
+for example from the companies ILOG~\cite{ilogwww} and
+Koalog~\cite{koalogwww}.  The ILOG Solver is a library for
+\cplusplus{} \cite{ILOG}, whereas the Koalog Solver is for
+\java{}~\cite{koalog}.
+
+The ILOG Solver is a commercially successful library for constraint
+programming which makes extensive use of language features of
+\cplusplus{}, such as object-oriented programming and overloading.
+Thus constraints can be created by simply writing arithmetic
+expressions involving objects of the predefined classes for
+representing variables.
+ 
+The Koalog Solver consists of a library of classes for the two main
+tasks in constraint programming: modelling and solving.  The first
+task is supported by providing a set of classes for representing
+variables and constraints, the second task by providing constraint
+solvers and constraint optimizers for searching for any, all or
+optimal solutions.  The system can be extended by creating new
+subclasses of existing constraints with new behaviour and by
+customizing and extending the solving algorithms.
+
+Because of the integration of constraints into these imperative
+languages, one could call these systems constraint imperative, but it
+is important to note that this is not the kind of seamless integration
+aimed at by the other systems, where constraints are an important
+aspect of both the language syntax and semantics.
+
+
+\subsection{Other Systems}
+
+\index{K\"ok\'eny}
+\index{YAFCRS}
+
+K\"ok\'eny~\cite{ny94yet} describes an open architecture for embedding
+constraints into object-oriented programs.  The system, called YAFCRS
+(Yet Another Framebased Constraint Resolution System) mainly provides
+representation methods for finite domain constraint problems and
+solving algorithms.  It aims at being both usable for inexperienced
+users by providing predefined algorithms for problem solvers, and at
+being extensible and flexible for advanced users.  Therefore, there
+are many built-in constraints to choose from, and there are mechanisms
+for defining user-defined constraints.  These user-defined constraints
+are also solved by splitting.
+
+\index{Lamport}
+\index{Schneider}
+\index{aliasing}
+\index{typing}
+
+Lamport and Schneider~\cite{lamport84aliasing} invented a proof system
+for a language in which typing and aliasing of variables can be
+specified using constraints.  {\em Aliasing} means that two or more
+variables share the same representation, so that a modification of one
+variable also changes the others.  This system is based on Hoare
+Triples and is intended for proving the correctness of imperative
+programs.  Their system for handling aliasing is not restricted to
+simple equality of variables, but can deal with arbitrary relations
+between program variables, as long as they are expressible by
+constraints.  Type declarations for variables are also treated as
+constraints on these variables, although they permit the traditional
+way of stating variable types by type annotations.
+
+As an example (taken from~\cite{lamport84aliasing}), consider the
+following variable declaration which defines the variables $f$ and $g$
+(intended as temperatures in degrees Fahrenheit and degrees Celsius)
+and relates them with constraints so that they always refer to the
+same temperature.
+%
+\begin{ttlprog}
+\>\ttlVar{} {\em f}, {\em c}: real {\bf constraints} $f=g\times c/5+32$ \ttlIn{} $S$
+\end{ttlprog}
+%
+$S$ stands for an arbitrary statement and the constraint is enforced
+as long as this statement executes.
+
+Pachet and Roy~\cite{pachet95mixing} propose an extension of
+\smalltalk{}~\cite{goldberg83smalltalk} with finite-domain constraint
+satisfaction mechanisms.  In their system, constraints can be defined
+over arbitrary \smalltalk{} objects, so that it is possible to re-use
+existing components and combine them with constraints to form new
+programs, instead of requiring that everything should be re-written
+completely.
+
+\section[Imperative and Declarative Language Characteristics]{Imperative and Declarative Language\\Characteristics}
+
+There are various aspects which are important for understanding the
+problems of integrating imperative languages with higher-level
+features such as higher-order functions or constraints.
+
+The interpretation of an imperative program relies on the notions of
+state and time.  A program has an associated state (represented as the
+values of the program variables) at a given time.  This state changes
+over time, as assignments to the variables are being made.  Therefore,
+it is necessary to take time into account when trying to find out what
+an imperative program does.  Declarative languages do not have this
+problem, as their computations are specified independent of time.
+
+Related to this, imperative languages are statement-oriented, whereas
+declarative languages are expression-oriented.  Imperative programs
+contain a sequence of statements which are to be executed in order,
+whereas declarative programs consist of expressions, where the order
+of evaluation is not important as long as mathematical and otherwise
+semantic restrictions do not interfere.  In declarative languages, it
+does not even matter whether an expression is evaluated more than
+once, because the evaluation has no effects except for producing a
+value.  This freedom makes correctness proving much easier for
+declarative programs, and the language implementation can benefit as
+well since optimization is less difficult.
+
+The main problem with integrating constraints and imperative languages
+is the interaction between the imperative program flow, which alters
+the state of the program, and the declarative interpretation of
+constraints, which does not know anything about state or time.  One or
+both of the two interpretations of computation need to be modified in
+order to bring them together.
+
+
+\section{Constraints in an Imperative Environment}
+\label{sec:constraints-in-an-imperative-environment}
+
+When constraints are used in an imperative environment, many problems
+arise which do not exist in either of the two paradigms, as long as
+these are treated in isolation.  Some of these problems appear
+whenever declarative and imperative languages are combined, others are
+specific to constraint imperative languages.
+
+% Because of the notion of state and time in imperative systems, they
+% have to be considered not only when specifying constraints, but when
+% solving them, too.
+
+\paragraph{Side Effects.}
+\index{side effects}
+
+As soon as imperative languages are part of a system, it is necessary
+to define the semantics of side effects such as assignment statements
+or imperative in-/output.  In a constraint imperative language, the
+possibilities of interaction between side effects and constraint
+statements must be examined, and rules for these interactions have to
+be defined.  An example where this problem occurs is when a variable
+is constrained by one or more constraints and the program assigns a
+value to the variable which does violate the constraint(s).
+
+\paragraph{Object Identity.}
+\index{object identity}
+
+In imperative languages, all objects created during a program run are
+identified by their identity, so that more than one object which looks
+the same can actually be different objects occupying different areas
+of the computer's memory.  In higher-level languages, different
+objects with the same contents are normally indistinguishable, thus
+leading to more freedom in the implementation of those languages.
+
+In non-imperative constraint languages, for example, an equality
+constraint between two variables can simply be satisfied by assigning
+the same object reference to both of them, or by copying the whole
+object.  Since there is no way the programmer can notice the
+difference, the effect is the same. In imperative languages
+side-effects can later make the equality invalid in the latter case,
+whereas in the former case, the equality is preserved because the
+objects in both variables are simultaneously modified.
+
+Lopez, Freeman-Benson and Borning have examined the implications of
+object identity \cite{lopez94identity}, and the design of
+Kaleidoscope was influenced by this so that it provides both {\em
+  identity} constraints (written as ``=='') and {\em equality}
+constraints (written as ``='').
+
+\paragraph{Duration.}  
+\index{duration}
+
+The duration of a constraint is the time span in which the constraint
+must be enforced.  This problem does not exist for declarative
+constraint languages, because they specify constraints between
+variables which have to hold as long as the variables exist.  For
+imperative languages, where the flow of control over time is
+explicitly expressed, it is necessary to state not only which
+constraints need to hold, but also {\em when}.  On the one hand, this
+adds much complexity to constraint imperative programs, on the other,
+it makes them more flexible.
+
+Kaleidoscope offers three possible durations for constraints: {\em
+  once} means that a constraint is added to the store, the store is
+re-solved and then the constraint is immediately retracted.  This is,
+for example, used for implementing assignment with constraints.  {\em
+  always} constraints are defined once and then the constraint is
+enforced for the rest of the program run.  {\em assert-during}
+constraints are active while a statement (which may contain loops, so
+the duration is not known when asserting the constraint) is executed,
+and then retracted.
+
+% It is not clear from literature whether {\em always} constraints
+% really exist forever, or whether their lifetime depends on the objects
+% which are constrained by the constraints.
+
+
+\paragraph{Strengths.}
+\index{strength}
+\index{stay constraint}
+\index{default constraint}
+\index{constraint!strength}
+\index{constraint!default}
+\index{constraint!stay}
+%
+Constraints need to be labelled with strengths when they shall form a
+constraint hierarchy, in order to deal with under- and
+over-constrained problems.  Although a constraint imperative system
+without constraint hierarchies could be designed, its usefulness would
+be drastically reduced, because it would be difficult to constrain
+variables while the program dynamically adds or retracts constraints.
+So-called {\em default constraints} or {\em stay constraints}
+\cite{borning2000splitstay} are very useful, especially for graphical
+applications, where the user expects the graphical objects to stay
+where they are as long as no other (stronger) constraints are placed
+on them, such as alignment constraints or movement with the mouse.
+
+It should be noted that constraint hierarchies are useful in the
+context of other constraint languages too, and they have been
+integrated into constraint logic languages~\cite{wilson94hclp}.
+
+In Kaleidoscope, at least one constraint strength called {\em
+  required} does exist, and the user can define additional strengths
+symbolically in a {\em strength declaration}, which lists all
+available strengths for the program, strongest to weakest.  The
+following example shows a strength declaration which declares five
+strengths:
+%
+\begin{ttlprog}
+\>{\bf strength} required, strong, medium, weak, weakest.
+\end{ttlprog}
+%
+In all constraint statements following this declaration, the
+constraint strengths {\em required}, {\em strong}, {\em medium}, {\em
+  weak} and {\em weakest} can be used.
+
+\subsubsection{Consequences}
+
+Constraint imperative programming systems introduce a complete new set
+of problems.  One could argue that they combine the problems of
+declarative systems with the problems of imperative ones.  Existing
+constraint imperative systems are slower than traditional imperative
+systems, and they do not have the same clean semantics as the
+declarative constraint programming languages for a mathematical
+treatment for proving their correctness.  The first of these arguments
+can be addressed by the fact that none of the existing systems had the
+same development time as widespread imperative systems, and could be
+well optimized to run faster.  For example, the Kaleidoscope'93
+implementation was reported to run much faster than the first
+implementation, Kaleidoscope'90.  Additionally, it must be said that
+most of the systems run on top of other high-level systems, such as
+Smalltalk or Lisp and are research projects.  Implementing them on
+bare machines and optimizing them would improve their performance
+further.
+
+The argument about losing correctness is strong, but considering the
+fact that the goal is to get the user to use more and more of the
+declarative features of the language, the correctness is expected to
+increase with the programmer's ability to use more powerful
+techniques.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "da.tex"
+%%% End: 
+
+%% End of constraint-imperative.tex.

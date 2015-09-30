@@ -1,0 +1,912 @@
+%% appendix.tex -- Appendix to the Diplomarbeit.
+%%
+%% Copyright (C) 2003 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+
+\begin{appendix}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{grammar}%
+  {\newcommand\produces[2]{##1 \> $\rightarrow$ \> ##2 \\}
+   \newcommand\orproduces[1]{\> \> \makebox[0pt][r]{$|$ }##1 \\}
+   \newcommand\res[1]{'{\bf ##1}'}
+%   \newcommand\res[1]{\underline{\bf ##1}}
+   \newcommand\emptyprod{{$\varepsilon$}}
+   \newcommand\heading[1]{\rule{\linewidth}{1pt} \\{\bf ##1}\\[2ex]}
+   \newcommand\separator{\rule{\linewidth}{1pt} \\}
+   \begin{tabbing}
+   \qquad\qquad\qquad\qquad\qquad \= \qquad \= \kill}
+  {\end{tabbing}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{\turtle{} Grammar}
+\label{cha:turtle-grammar}
+\index{Turtle grammar}
+\index{grammar!Turtle}
+\index{syntax definition}
+
+The lexical and grammatical structure of Turtle is described using
+Extended Backus Naur Form (EBNF).  This notation is summarized below.
+\index{EBNF}
+\index{Extended Backus Naur Form}
+
+\vskip0.5em
+\noindent
+\begin{tabular}{ll}
+$A \rightarrow E$&
+The non-terminal $A$ produces the form $E$.\\
+
+$E | F$&
+Alternative; either $E$ or $F$ is produced.\\
+
+$\{ E \}$&
+The form $E$ is repeated, possibly zero times.\\
+
+$[E]$&
+The form $E$ is optional, it may be omitted completely.\\
+
+$(E)$&
+For grouping, denotes $E$ itself.\\
+
+$\varepsilon$& The empty string.\\
+\end{tabular}
+\vskip0.5em
+
+\noindent
+Nonterminals are printed in normal roman font, terminals appear bold
+and in single quotes.
+
+\section{Lexical Entities}
+\index{lexical entities}
+\index{token}
+
+The lexical entities (also called {\em tokens}) represent the regular
+part of the \turtle{} grammar.  They are recognized by the scanner
+module and then processed by the parser, which recognizes the
+context-free part of the syntax.  In addition to the token classes
+defined below, there is a number of one- or two-character symbols.  We
+do not define names for them in order to keep the grammar for the
+context-free syntax readable.
+
+\begin{grammar}
+\produces{IntConst}{Digit \{Digit\}}
+\produces{LongConst}{Digit \{Digit\} \res{L}}
+\produces{RealConst}{Digit \{Digit\} \res{.} Digit \{Digit\} [ Exponent ]}
+\produces{Exponent}{( \res{e} $|$ \res{E} )[ \res{$+$} $|$ \res{$-$} ] Digit \{ Digit \}}
+\produces{StringConst}{\res{\dq} \{ StringChar \} \res{\dq}}
+\produces{CharConst}{\res{'} StringChar \res{'}}
+\produces{Ident}{( Letter $|$ \res{\_} ) \{ Letter $|$ Digit $|$ \res{\_} $|$ \res{?} $|$ \res{!} \}}
+\produces{Letter}{\res{A} $|$ \dots $|$ \res{Z} $|$ \res{a} $|$ \dots $|$ 
+\res{z}}
+\produces{Digit}{\res{0} $|$ \dots $|$ \res{9}}
+
+\produces{StringChar}{ {\em (any except \res{\,$\backslash$}, \res{\,\dq} and newline)} $|$ EscapeChar }
+\produces{EscapeChar}{ \res{$\backslash\backslash$} $|$
+ \res{$\backslash$\dq} $|$
+ \res{$\backslash$'} $|$
+ \res{$\backslash$n} $|$
+ \res{$\backslash$r} $|$
+ \res{$\backslash$t} $|$ 
+ \res{$\backslash$b} $|$
+ \res{$\backslash$v} $|$
+ \res{$\backslash$a} $|$
+ \res{$\backslash$f\,} }
+\produces{Comment}{\res{//} \{ {\em (any except newline)} \}}
+\orproduces{\res{/*} \{ {\em (any except '*/') \} \res{\,*/}}}
+\end{grammar}
+
+\index{whitespace}
+Spaces, tab characters, newlines and comments serve as separators
+between tokens and are otherwise ignored.
+
+\index{string literals}
+String literals are not allowed to cross line boundaries, so a literal
+newline character inside a string is an error.
+
+\index{reserved words}
+Some of the tokens in the token class {\em Ident} are reserved and
+have a special meaning in the \turtle{} syntax.  They may not be used
+except where allowed in the context-free syntax.  The reserved words
+in \turtle{} are:
+%
+\vskip1ex
+\begin{tabular}{llllll}
+and&
+array&
+const&
+constraint&
+datatype&
+do\\
+else&
+elsif&
+end&
+export&
+false&
+foreign\\
+fun&
+hd&
+if&
+import&
+in&
+list\\
+module&
+not&
+null&
+of&
+or&
+public\\
+require&
+return&
+sizeof&
+string&
+then&
+tl\\
+true&
+type&
+var&
+while&&\\
+\end{tabular}
+\vskip1ex
+\noindent
+The following is a list of the non-alphanumeric symbols:
+\index{non-alphanumeric symbols}
+\vskip1em
+\begin{tabular}{llllllllllll}
+.&
+,&
+(&
+)&
+[&
+]&
+\{&
+\}&
+;&
+!&
+$+$&
+$-$\\
+*&
+/&
+\%&
+$=$&
+$<>$&
+$<$&
+$<=$&
+$>$&
+$>=$&
+:&
+::&
+:=
+\end{tabular}
+\vskip1em
+
+\section{Context-free Syntax}
+\index{context-free syntax}
+This is the context-free part of the \turtle{} grammar.
+
+%\enlargethispage{-1.5cm}
+\begin{grammar}
+\heading{Module Definition\index{module definition syntax}}
+
+\produces{CompilationUnit}{Module}
+
+\produces{Module}{\res{module} QualIdent [ FormalTypeParams ] \res{;} \\\>\>ModDecls Declarations}
+
+\produces{ModDecls}{[ ModImports ] [ ModExports ]}
+
+\produces{ModImports}{\res{import} ImportIdent \{ \res{,} ImportIdent \} \res{;}}
+
+\produces{ModExports}{\res{export} QualIdent \{ \res{,} QualIdent \} \res{;}}
+
+\produces{ImportIdent}{QualIdent [ TypeParams ] [ OpenIdentList ] }
+\produces{OpenIdentList}{\res{(} Ident \{\res{,} Ident\} \res{)}}
+
+\heading{Declarations\index{declaration syntax}}
+
+\produces{Declarations}{\{ Declaration \res{;} \}}
+
+\produces{Declaration}{TypeDecl $|$ DatatypeDecl $|$ VarDecl $|$ ConstDecl}
+\orproduces{FunDecl $|$ ConstraintDecl}
+
+\produces{TypeDecl}{[ \res{public} ] \res{type} Ident \res{=} Type}
+
+\produces{DatatypeDecl}{[ \res{public} ] \res{datatype} Ident [ FormalTypeParams ] \res{=} \\\>\> DatatypeVariant \{ \res{or} DatatypeVariant \}}
+
+\produces{DatatypeVariant}{Ident [\res{(} FieldList \res{)}]}
+
+\produces{FieldList}{Field \{\res{,} Field\}}
+\produces{Field}{Ident \res{:} Type}
+
+\produces{VarDecl}{[ \res{public} ] \res{var} VariableList}
+\produces{ConstDecl}{[ \res{public} ] \res{const} VariableList}
+
+\produces{VariableList}{Variable \{\res{,} Variable\}}
+\produces{Variable}{Ident \res{:} Type [\res{:=} ConsExpression]}
+
+\produces{FunDecl}{[ \res{public} ] \res{fun} Ident ParamList [\res{:} Type] SubrBody}
+
+\produces{ConstraintDecl}{[ \res{public} ] \res{constraint} Ident ParamList SubrBody}
+\produces{ParamList}{\res{(} [ Parameter \{\res{,} Parameter\} ] \res{)}}
+\produces{Parameter}{Ident \res{:} Type}
+
+\produces{SubrBody}{StmtList \res{end}}
+
+\heading{Type expressions\index{type expression syntax}}
+
+\produces{Type}{QualIdent [ TypeParams ]}
+\orproduces{\res{!} Type $|$  \res{()} $|$ \res{(} Type \{\res{,} Type\} \res{)}}
+\orproduces{\res{array} \res{of\,} Type
+                 $|$  \res{list} \res{of\,} Type
+                 $|$  \res{string}}
+\orproduces{\res{fun} \res{(} [Type \{\res{,} Type\}] \res{)} [\res{:} Type]}
+
+\heading{Statements\index{statement syntax}}
+
+\produces{StmtList}{\{ Stmt \res{;} \}}
+
+\produces{Stmt}{VarDecl $|$ ConstDecl $|$ FunDecl $|$ ConstraintDecl}
+\orproduces{IfStmt $|$ WhileStmt $|$ ReturnStmt $|$ InStmt}
+\orproduces{RequireStmt $|$ ExpressionStmt}
+
+\produces{IfStmt}{\res{if\,} CompareExpr \res{then} StmtList \\\>\>\{ \res{elsif\,} CompareExpr \res{then} StmtList \} \\\>\>[\res{else} StmtList] \res{end}}
+
+\produces{WhileStmt}{\res{while} CompareExpr \res{do} StmtList \res{end}}
+
+\produces{InStmt}{\res{in} StmtList \res{end}}
+
+\produces{ReturnStmt}{\res{return} [TupleExpr]}
+
+\produces{ExpressionStmt}{Expression}
+
+\heading{Constraints\index{constraint syntax}}
+
+\produces{RequireStmt}{\res{require} ConstraintConj [ InStmt ]}
+\produces{ConstraintConj}{Constraint [ \res{:} Strength ]\\\>\>\{ \res{and} Constraint [ \res{:} Strength ] \}}
+\produces{Constraint}{CompareExpression}
+\produces{Strength}{IntConst}
+
+\heading{Expressions\index{expression syntax}}
+
+\produces{Expression}{AssignExpr}
+
+\produces{AssignExpr}{TupleExpr [ \res{:=} TupleExpr ]}
+
+\produces{TupleExpr}{ConsExpr \{ \res{,} ConsExpr \}}
+
+\produces{ConsExpr}{OrExpr [\res{::} ConsExpr]}
+
+\produces{OrExpr}{AndExpr \{ \res{or} AndExpr \}}
+
+\produces{AndExpr}{CompareExpr \{ \res{and} CompareExpr \}}
+
+\produces{CompareExpr}{AddExpr [CompareOp AddExpr]}
+
+\produces{AddExpr}{MulExpr \{ AddOp MulExpr \}}
+
+\produces{MulExpr}{Factor \{ MulOp Factor \}}
+
+\produces{Factor}{SimpleExpr $|$ UnOp Factor}
+
+\produces{SimpleExpr}{AtomicExpr \{ ActualParameters $|$ Index \}}
+
+\produces{ActualParameters}{\res{(} [ ConsExpr \{\res{,} ConsExpr \}] \res{)}}
+\produces{Index}{\res{[} AddExpr \res{]}}
+
+\produces{AtomicExpr}{QualIdent $|$ IntConst $|$ LongConst $|$ RealConst}
+\orproduces{StringConst $|$ CharConst $|$ BoolConst}
+\orproduces{ArrayExpr $|$ ListExpr $|$ \res{null}}
+\orproduces{FunExpr $|$ ConstraintExpr}
+\orproduces{\res{array} AddExpr \res{of\,} TupleExpr}
+\orproduces{\res{list} AddExpr \res{of\,} TupleExpr}
+\orproduces{\res{string} AddExpr \res{of\,} SimpleExpr}
+\orproduces{\res{(} TupleExpr \res{)}}
+\orproduces{\res{var} AtomicExpr $|$ \res{!} AtomicExpr}
+\orproduces{\res{foreign} StringConst}
+
+\produces{BoolConst}{\res{false} $|$ \res{true}}
+
+\produces{FunExpr}{\res{fun} ParamList \res{:} Type SubrBody}
+\produces{ConstraintExpr}{\res{constraint} ParamList SubrBody}
+
+\produces{ArrayExpr}{\res{\{} ConsExpr \{\res{,} ConsExpr\} \res{\}}}
+
+\produces{ListExpr}{\res{[} ConsExpr \{\res{,} ConsExpr\} \res{]}}
+
+\heading{Operators\index{operators}}
+
+\produces{CompareOp}{\res{$=$} $|$ \res{$<>$} $|$ \res{$<$} $|$ \res{$<=$}
+$|$ \res{$>$} $|$ \res{$>=$}}
+
+\produces{AddOp}{\res{$+$} $|$ \res{$-$}}
+
+\produces{MulOp}{\res{$*$} $|$ \res{$/$} $|$ \res{\%}}
+
+\produces{UnOp}{\res{$-$} $|$ \res{not} $|$ \res{hd} $|$ \res{tl} $|$ \res{sizeof\,}}
+
+\heading{Miscellaneous}
+
+\produces{QualIdent}{Ident \{ \res{.} Ident \}}
+\produces{TypeParams}{\res{$<$} Type \{\res{,} Type\} \res{$>$}}
+\produces{FormalTypeParams}{\res{$<$} Ident \{\res{,} Ident\} \res{$>$}}
+
+\end{grammar}
+
+\noindent
+Note that some symbols have been replaced by more readable symbols in
+the other chapters of this thesis (e.g., {\bf :=} has been replaced by
+$\leftarrow$).  The compiler only accepts the symbols defined in this
+appendix.
+
+\chapter{Example modules}
+\label{cha:example-modules}
+
+The program listings in this appendix will serve as examples on how
+complete programs written in Turtle look like.  The different examples
+were chosen to demonstrate how Turtle can be used to program in
+different programming paradigms.
+
+The first is a module for list sorting, taken from the Turtle standard
+library.  Because of its size, the module is split up into
+programs~\ref{prog:example-module1} and~\ref{prog:example-module2}.
+The module is written in pure functional style.  In lines 1 to 3 we
+can see the module header, which consists of the {\bf module}
+declaration, stating the name of the module and the name of the module
+parameter $\alpha$.  Following, we see that the module imports a
+module from the library called {\em lists}, which is instantiated with
+the module parameter.  Only one name is exported, the sorting function
+{\em sort}.  Line 4 contains the function header, which lists the
+parameters and return types of the function.  Note that all types in
+this example depend on the module parameter $\alpha$.
+
+\index{quicksort example}
+\index{examples!quicksort}
+\begin{Program}
+% module listsort<A>;
+% import lists<A>;
+% export sort;
+% fun sort (a: list of A, cmp: fun (A, A): int): list of A
+%   fun smaller (elem1: A): fun (A): bool
+%     return fun (elem2: A): bool
+%              return cmp (elem1, elem2) > 0;
+%            end;
+%   end;
+%   fun greatereq (elem1: A): fun (A): bool
+%     return fun (elem2: A): bool
+%              return cmp (elem1, elem2) <= 0;
+%            end;
+%   end;
+%   fun sort (a: list of A): list of A
+%     if a = null then
+%       return null;
+%     else
+%       if tl a = null then
+%         return a;
+%       else
+%         if tl tl a = null then
+%           if cmp (hd a, hd tl a) > 0 then
+%             return hd tl a :: hd a :: null;
+%           else
+%             return a;
+%           end;
+%         else
+%           var l1: list of A := lists.filter (smaller (hd a), tl a);
+%           var l2: list of A := lists.filter (greatereq (hd a), tl a);
+%           return lists.append (sort (l1), lists.append (hd a :: null, sort (l2)));
+%         end;
+%       end;
+%     end;
+%   end;
+%   return sort (a);
+% end;
+\begin{ttlprog}
+1\>\ttlModule{} listsort$<$$\alpha$$>$;\\
+2\>\ttlImport{} lists$<$$\alpha$$>$;\\
+3\>\ttlExport{} sort;\\
+4\>\ttlFun{} sort (a: \ttlList{} \ttlOf{} $\alpha$, cmp: \ttlFun{} ($\alpha$, $\alpha$): int): \ttlList{} \ttlOf{} $\alpha$\\
+5\>\>\ttlFun{} smaller (elem1: $\alpha$): \ttlFun{} ($\alpha$): bool\\
+6\>\>\>\ttlReturn{} \ttlFun{} (elem2: $\alpha$): bool\\
+7\>\>\>\>\>\>\> \ttlReturn{} cmp (elem1, elem2) $>$ 0;\\
+8\>\>\>\>\>\> \ttlEnd{};\\
+9\>\>\ttlEnd{};\\
+10\>\>\ttlFun{} greatereq (elem1: $\alpha$): \ttlFun{} ($\alpha$): bool\\
+11\>\>\>\ttlReturn{} \ttlFun{} (elem2: $\alpha$): bool\\
+12\>\>\>\>\>\>\> \ttlReturn{} cmp (elem1, elem2) $\leq$ 0;\\
+13\>\>\>\>\>\> \ttlEnd{};\\
+14\>\>\ttlEnd{};
+\end{ttlprog}
+\caption{Quicksort on lists}
+\label{prog:example-module1}
+\end{Program}
+
+Below, in lines 5 to 14, the internal helper functions {\em smaller}
+and {\em greatereq} are defined.  These are higher-order functions
+which return functions for determining whether their argument {\em
+  elem2} is smaller or greater or equal to the outer argument {\em
+  elem1}, respectively.
+
+The longest part of the functions, from line 15 to line 35, consists
+of the recursive sorting procedure, which implements a naive version
+of Quicksort: empty or one-element lists are already sorted, and the
+elements of lists of length two are swapped if they are not already in
+order.  All lists longer than two elements are split into three parts:
+the pivot element, which is the first element of the list for
+simplicity, a list of all elements smaller than the pivot and a list
+of all elements greater or equal to the pivot.  The two lists are
+created using the {\em filter} function from module {\em lists}, are
+sorted recursively and are finally appended to form the resulting
+sorted list.
+
+\begin{Program}
+\begin{ttlprog}
+15\>\>\ttlFun{} sort (a: \ttlList{} \ttlOf{} $\alpha$): \ttlList{} \ttlOf{} $\alpha$\\
+16\>\>\>\ttlIf{} a = \ttlNull{} \ttlThen{}\\
+17\>\>\>\>\ttlReturn{} \ttlNull{};\\
+18\>\>\>\ttlElse{}\\
+19\>\>\>\>\ttlIf{} \ttlTl{} a = \ttlNull{} \ttlThen{}\\
+20\>\>\>\>\>\ttlReturn{} a;\\
+21\>\>\>\>\ttlElse{}\\
+22\>\>\>\>\>\ttlIf{} \ttlTl{} \ttlTl{} a = \ttlNull{} \ttlThen{}\\
+23\>\>\>\>\>\>\ttlIf{} cmp (\ttlHd{} a, \ttlHd{} \ttlTl{} a) $>$ 0 \ttlThen{}\\
+24\>\>\>\>\>\>\>\ttlReturn{} \ttlHd{} \ttlTl{} a :: \ttlHd{} a :: \ttlNull{};\\
+25\>\>\>\>\>\>\ttlElse{}\\
+26\>\>\>\>\>\>\>\ttlReturn{} a;\\
+27\>\>\>\>\>\>\ttlEnd{};\\
+28\>\>\>\>\>\ttlElse{}\\
+29\>\>\>\>\>\>\ttlVar{} l1: \ttlList{} \ttlOf{} $\alpha$ $\leftarrow$ lists.filter (smaller (\ttlHd{} a), \ttlTl{} a);\\
+30\>\>\>\>\>\>\ttlVar{} l2: \ttlList{} \ttlOf{} $\alpha$ $\leftarrow$ lists.filter (greatereq (\ttlHd{} a), \ttlTl{} a);\\
+31\>\>\>\>\>\>\ttlReturn{} lists.append (sort (l1), lists.append (\ttlHd{} a :: \ttlNull{}, sort (l2)));\\
+32\>\>\>\>\>\ttlEnd{};\\
+33\>\>\>\>\ttlEnd{};\\
+34\>\>\>\ttlEnd{};\\
+35\>\>\ttlEnd{};\\
+36\>\>\ttlReturn{} sort (a);\\
+37\>\ttlEnd{};
+\end{ttlprog}
+\caption{Quicksort on lists (continued)}
+\label{prog:example-module2}
+\end{Program}
+
+The next example will illustrate how imperative programming is done in
+Turtle.  The program was adapted from the example program {\tt
+  QUEENS.TIG} in~\cite{appel98moderncompiler} and solves the
+$N$-queens problem, which is how to place $N$ queens on a chess board
+of size $N\times N$ without any two queens attacking each other.
+
+The first function {\em print\_board} simply prints the current board
+configuration.  More interesting is the function {\em try}, which
+tries to place a queen in column $c$.  If it succeeds, it places the
+queen and calls itself recursively to place a queen in column $c + 1$,
+and it backtracks on failure.  By trying all rows for each column, all
+possibilities are eventually tried and all solutions are found.
+
+\index{n-queens example}
+\index{examples!n-queens}
+% module queens;
+% import io;
+% var row: array of int, col: array of int;
+% var diag1: array of int, diag2: array of int;
+% var size: int;
+% var solutions: int;
+% fun print_board ()
+%   var i: int, j: int;
+%   i := 0;
+%   while i < size do
+%     j := 0;
+%     while j < size do
+%       if col[i] = j then
+%       io.put (" o");
+%       else
+%       io.put (" .");
+%       end;
+%       j := j + 1;
+%     end;
+%     io.nl ();
+%     i := i + 1;
+%   end;
+%   io.nl ();
+% end;
+% fun try (c: int)
+%   if c = size then
+%     print_board ();
+%     solutions := solutions + 1;
+%   else
+%     var r: int;
+%     r := 0;
+%     while r < size do
+%       if (row[r] = 0) and (diag1[r + c] = 0) and 
+%       (diag2[r + (size - 1) - c] = 0) 
+%       then
+%       row[r] := 1;
+%       diag1[r + c] := 1;
+%       diag2[r + (size - 1) - c] := 1;
+%       col[c] := r;
+%       try (c + 1);
+%       row[r] := 0;
+%       diag1[r + c] := 0;
+%       diag2[r + (size - 1) - c] := 0;
+%       end;
+%       r := r + 1;
+%     end;
+%   end;
+% end;
+% fun main (argv: list of string): int
+%   size := 8;
+%   solutions := 0;
+%   row := array size of 0;
+%   col := array size of 0;
+%   diag1 := array size * 2 - 1 of 0;
+%   diag2 := array size * 2 - 1 of 0;
+%   try (0);
+%   io.put (solutions);
+%   io.put (" solutions found.\n");
+%   return 0;
+% end;
+\begin{Program}
+\begin{ttlprog}
+1\>\ttlModule{} queens;\\
+2\>\ttlImport{} io;\\
+3\>\ttlVar{} row: \ttlArray{} \ttlOf{} int, col: \ttlArray{} \ttlOf{} int;\\
+4\>\ttlVar{} diag1: \ttlArray{} \ttlOf{} int, diag2: \ttlArray{} \ttlOf{} int;\\
+5\>\ttlVar{} size: int;\\
+6\>\ttlVar{} solutions: int;\\
+7\>\ttlFun{} print\_board ()\\
+8\>\>\ttlVar{} i: int, j: int;\\
+9\>\>i $\leftarrow$ 0;\\
+10\>\>\ttlWhile{} i $<$ size \ttlDo{}\\
+11\>\>\>j $\leftarrow$ 0;\\
+12\>\>\>\ttlWhile{} j $<$ size \ttlDo{}\\
+13\>\>\>\>\ttlIf{} col[i] = j \ttlThen{}\\
+14\>\>\>\>\>io.put ("o");\\
+15\>\>\>\>\ttlElse{}\\
+16\>\>\>\>\>io.put (".");\\
+17\>\>\>\>\ttlEnd{};\\
+18\>\>\>\>j $\leftarrow$ j $+$ 1;\\
+19\>\>\>\ttlEnd{};\\
+20\>\>\>io.nl ();\\
+21\>\>\>i $\leftarrow$ i $+$ 1;\\
+22\>\>\ttlEnd{};\\
+23\>\>io.nl ();\\
+24\>\ttlEnd{};
+\end{ttlprog}
+\caption{N-queens problem}
+\label{prog:example-queens1}
+\end{Program}
+
+\begin{Program}
+\begin{ttlprog}
+25\>\ttlFun{} try (c: int)\\
+26\>\>\ttlIf{} c = size \ttlThen{}\\
+27\>\>\>print\_board ();\\
+28\>\>\>solutions $\leftarrow$ solutions $+$ 1;\\
+29\>\>\ttlElse{}\\
+30\>\>\>\ttlVar{} r: int;\\
+31\>\>\>r $\leftarrow$ 0;\\
+32\>\>\>\ttlWhile{} r $<$ size \ttlDo{}\\
+33\>\>\>\>\ttlIf{} (row[r] = 0) \ttlAnd{} (diag1[r $+$ c] = 0) \ttlAnd{} \\
+34\>\>\>\>\>(diag2[r $+$ (size $-$ 1) $-$ c] = 0) \\
+35\>\>\>\>\ttlThen{}\\
+36\>\>\>\>\>row[r] $\leftarrow$ 1;\\
+37\>\>\>\>\>diag1[r $+$ c] $\leftarrow$ 1;\\
+38\>\>\>\>\>diag2[r $+$ (size $-$ 1) $-$ c] $\leftarrow$ 1;\\
+39\>\>\>\>\>col[c] $\leftarrow$ r;\\
+40\>\>\>\>\>try (c $+$ 1);\\
+41\>\>\>\>\>row[r] $\leftarrow$ 0;\\
+42\>\>\>\>\>diag1[r $+$ c] $\leftarrow$ 0;\\
+43\>\>\>\>\>diag2[r $+$ (size $-$ 1) $-$ c] $\leftarrow$ 0;\\
+44\>\>\>\>\ttlEnd{};\\
+45\>\>\>\>r $\leftarrow$ r $+$ 1;\\
+46\>\>\>\ttlEnd{};\\
+47\>\>\ttlEnd{};\\
+48\>\ttlEnd{};\\
+49\>\ttlFun{} main (argv: \ttlList{} \ttlOf{} \ttlString{}): int\\
+50\>\>size $\leftarrow$ 8;\\
+51\>\>solutions $\leftarrow$ 0;\\
+52\>\>row $\leftarrow$ \ttlArray{} size \ttlOf{} 0;\\
+53\>\>col $\leftarrow$ \ttlArray{} size \ttlOf{} 0;\\
+54\>\>diag1 $\leftarrow$ \ttlArray{} size * 2 $-$ 1 \ttlOf{} 0;\\
+55\>\>diag2 $\leftarrow$ \ttlArray{} size * 2 $-$ 1 \ttlOf{} 0;\\
+56\>\>try (0);\\
+57\>\>io.put (solutions);\\
+58\>\>io.put ("solutions found.$\backslash$n");\\
+59\>\>\ttlReturn{} 0;\\
+60\>\ttlEnd{};\\
+\end{ttlprog}
+\caption{N-queens problem (continued)}
+\label{prog:example-queens2}
+\end{Program}
+
+\newpage
+The last example program shows how constraint imperative programs are
+written in \turtle{}.  Program~\ref{prog:send-more-money} solves the
+famous crypto-arithmetic puzzle:
+\vskip1ex
+\begin{tabular}{rrrrr}
+&S&E&N&D\\
++&M&O&R&E\\
+\hline
+M&O&N&E&Y
+\end{tabular}
+\vskip1ex The task is to assign a number between 0 and 9 to each
+letter, so that the sum of the first two lines equals the last line,
+under the constraint that all letters must get assigned different
+numbers.
+
+The example program first defines the two user-defined constraints
+{\em all\_different} and {\em domain}.  The former constrains a list
+of constrainable variables to be pairwise distinct and the latter
+constrains a variable to lie within a lower and an upper bound.  The
+function {\em main} declares and initializes variables for each letter
+and models the puzzle using constraints.  In the constraint statement
+body, the solution is finally displayed.
+
+\index{send-more-money}
+\index{examples!send-more-money}
+\begin{Program}
+\begin{ttlprog}
+1\>\ttlModule{} sendmory2;\\
+2\>\ttlImport{} io;\\
+3\>\ttlConstraint{} all\_different (l: \ttlList{} \ttlOf{} {\bf!}int)\\
+4\>\>\ttlWhile{} \ttlTl{} l $\neq$ \ttlNull{} \ttlDo{}\\
+5\>\>\>\ttlVar{} ll: \ttlList{} \ttlOf{} {\bf!}int $\leftarrow$ \ttlTl{} l;\\
+6\>\>\>\ttlWhile{} ll $\neq$ \ttlNull{} \ttlDo{}\\
+7\>\>\>\>\ttlRequire{} \ttlHd{} l $\neq$ \ttlHd{} ll;\\
+8\>\>\>\>ll $\leftarrow$ \ttlTl{} ll;\\
+9\>\>\>\ttlEnd{};\\
+10\>\>\>l $\leftarrow$ \ttlTl{} l;\\
+11\>\>\ttlEnd{};\\
+12\>\ttlEnd{};\\
+13\>\ttlConstraint{} domain (v: {\bf!}int, min: int, max: int)\\
+14\>\>\ttlRequire{} v $\geq$ min \ttlAnd{} v $\leq$ max;\\
+15\>\ttlEnd{};\\
+16\>\ttlFun{} main(args: \ttlList{} \ttlOf{} \ttlString{}): int\\
+17\>\>\ttlVar{} s: {\bf!}int $\leftarrow$ \ttlVar{} 0;\\
+18\>\>\ttlVar{} e: {\bf!}int $\leftarrow$ \ttlVar{} 0;\\
+19\>\>\ttlVar{} n: {\bf!}int $\leftarrow$ \ttlVar{} 0;\\
+20\>\>\ttlVar{} d: {\bf!}int $\leftarrow$ \ttlVar{} 0;\\
+21\>\>\ttlVar{} m: {\bf!}int $\leftarrow$ \ttlVar{} 0;\\
+22\>\>\ttlVar{} o: {\bf!}int $\leftarrow$ \ttlVar{} 0;\\
+23\>\>\ttlVar{} r: {\bf!}int $\leftarrow$ \ttlVar{} 0;\\
+24\>\>\ttlVar{} y: {\bf!}int $\leftarrow$ \ttlVar{} 0;\\
+25\>\>\ttlRequire{} domain (s, 0, 9) \ttlAnd{} domain (e, 0, 9) \ttlAnd{} domain (n, 0, 9) \ttlAnd{}\\
+26\>\>\>domain (d, 0, 9) \ttlAnd{} domain (m, 1, 9) \ttlAnd{} domain (o, 0, 9) \ttlAnd{}\\
+27\>\>\>domain (r, 0, 9) \ttlAnd{} domain (y, 0, 9) \ttlAnd{}\\
+28\>\>\>all\_different ([s, e, n, d, m, o, r, y]) \ttlAnd{}\\
+29\>\>\>(s * 1000 $+$ e * 100 $+$ n * 10 $+$ d) $+$ (m * 1000 $+$ o * 100 $+$ r * 10 $+$ e) =\\
+30\>\>\>(m * 10000 $+$ o * 1000 $+$ n * 100 $+$ e * 10 $+$ y)\\
+31\>\>\ttlIn{}\\
+32\>\>\>io.put ("s = "); io.put ({\bf!}s); io.nl ();\\
+33\>\>\>io.put ("e = "); io.put ({\bf!}e); io.nl ();\\
+34\>\>\>io.put ("n = "); io.put ({\bf!}n); io.nl ();\\
+35\>\>\>io.put ("d = "); io.put ({\bf!}d); io.nl ();\\
+36\>\>\>io.put ("m = "); io.put ({\bf!}m); io.nl ();\\
+37\>\>\>io.put ("o = "); io.put ({\bf!}o); io.nl ();\\
+38\>\>\>io.put ("r = "); io.put ({\bf!}r); io.nl ();\\
+39\>\>\>io.put ("y = "); io.put ({\bf!}y); io.nl ();\\
+40\>\>\ttlEnd{};\\
+41\>\>\ttlReturn{} 0;\\
+42\>\ttlEnd{};
+\end{ttlprog}
+\caption{Send-more-money example}
+\label{prog:send-more-money}
+\end{Program}
+
+\chapter{The Standard Library}
+\label{cha:turtle-library}
+
+\newenvironment{modules}%
+  {\newcommand\descr[2]{\index{##1@{\tt ##1} (Module)}%
+\index{modules!##1@{\tt ##1}}%
+{\tt ##1} \> ##2 \\}
+   \begin{tabbing}
+   \qquad\qquad\qquad\qquad\qquad \= \kill}
+  {\end{tabbing}}
+
+Besides the language definition and implementation, a standard library
+is extremely important for the usefulness of a programming language.
+The reference implementation of \turtle{} includes all modules
+mentioned in this appendix.
+
+The modules of the standard library are grouped into functional
+categories and a short description is given for each.  The complete
+documentation for the modules and their exported functions, data types
+and variables is contained in the reference manual which comes with
+the distribution.
+
+\index{modules}
+\index{standard library}
+
+\subsection*{General}
+\index{general modules}
+
+\begin{modules}
+\descr{math}{Mathematical constants and trigonometric functions}
+\descr{random}{Random number generator}
+\descr{compare}{Comparison functions for the basic data types}
+\descr{compose}{Function composition}
+\descr{identity}{Identity function}
+\descr{option}{The {\tt option} data type, as known from Standard ML}
+\descr{trees}{Binary trees}
+\descr{bstrees}{Binary search trees}
+\descr{cmdline}{Command line parsing and option handling}
+\descr{hash}{Calculating hash values for basic data types}
+\descr{hashtab}{Hash tables}
+\descr{binary}{Byte-array handling}
+\descr{exceptions}{Exception raising and handling}
+\descr{filenames}{Filename manipulation}
+\end{modules}
+
+
+\subsection*{Input and Output}
+\index{input and output modules}
+
+\begin{modules}
+\descr{io}{Basic input/output facilities for basic data types}
+\end{modules}
+
+\subsection*{Data Type Related}
+\index{data type related modules}
+
+\begin{modules}
+\descr{ints}{Integer constants and functions}
+\descr{longs}{Long integer functions}
+\descr{reals}{Real constants and functions}
+\descr{bools}{Boolean value functions}
+\descr{chars}{Character handling}
+\descr{strings}{String processing and conversion functions}
+\descr{union}{Union data type of the basic data types}
+\descr{strformat}{String formatting}
+\end{modules}
+
+\subsection*{List Utilities}
+\index{list utility modules}
+
+\begin{modules}
+\descr{lists}{General list manipulation functions}
+\descr{listmap}{Mapping functions over lists}
+\descr{listsort}{List sorting}
+\descr{listsearch}{Linear search on lists}
+\descr{listfold}{Folding functions over lists}
+\descr{listreduce}{Reducing lists with initial value}
+\descr{listzip}{Combining two lists into one}
+\descr{listindex}{List functions operating with indices}
+\end{modules}
+
+
+\subsection*{Array Utilities}
+\index{array utility modules}
+
+\begin{modules}
+\descr{arrays}{General array manipulation functions}
+\descr{arraymap}{Mapping a function over an array}
+\descr{arraysort}{Array sorting}
+\descr{arraysearch}{Linear and binary search on arrays}
+\end{modules}
+
+\subsection*{Tuple Utilities}
+\index{tuple utility modules}
+
+\begin{modules}
+\descr{pairs}{Handling 2-tuples}
+\descr{triples}{Handling 3-tuples}
+\end{modules}
+
+
+\subsection*{Low-Level}
+\index{low-level modules}
+
+\begin{modules}
+\descr{core}{Low-level functions, like real number formatting}
+\end{modules}
+
+
+\subsection*{System-dependant Modules}
+\index{system-dependant modules}
+
+\begin{modules}
+\descr{sys.files}{File handling}
+\descr{sys.dirs}{Directory handling}
+\descr{sys.net}{Network programming}
+\descr{sys.times}{Time and date functions}
+\descr{sys.users}{Accessing the user data base}
+\descr{sys.procs}{Process handling}
+\descr{sys.errno}{Operating system error codes}
+\descr{sys.signal}{Unix signal handling}
+\end{modules}
+
+
+\subsection*{Internal Modules}
+\index{internal modules}
+
+\begin{modules}
+\descr{internal.version}{Version numbers}
+\descr{internal.random}{Random number generation}
+\descr{internal.stats}{Run-time system statistics}
+\descr{internal.gc}{Garbage collector interface}
+\descr{internal.ex}{Low-level exception raising and handling}
+\descr{internal.timeout}{Functions to be run in the background}
+\descr{internal.limits}{System limit constants}
+\end{modules}
+
+\chapter{The \turtle{} System}
+\label{cha:turtle-compiler}
+
+During the work on this thesis, a compiler for the \turtle{} language
+was developed which supports all of the language features described in
+Chapter~\ref{cha:turtle}.\footnote{Note the limitations of the
+  implementation as described in section~\ref{sec:impl-discussion}.}
+The compiler translates \turtle{} source code into C source code which
+in turn is compiled to executable machine code by a C compiler.
+
+The compiler consists of a command line program which runs on
+GNU/Linux and Solaris, and should be portable to other Unices and
+Windows without much work.
+
+The source code is available as a gzip'ed tar archive from the
+\index{Turtle home page}
+\turtle{} home page at {\tt
+  http://user.cs.tu-berlin.de/\~{}mgrabmue/turtle/}.
+
+\index{installation}
+After downloading the file {\tt turtle-1.0.0.tar.gz}, the archive is
+unpacked with the command
+
+{\tt
+zcat turtle-1.0.0.tar.gz | tar xf -
+}
+
+\noindent
+or, if you use GNU tar:
+
+{\tt
+tar xzf turtle-1.0.0.tar.gz
+}
+
+\noindent
+Then the source code must be configured and built with the commands
+
+{\tt ./configure}
+
+{\tt make}
+
+\noindent
+After completion, the compiler, the run-time system and the standard
+library have been compiled and can be installed (after possibly
+switching to administrator privileges) with the command
+
+{\tt make install}
+
+\noindent
+Before installation, if you want to make sure everything worked fine,
+you can compile and run a few test programs and examples by executing
+
+{\tt make check}
+
+\noindent
+The installation requires a C compiler for compiling the compiler and
+the run-time system, and for compiling the output of the \turtle{}
+compiler.  After the installation, a C compiler is also necessary for
+compiling \turtle{} code.  The \turtle{} system was tested with GCC
+2.95.2.
+
+Please read the files {\tt README} and {\tt INSTALL} after unpacking
+the distribution for more detailed instructions on how to compile and
+install the system.  The online documentation for the compiler, the
+run-time system and the standard library is available in GNU info
+format in the subdirectory {\tt doc}.
+
+The subdirectory {\tt examples} contains some example programs,
+ranging from {\tt minimal.t}, which is the minimal executable
+\turtle{} program, to {\tt webserver.t} and utility modules, which
+implement a simple, working web server.  Some constraint
+im\-per\-ative programs for solving crypto-arithmetic puzzles and
+simple mathematical problems are also included.
+
+\end{appendix}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "da.tex"
+%%% End: 
+
+%% End of appendix.tex.

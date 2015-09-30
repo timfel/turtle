@@ -1,0 +1,1403 @@
+This is turtle.info, produced by makeinfo version 4.0 from turtle.texi.
+
+INFO-DIR-SECTION Turtle
+START-INFO-DIR-ENTRY
+* turtle: (turtle).     Turtle reference manual.
+END-INFO-DIR-ENTRY
+
+   This file documents the Turtle compiler.
+
+   Copyright (C) 2003 Martin Grabmueller
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+
+File: turtle.info,  Node: io module,  Prev: Input and output modules,  Up: Input and output modules
+
+io module
+---------
+
+   This module provides basic input and output functions for some of
+the builtin data types.  Also some functions for handling files are
+defined.
+
+ - Data type: file
+     Defined as:
+
+          datatype file =
+            file(fd: int, buf: string, pos: int, fill: int, writable: bool)
+
+     The `file' data type represents input and output streams.  Values
+     of this type are either found in one of the pre-defined variables
+     INPUT, OUTPUT or ERROR, or are obtained by calling functions like
+     `open'.
+
+ - Variable:  input : file
+     Standard input file.
+
+ - Variable:  output : file
+     Standard output file.
+
+ - Variable:  error : file
+     Standard output file for error messages.
+
+ - Function:  put (F: file, S: string)
+ - Function:  put (S: string)
+ - Function:  put (F: file, I: int)
+ - Function:  put (I: int)
+ - Function:  put (F: file, L: long)
+ - Function:  put (L: long)
+ - Function:  put (F: file, R: real)
+ - Function:  put (R: real)
+ - Function:  put (F: file, B: bool)
+ - Function:  put (B: bool)
+ - Function:  put (F: file, C: char)
+ - Function:  put (C: char)
+     Write the string representation of the argument to the file F or
+     the standard output file, respectively.
+
+ - Function:  put (F: file, LS: list of string)
+ - Function:  put (LS: list of string)
+     Write all strings in the argument list to the given file, or
+     standard output, respectively.  The strings are separated by
+     newline characters in the output.
+
+ - Function:  nl (F: file)
+ - Function:  nl ()
+     Terminate the current output line by writing a newline character
+     to the given file or standard output, respectively.
+
+ - Function:  putln (S: string)
+ - Function:  putln (F: file, S: string)
+ - Function:  putln (C: char)
+ - Function:  putln (F: file, C: char)
+ - Function:  putln (I: int)
+ - Function:  putln (F: file, I: int)
+ - Function:  putln (L: long)
+ - Function:  putln (F: file, L: long)
+ - Function:  putln (R: real)
+ - Function:  putln (F: file, R: real)
+ - Function:  putln (B: bool)
+ - Function:  putln (F: file, B: bool)
+     Write the textual representation of the argument to standard
+     output or the given file, respectively.  Then terminate the output
+     with a newline character.
+
+ - Function:  get (F: file): string
+ - Function:  get (): string
+ - Function:  get (F: file): int
+ - Function:  get (): int
+ - Function:  get (F: file): bool
+ - Function:  get (): bool
+ - Function:  get (F: file): char
+ - Function:  get (): char
+ - Function:  get (F: file): real
+ - Function:  get (): real
+     Read the string representation of a value matching the return type,
+     convert it, and return that value.  If the string cannot be
+     converted, return an unspecified value.
+
+     The string reading functions returns `null' when the end-of-file
+     is reached.
+
+ - Function:  get (F: file): list of string
+ - Function:  get (): list of string
+     Read all lines from the file F and return them as a list of
+     strings.  For an empty file, return `null'.
+
+ - Function:  unget (F: file, C: char)
+ - Function:  unget (C: char)
+     Put the character C back into the input file F or standard input,
+     respectively.
+
+ - Function:  open (NAME: string): file
+     Open the file called NAME for reading.  Return a `file' object for
+     reading from the opened file, or return `null' if the file can't
+     be opened.
+
+ - Function:  create (NAME: string): file
+     Create a new file called NAME and open if for writing.  Return a
+     `file' object for writing to the opened file, or return `null' if
+     the file can't be opened.
+
+ - Function:  close (F: file)
+     Close the file object F.  After calling this function, F may not
+     be used for file operations anymore.
+
+ - Function:  flush (F: file)
+     Flush all buffered output to the underlying operating system file
+     descriptor.
+
+
+File: turtle.info,  Node: Data type related modules,  Next: List utility modules,  Prev: Input and output modules,  Up: Standard library
+
+Data type related modules
+=========================
+
+   This section documents the modules for handling values of the various
+basic data types.  The modules for the numeric data types export some
+important constants and utility functions, for example for determining
+the minimum or maximum of two values.  The character handling module
+exports conversion functions, and the string module functions for
+deconstructing, composing and examining strings, etc.
+
+* Menu:
+
+* ints module::                 Integer constants and functions.
+* longs module::                Long integer functions.
+* reals module::                Real constants and functions.
+* bools module::                Boolean value utilities.
+* chars module::                Character handling.
+* strings module::              Basic string operations.
+* union module::                Union data type of the buildin types.
+* strformat module::            String formatting a la sprintf ().
+
+
+File: turtle.info,  Node: ints module,  Next: longs module,  Prev: Data type related modules,  Up: Data type related modules
+
+ints module
+-----------
+
+   This is a library module exporting integer data type related
+constants and functions.
+
+ - Constant:  min : int
+     `min' is the smallest representable integer value.  This value may
+     (and most probably will) differ from the minimum integer value
+     representable on the underlying hardware.
+
+ - Constant:  max : int
+     `max' is the largest representable integer value.  This value may
+     (and most probably will) differ from the maximum integer value
+     representable on the underlying hardware.
+
+ - Function:  min (X: int, Y: int): int
+     Return the minimum of two integer values.
+
+ - Function:  max (X: int, Y: int): int
+     Return the maximum of two integer values.
+
+ - Function:  from_string (S: string): int
+     Convert the string value S to the integer number it represents.
+     If S does not represent any integer number, or if the resulting
+     integer is not in the range `ints.min'...`inits.max', the return
+     value is unspecified.
+
+ - Function:  to_string (I: int): string
+     Convert the integer value I to its string representation.
+
+ - Function:  to_real (I: int): real
+     Convert the integer value I to a real value.
+
+ - Function:  from_real (R: real): int
+     Convert the real value R to an integer value.  Decimal places are
+     stripped.
+
+ - Function:  even? (I: int): bool
+ - Function:  odd? (I: int): bool
+ - Function:  zero? (I: int): bool
+ - Function:  positive? (I: int): bool
+ - Function:  negative? (I: int): bool
+     Return true iff I is even, odd, equal to zero, positive or
+     negative, respectively.
+
+ - Function:  abs (I: int): int
+     Return the absolute value of I, that is, remove I's sign.
+
+ - Function:  signum (I: int): int
+     Return 1 if I is greater than zero, 0 if I is equal to zero and -1
+     if I is less than zero.
+
+ - Function:  pred (I: int): int
+ - Function:  succ (I: int): int
+     Return the predecessor or successor of I, respectively.
+
+ - Function:  pow (B: int, E: int): int
+     Return B raised to the power of E.
+
+
+File: turtle.info,  Node: longs module,  Next: reals module,  Prev: ints module,  Up: Data type related modules
+
+longs module
+------------
+
+   This is a library module which exports long data type related
+functions.
+
+ - Constant:  min : long
+     `min' is the smallest representable long value.
+
+ - Constant:  max : long
+     `max' is the largest representable long value.
+
+ - Function:  min (X: long, Y: long): long
+     Return the minimum of two long values.
+
+ - Function:  max (X: long, Y: long): long
+     Return the maximum of two long values.
+
+ - Function:  from_string (S: string): long
+     Convert the string value S to the long number it represents.  If S
+     does not represent any long integer number, the return value is
+     unspecified.
+
+ - Function:  to_string (L: long): string
+     Convert the long number L to its string representation.
+
+ - Function:  from_int (I: int): long
+     Convert the integer value I to a long value.
+
+ - Function:  to_int (L: long): int
+     Convert the long value L to an integer value.
+
+ - Function:  from_real (R: real): long
+     Conver the real number R to a long value, stripping off any
+     decimal places.
+
+ - Function:  to_real (L: long): real
+     Conver the long value L to a real value.
+
+ - Function:  even? (L: long): bool
+ - Function:  odd? (L: long): bool
+ - Function:  zero? (L: long): bool
+ - Function:  positive? (L: long): bool
+ - Function:  negative? (L: long): bool
+     Return true iff L is even, odd, equal to zero, positive or
+     negative, respectively.
+
+ - Function:  abs (L: long): long
+     Return the absolute value of L, that is, remove L's sign.
+
+ - Function:  signum (L: long): long
+     Return 1L if L is greater than zero, 0L if L is equal to zero and
+     -1L if L is less than zero.
+
+ - Function:  pred (L: long): long
+ - Function:  succ (L: long): long
+     Return the predecessor or successor of I, respectively.
+
+ - Function:  pow (B: long, E: int): long
+     Return B raised to the power of E.
+
+
+File: turtle.info,  Node: reals module,  Next: bools module,  Prev: longs module,  Up: Data type related modules
+
+reals module
+------------
+
+   This is a library module which exports real data type related
+functions.
+
+ - Function:  min (X: real, Y: real): real
+     Return the minimum of two real values.
+
+ - Function:  max (X: real, Y: real): real
+     Return the maximum of two real values.
+
+ - Function:  from_string (S: string): real
+     Convert the string value S to the real number it represents.  If S
+     does not represent any integer number, the return value is
+     unspecified.
+
+ - Function:  to_string (R: real): string
+     Convert the real number R to its string representation.
+
+ - Function:  from_int (I: int): real
+     Convert the integer value I to a real value.
+
+ - Function:  to_int (R: real): int
+     Convert the real value R to an integer value.  Decimal places are
+     stripped.
+
+ - Function:  zero? (R: real): bool
+ - Function:  positive? (R: real): bool
+ - Function:  negative? (R: real): bool
+     Return true iff I is equal to zero, positive or negative,
+     respectively.
+
+ - Function:  abs (R: real): real
+     Return the absolute value of R, that is, remove R's sign.
+
+ - Function:  signum (R: real): real
+     Return 1.0 if R is greater than zero, 0.0 if R is equal to zero
+     and -1.0 if R is less than zero.
+
+ - Function:  pow (A: real, B: int): real
+     Return A raised to the power of B.
+
+
+File: turtle.info,  Node: bools module,  Next: chars module,  Prev: reals module,  Up: Data type related modules
+
+bools module
+------------
+
+   Library module for utility functions for boolean values.
+
+ - Function:  to_string (B: bool): string
+     Convert the boolean value B to a string.  The result will be
+     either the string `"true"' or the string `"false"'.
+
+ - Function:  from_string (S: string): bool
+     Convert a string to a boolean value.  The two recognized strings
+     are `"true"' and `"false"'.  Any other string will cause an
+     unspecified value to be returned.
+
+
+File: turtle.info,  Node: chars module,  Next: strings module,  Prev: bools module,  Up: Data type related modules
+
+chars module
+------------
+
+   Library module for character utilities.
+
+ - Constant:  min : char
+
+ - Constant:  max : char
+
+ - Constant:  EOF : char
+     `EOF' is the character which is returned by input functions when
+     the end of an input file is reached.
+
+ - Constant:  tab : char
+     Convenience variable containing the character `'\t''.
+
+ - Constant:  newline : char
+     Convenience variable containing the character `'\n''.
+
+ - Constant:  carriage_return : char
+     Convenience variable containing the character `'\r''.
+
+ - Constant:  blank : char
+     Convenience variable containing the character `' ''.
+
+ - Constant:  space : char
+     Convenience variable containing the character `' ''.
+
+ - Constant:  vtab : char
+     Convenience variable containing the character `'\v''.
+
+ - Constant:  backspace : char
+     Convenience variable containing the character `'\b''.
+
+ - Constant:  formfeed : char
+     Convenience variable containing the character `'\f''.
+
+ - Constant:  bell : char
+     Convenience variable containing the character `'\a''.
+
+ - Function:  ord (C: char): int
+     Return the character code of character C.
+
+ - Function:  chr (I: int): char
+     Return the character which has character code I.
+
+ - Function:  to_string (C: char): string
+     Convert the character C to a string of length one which only
+     contains C.
+
+ - Function:  from_string (S: string): char
+     Convert a string to a character value by simply extracting the
+     first character.  An exception will be raised if the string is
+     empty.
+
+ - Function:  digit? (C: char): bool
+ - Function:  letter? (C: char): bool
+ - Function:  uppercase? (C: char): bool
+ - Function:  lowercase? (C: char): bool
+ - Function:  control? (C: char): bool
+ - Function:  punctuation? (C: char): bool
+ - Function:  letgit? (C: char): bool
+ - Function:  space? (C: char): bool
+ - Function:  whitespace? (C: char): bool
+ - Function:  printable? (C: char): bool
+     Return `true', if C is a digit, a letter, an uppercase letter or a
+     lowercase letter, respectively.
+
+ - Function:  upcase (C: char): char
+     If C is a lowercase letter, return its uppercase equivalent,
+     otherwise, return C.
+
+ - Function:  downcase (C: char): char
+     If C is an uppercase letter, return its lowercase equivalent,
+     otherwise, return C.
+
+ - Function:  pred (C: char): char
+ - Function:  succ (C: char): char
+     Return the predecessor or successor of C, respectively.
+
+
+File: turtle.info,  Node: strings module,  Next: union module,  Prev: chars module,  Up: Data type related modules
+
+strings module
+--------------
+
+   Library module for string utilities.
+
+ - Function:  length (S: string): int
+     Return the number of characters in S.
+
+ - Function:  copy (S: string): string
+     Return a freshly allocated string with the same length and
+     contents as the given string S.
+
+ - Function:  substring (S: string, FROM: int, TO: int): string
+     Return a string containing the characters from S starting at index
+     FROM (inclusive), up to TO (exclusive).
+
+ - Function:  substring (S: string, FROM: int): string
+     Similar to `substring(string, int, int)', where the last argument
+     defaults to the length of the string.
+
+ - Function:  append (S1: string, S2: string): string
+ - Function:  append (S1: string, S2: string, S3: string): string
+     Return a string which is the concatenation of the argument strings.
+
+ - Function:  to_string (B: bool): string
+ - Function:  to_string (I: int): string
+ - Function:  to_string (L: long): string
+ - Function:  to_string (R: real): string
+ - Function:  to_string (C: char): string
+     Return the string representation of the argument.
+
+ - Function:  index (S: string, C: char): int
+     Return the smallest index of any appearence of character C in the
+     string S.  Return -1 if not found.
+
+ - Function:  rindex (S: string, C: char): int
+     Return the largest index of any appearence of character C in the
+     string S.  Return -1 if not found.
+
+ - Function:  indices (S: string, C: char): list of int
+     Return a list containing all indices of the appearences of
+     character C in the string S.  An empty list is returned if C does
+     not appear in S.
+
+ - Function:  eq (S1: string, S2: string): bool
+     Return true if the two strings have the same length and contents,
+     false otherwise.
+
+ - Function:  explode (S: string): list of char
+     Return a list of characters containing the characters of string S,
+     in the same order.
+
+ - Function:  rexplode (S: string): list of char
+     Return a list of characters containing the characters of string S,
+     in reversed order.  This function is often convenient when
+     constructing strings from character lists.
+
+ - Function:  implode (L: list of char): string
+     Return a string with the same length as the list L, and with the
+     elements of L as string contents, in the same order.
+
+ - Function:  rimplode (L: list of char): string
+     Return a string with the same length as the list L and with the
+     elements of L as string contents, but in reverse order.  The same
+     result would be obtained by calling
+
+          strings.implode (lists.reverse (l));
+
+     but calling `rimplode' is more efficient.
+
+ - Function:  split (S: string, C: char): list of string
+     Split up the string S at all occurences of the character C and
+     return a list of the strings between these occurences.  Note that
+     occurences of C without any characters between will result in
+     empty strings in the resulting list.
+
+          strings.split ("root:x:0:0:root:/root:/bin/bash", ':')
+          =>
+          ["root", "x", "0", "0", "root", "/root", "/bin/bash"]
+          
+          strings.split (":x:0:0:root::/bin/bash", ':')
+          =>
+          ["", "x", "0", "0", "root", "", "/bin/bash"]
+
+ - Function:  replicate (ELEM: char, LEN: int): string
+     Return a string of length LEN, consisting of the character ELEM.
+
+ - Function:  rpad (S: string, PLACES: int, CH: char): string
+ - Function:  lpad (S: string, PLACES: int, CH: char): string
+     Return a string of at least PLACES characters which contains S,
+     padded on the right (for `rpad') or left (for `lpad') with
+     character CH.
+
+ - Function:  upcase (S: string): string
+ - Function:  downcase (S: string): string
+     Return a newly allocated string containing the characters from S
+     converted to upper case or lower case, respectively.
+
+
+File: turtle.info,  Node: union module,  Next: strformat module,  Prev: strings module,  Up: Data type related modules
+
+union module
+------------
+
+   This module exports an union type for the builtin data types.
+
+ - Data type: union
+     Defined as:
+
+          datatype union =
+            i(i: int) or
+            l(l: long) or
+            r(r: real) or
+            b(b: bool) or
+            c(c: char) or
+            s(s: string)
+
+     This data type is intended to be used for functions which should
+     be able to deal with all or some of the builtin data types.
+
+
+File: turtle.info,  Node: strformat module,  Prev: union module,  Up: Data type related modules
+
+strformat module
+----------------
+
+   Library module for string formatting.
+
+ - Function:  fmt (FMT: string, ARGS: list of string): string
+     String formatting function.  This is similar to the `sprintf()'
+     function in C, but much more limited.  FMT is expected to be a
+     string with embedded formatting instruction.  A formatting
+     instruction is a `%' character followed by an `s' character.  In
+     the result string, each occurence of a formatting instruction is
+     replaced by the corresponding element in the argument list.
+
+ - Function:  fmt (FMT: string, S: string): string
+ - Function:  fmt (FMT: string, S1: string, S2: string): string
+     Convenience versions of the function above, to be used for one or
+     two argument strings.
+
+ - Function:  fmt (FMT: string, ARGS: list of union.union): string
+     Generalized version of the formatting function.  This accepts a
+     list of `union.union' values, which can hold different data
+     values.  The supported formatting sequences are:
+
+    `%s'
+          Format a string.
+
+    `%i, %d'
+          Format an integer value.
+
+    `%l'
+          Format a long value.
+
+    `%r'
+          Format a real value.
+
+    `%c'
+          Format a character.
+
+    `%b'
+          Format a boolean value.
+
+
+
+File: turtle.info,  Node: List utility modules,  Next: Array utility modules,  Prev: Data type related modules,  Up: Standard library
+
+List utility modules
+====================
+
+   Turtle comes with a set of list utility functions, for example for
+constructing, investigating, searching or sorting.
+
+* Menu:
+
+* lists module::                General list functions.
+* listmap module::              Mapping functions over lists.
+* listfold module::             Folding a function over lists.
+* listreduce module::           Reducing lists with initial value.
+* listzip module::              Combine two lists into one and the reverse.
+* listindex module::            Functions on lists operating with indices.
+* listsearch module::           Searching in lists.
+* listsort module::             Sorting lists.
+
+
+File: turtle.info,  Node: lists module,  Next: listmap module,  Prev: List utility modules,  Up: List utility modules
+
+lists module
+------------
+
+   The module file `lists' exports list manipulation functions.  It is
+a generic module with one module parameter, which is the type of the
+list elements.  The name of this parameter is A.
+
+ - Function:  empty? (L: list of A): bool
+     Return true if L is the empty list, false otherwise.
+
+ - Function:  cons (A: A, B: list of A): list of A
+     Cons the element A onto the head of list B.
+
+ - Function:  head (L: list of A): A
+     Return the head of list L.  An exception is raised if L is empty.
+
+ - Function:  tail (L: list of A): list of A
+     Return the tail of list L.  An exception is raised if L is empty.
+
+ - Function:  last (L: list of A): A
+     Return the last element of list L.  An exception is raised if L is
+     empty.
+
+ - Function:  init (L: list of A): list of A
+     Return the initial sequence of list L, excluding the last element.
+     An exception is raised if L is empty.
+
+ - Function:  append (A: list of A, B: list of A): list of A
+     Append the lists A and B.
+
+ - Function:  concat (LISTS: list of list of A): list of A
+     Return a list which is the concatenation of the lists in LISTS.
+
+ - Function:  length (A: list of A): int
+     Return the length of list A.
+
+ - Function:  reverse (L: list of A): list of A
+     Return a list with the elements of L in reserved order.
+
+ - Function:  foreach (P: fun(A), L: list of A)
+     Apply the procedure P to each element of the list L, in order.
+     For a function which returns a list of the results of the function
+     application, see module `listmap' (*note listmap module::).
+
+ - Function:  iota (COUNT: int): list of int
+     Return an integer list of COUNT elements, with the number 0 to
+     COUNT-1 as the list elements.
+
+ - Function:  filter (P: fun(A): bool, L: list of A): list of A
+     Return a list with all elements from L which satisfy predicate P,
+     in the same order as in L.
+
+ - Function:  insert (S: A, L: list of A, CMP: fun(A, A): int): list of
+          A
+     Insert the element S into the list L, maintaining the order as
+     defined by the comparison function CMP which takes two elements of
+     type A and returns a value less then 0 if the first is smaller
+     than the second, 0 if they are to be considered equal and a value
+     greater than 0 if the second is greater.
+
+ - Function:  index (ELEM: A, L: list of A, CMP: fun(A, A): int): int
+     Return the index of element ELEM in list L, according to the
+     comparison function CMP.  Return -1 if ELEM does not appear in L.
+
+ - Function:  indices (ELEM: A, L: list of A, CMP: fun(A, A): int):
+          list of int
+     Return a list of the indices of all appearences of ELEM in L,
+     according to the comparison function CMP.  Return the empty list
+     of ELEM does not appear in L.
+
+ - Function:  replicate (ELEM: A, LEN: int): list of A
+     Create a list of length L, where all list elemens are initialized
+     to ELEM.
+
+ - Function:  copy (L: list of A): list of A
+     Create a copy of the list L.  Note that only the spine of the list
+     is copied, not the elements.
+
+ - Function:  take (L: list of A, N: int): list of A
+     Take the first N elements from the list L, dropping the following
+     elements.
+
+ - Function:  drop (L: list of A, N: int): list of A
+     Drop the first N elements from list L and return the remaining
+     list.
+
+
+File: turtle.info,  Node: listmap module,  Next: listfold module,  Prev: lists module,  Up: List utility modules
+
+listmap module
+--------------
+
+   The module file `listmap' exports higher-order functions for
+iterating over lists.  It is a generic module with two module
+parameters, which are the types of the list elements.  The name of the
+first parameter is A and denotes the element type of the input lists,
+the name of the second is B and stands for the element type of the
+output lists of `map'.
+
+ - Function:  map (F: fun(A): B, L: list of A): list of B
+     Apply the function F to every element of L, return a list
+     containing the results of the function applications.  The order in
+     which F is applied to the list elements is not specified.
+
+
+File: turtle.info,  Node: listfold module,  Next: listreduce module,  Prev: listmap module,  Up: List utility modules
+
+listfold module
+---------------
+
+   The module file `listfold' implements the functions `foldl' and
+`foldr' for folding functions over lists.
+
+ - Function:  foldl (F: fun(A, A): A, L: list of A): A
+     Fold the function F from left to right over the list L and return
+     the result.
+
+          fun sub(x: int, y: int): int
+          return x - y;
+          end;
+          foldl (sub, [4, 3, 1])
+          =>
+          (4 - 3) - 1
+          =>
+          0
+
+ - Function:  foldr (F: fun(A, A): A, L: list of A): A
+     Fold the function F from to left right over the list L and return
+     the result.
+
+          fun sub(x: int, y: int): int
+          return x - y;
+          end;
+          foldr (sub, [4, 3, 1])
+          =>
+          4 - (3 - 1)
+          =>
+          2
+
+
+File: turtle.info,  Node: listreduce module,  Next: listzip module,  Prev: listfold module,  Up: List utility modules
+
+listreduce module
+-----------------
+
+   The module file `listreduce' implements the functions `reducel' and
+`reducer' for reducint functions over lists.
+
+ - Function:  reducel (F: fun(from, to): to, INIT: to, L: list of
+          from): to
+     Reduce the list L with function F, bracketing on the left.
+
+          fun sub (x: int, y: int): int
+          return x - y;
+          end;
+          reducel (sub, 12, [2, 5, 3])
+          =>
+          3 - (5 - (2 - 12))
+          =>
+          -12
+
+ - Function:  reducer (F: fun(from, to): to, INIT: to, L: list of
+          from): to
+     Reduce the list L with function F, bracketing on the right.
+
+          fun sub (x: int, y: int): int
+          return x - y;
+          end;
+          reducel (sub, 12, [2, 5, 3])
+          =>
+          2 - (5 - (3 - 12))
+          =>
+          -12
+
+
+File: turtle.info,  Node: listzip module,  Next: listindex module,  Prev: listreduce module,  Up: List utility modules
+
+listzip module
+--------------
+
+   Functions for combining two lists into one element-wise, and the
+reverse.
+
+ - Function:  zip (F: fun(from1, from2): to, L1: list of from1, L2:
+          list of from2): list of to
+     Zip two lists of equal length together by applying the function F
+     to the corresponding elements of the lists and forming the result
+     lists from the function result(s).
+
+ - Function:  unzip (F: fun(to): (from1, from2), L: list of to): (list
+          of from1, list of from2)
+     Decompose the list L by applying the function F to the successive
+     list elements and returning the two lists of the function results.
+
+
+File: turtle.info,  Node: listindex module,  Next: listsearch module,  Prev: listzip module,  Up: List utility modules
+
+listindex module
+----------------
+
+   Some utility functions for lists which work on indices into the list.
+
+ - Function:  nth (L: list of A, IDX: int): A
+     Return the element at index IDX in list L.
+
+ - Function:  pos (P: fun(A): bool, L: list of A): int
+     Return the index of the first element in list L which satisfies
+     predicate P.  Return -1 if no element satisfies P.
+
+ - Function:  slice (L: list of A, START: int, ENDE: int): list of A
+     Return the sublist of L which starts at index START (inclusive)
+     and ends at index ENDE (exclusive).
+
+
+File: turtle.info,  Node: listsearch module,  Next: listsort module,  Prev: listindex module,  Up: List utility modules
+
+listsearch module
+-----------------
+
+   Function for searching in lists of type
+
+     list of A
+
+   where A must be instantiated when importing this module.
+
+   The comparison function CMP is used for comparing elements of the
+input arrays.  CMP is expected to return a value less than 0 if the
+first argument is to be considered smaller than the second, a value
+greater than 0 if it is greater, and exactly 0 if the two arguments are
+equivalent.
+
+ - Function:  lsearch (L: list of A, ELEM: A, CMP: fun(A, A): int):
+          list of A
+     Search linearly through the list L, until an element equal to ELEM
+     is found.  Use CMP for comparing the elements of the list to ELEM.
+     Return the first list cell whose head is equal to ELEM, or `null'
+     if not found.
+
+
+File: turtle.info,  Node: listsort module,  Prev: listsearch module,  Up: List utility modules
+
+listsort module
+---------------
+
+   Function for sorting lists of type
+
+     list of A
+
+   where A must be instantiated when importing this module.
+
+   The comparison function CMP is used for comparing elements of the
+input arrays.  CMP is expected to return a value less than 0 if the
+first argument is to be considered smaller than the second, a value
+greater than 0 if it is greater, and exactly 0 if the two arguments are
+equivalent.
+
+ - Function:  sort (A: list of A, CMP: fun(A, A): int): list of A
+     Sort the list A, using CMP as the comparison function.  The
+     parameter A is not modified for performing the sort, instead a
+     freshly allocated list is returned.
+
+
+File: turtle.info,  Node: Array utility modules,  Next: Tuple utility modules,  Prev: List utility modules,  Up: Standard library
+
+Array utility modules
+=====================
+
+   Several modules for manipulating arrays are included in the standard
+library.  They are structured similarly to the modules for list
+handling.
+
+* Menu:
+
+* arrays module::               Basic array operations.
+* arraymap module::             Mapping functions over arrays.
+* arraysearch module::          Searching in arrays.
+* arraysort module::            Sorting arrays.
+
+
+File: turtle.info,  Node: arrays module,  Next: arraymap module,  Prev: Array utility modules,  Up: Array utility modules
+
+arrays module
+-------------
+
+   Utility functions for handling objects of type
+
+     array of A
+
+   where A must be instantiated when importing this module.
+
+ - Function:  length (A: array of A): int
+     Return the number of elements of array `a'.
+
+ - Function:  foreach (P: fun(A), A: array of A)
+     Apply the procedure P to each element of the array A, in order.
+
+ - Function:  copy (A: array of A): array of A
+     Create a copy of array A.  Note that only the array holding the
+     elements is copied, not the elements themselves.  The result is
+     the same as A if A is empty.
+
+ - Function:  reverse (A: array of A): array of A
+     Return a new array which contains the elements of A, but in
+     reverse order.  The result is the same as A if A is empty.
+
+ - Function:  replicate (ELEM: A, LEN: int): array of A
+     Create an array of LEN elements, where each element is initialized
+     to ELEM.
+
+
+File: turtle.info,  Node: arraymap module,  Next: arraysearch module,  Prev: arrays module,  Up: Array utility modules
+
+arraymap module
+---------------
+
+   Utility function for applying functions to arrays of type
+
+     array of A.
+
+   `Map' returns values of type
+
+     array of B.
+
+   A and B are type variables which must be instantiated when importing
+this module.
+
+ - Function:  map (F: fun(A): B, L: array of A): array of B
+     Apply the function F to every element of the array A, return an
+     array containing the results of the function applications.  The
+     order in which F is applied to the array elements is not specified.
+
+
+File: turtle.info,  Node: arraysearch module,  Next: arraysort module,  Prev: arraymap module,  Up: Array utility modules
+
+arraysearch module
+------------------
+
+   This module exports a functions for sorting objects of type
+
+     array of A
+
+   where A must be instantiated when importing this module.
+
+   The comparison function `cmp' is used for comparing elements of the
+input arrays.  `cmp' is expected to return a value less than 0 if the
+first argument is to be considered smaller than the second, a value
+greater than 0 if it is greater, and exactly 0 if the two arguments are
+equivalent.
+
+ - Function:  lsearch (A: array of A, ELEM: A, CMP: fun(A, A): int): int
+     Search linearly through the array A, until an element equal to
+     ELEM is found.  Use CMP for comparing the elements of the array to
+     ELEM.  Return the index of the first occurence if found; return -1
+     otherwise.
+
+     Note that if ELEM appear more than once in the array, the index of
+     the first occurence is returned.
+
+ - Function:  bsearch (A: array of A, ELEM: A, CMP: fun(A, A): int): int
+     Binary search.  Search in the array A for an element equal to
+     ELEM, using CMP as the comparison function.  Return the index of
+     the element if found, return -1 otherwise.
+
+     The array A must be sorted according to the comparison function
+     CMP, otherwise the search will most probably fail, even if ELEM
+     does appear in A.
+
+     Note that if ELEM appear more than once in the array, it is not
+     specified the index of which will be returned.
+
+
+File: turtle.info,  Node: arraysort module,  Prev: arraysearch module,  Up: Array utility modules
+
+arraysort module
+----------------
+
+   This module exports a functions for sorting objects of type
+
+     array of A
+
+   where A must be instantiated when importing this module.
+
+   The comparison function `cmp' is used for comparing elements of the
+input arrays.  `cmp' is expected to return a value less than 0 if the
+first argument is to be considered smaller than the second, a value
+greater than 0 if it is greater, and exactly 0 if the two arguments are
+equivalent.
+
+ - Function:  sort (A: array of A, CMP: fun(A, A): int)
+     Sort the array A, using `cmp' as the comparison function.  The
+     parameter A is modified for performing the sort.
+
+
+File: turtle.info,  Node: Tuple utility modules,  Next: Low level modules,  Prev: Array utility modules,  Up: Standard library
+
+Tuple utility modules
+=====================
+
+   Two modules for handling common tuple types are also in the
+distribution, one for handling pairs of two data types, and one for
+handling triples of three data types.
+
+* Menu:
+
+* pairs module::                Module for handling 2-tuples.
+* triples module::              Module for handling 3-tuples.
+
+
+File: turtle.info,  Node: pairs module,  Next: triples module,  Prev: Tuple utility modules,  Up: Tuple utility modules
+
+pairs module
+------------
+
+   Utility functions for tuples of type
+
+     (A, B)
+
+   where A and B must be instantiated when importing this module.
+
+ - Data type: pair
+     Defined as:
+
+          datatype pair<A, B> =
+            pair(first: A, second: B)
+
+     This datatype wraps a pair of values in an user-defined data type.
+
+ - Function:  unpair (P: pair): (A, B)
+ - Function:  pair (P: (A, B)): pair
+     These are conversion functions between the user-defined `pair'
+     data type and 2-tuples.
+
+ - Function:  first (P: (A, B)): A
+ - Function:  second (P: (A, B)): B
+     Return the first or second component of the argument tuple,
+     respectively.
+
+
+File: turtle.info,  Node: triples module,  Prev: pairs module,  Up: Tuple utility modules
+
+triples module
+--------------
+
+   Utility functions for tuples of type
+
+     (A, B, C)
+
+   where A, B and C must be instantiated when importing this module.
+
+ - Data type: triple
+     Defined as:
+
+          datatype triple<A, B> =
+            triple(first: A, second: B, third: C)
+
+     This datatype wraps a 3-tuples of values in an user-defined data
+     type.
+
+ - Function:  untriple (T: triple): (A, B, C)
+ - Function:  triple (T: (A, B, C)): triple
+     These are conversion functions between the user-defined `triple'
+     data type and 3-tuples.
+
+ - Function:  first (P: (A, B, C)): A
+ - Function:  second (P: (A, B, C)): B
+ - Function:  third (P: (A, B, C)): C
+     Return the first, second or third component of the argument tuple,
+     respectively.
+
+
+File: turtle.info,  Node: Low level modules,  Next: Modules in the subsystem sys,  Prev: Tuple utility modules,  Up: Standard library
+
+Low level modules
+=================
+
+   Some of the modules in the standard library are very low-level.
+These modules are either not convenient to use, or are machine or system
+dependent, so it is a good idea to avoid using them as far as possible,
+and rather use the functionality implemented by the higher-level modules
+in the previous sections.
+
+   A lot of functions in the higher-level modules are implemented in
+terms of the low-level ones, and sometimes access to low-level features
+is useful.  That is the reason why these modules are documented here
+even though their use is discouraged.
+
+* Menu:
+
+* core module::                 Some low-level utilities.
+
+
+File: turtle.info,  Node: core module,  Prev: Low level modules,  Up: Low level modules
+
+core module
+-----------
+
+   This file defines some useful low-level functions, but does not
+implement all of them.  For some of the functions only the declaration
+is given, and the implementation is written in C in the file core.t.i.
+
+   The module `core' is a very basic library module.  Very low-level
+functions for input and output are provided.  The user should not use
+these functions directly, but use one of the higher-level modules like
+`io' instead.
+
+ - Function:  write_char (FD: int, C: char)
+     Write the character C to the file descriptor FD.
+
+ - Function:  read_char (FD: int): char
+     Read a character from file descriptor FD.  On end-of-file, the
+     constant `chars.EOF' is returned.
+
+ - Function:  real_to_string (R: real): string
+     Convert the real number R to its string representation.
+
+ - Function:  string_to_real (S: string): real
+     Convert the string value S to a real value.  If S is not a valid
+     real number representation, the returned value is undefined.
+
+ - Function:  chr (I: int): char
+     Return the character with character code I.
+
+ - Function:  ord (C: char): int
+     Return the character code of the character C.
+
+ - Function:  int_to_real (I: int): real
+     Convert the integer value I to a real value.
+
+ - Function:  real_to_int (R: real): int
+     Convert the real value R to an integer value, stripping off any
+     decimal places.
+
+
+File: turtle.info,  Node: Modules in the subsystem sys,  Next: Modules in the subsystem internal,  Prev: Low level modules,  Up: Standard library
+
+Subsystem sys
+=============
+
+   The subsystem `sys' contains some system-dependant modules which
+access operating system specific functions.
+
+   All functions and variables in these modules are close to the
+underlying operating system calls and C library functions of the same
+name, and the semantics are the same as far as possible.  Only some
+minor changes to the semantics have been made in order to map the
+different data types in Turtle and C onto each other.
+
+* Menu:
+
+* sys.files module::            Low-level file handling.
+* sys.dirs module::             Directory handling.
+* sys.net module::              Low-level network programming.
+* sys.times module::
+* sys.users module::            Accessing the user data base.
+* sys.procs module::            Handling operating system processes.
+* sys.errno module::            Accessing the errno variable.
+* sys.signal module::
+
+
+File: turtle.info,  Node: sys.files module,  Next: sys.dirs module,  Prev: Modules in the subsystem sys,  Up: Modules in the subsystem sys
+
+sys.files module
+----------------
+
+   Module for handling files.
+
+ - Constant:  stdin : int
+ - Constant:  stdout : int
+ - Constant:  stderr : int
+     File descriptors for standard input, output and error..
+
+ - Function:  open (FNAME: string): int
+     Open the existing file named FNAME for reading and return a file
+     descriptor; or return -1 on error.
+
+ - Function:  create (FNAME: string): int
+     Create a new file named FNAME and open it for writing and return a
+     file descriptor; or return -1 on error.  An existing file named
+     FNAME will be overwritten, so use with caution.
+
+ - Function:  close (FD: int): int
+     Close the file associated with file descriptor FD, and return 0 on
+     success or -1 on error.
+
+ - Function:  close (FD: int)
+     Close the file associated with file descriptor FD. Ignore any
+     errors.
+
+ - Function:  write (FD: int, B: internal.binary.binary, LEN: int): int
+     Write LEN bytes from the byte array B to the file descriptor FD,
+     starting at offset 0 of the byte array.  Return the number of
+     bytes actually written, or -1 if an error occurs.  The variable
+     `sys.errno.errno' is set accordingly.
+
+ - Function:  read (FD: int, B: internal.binary.binary, LEN: int): int
+     Read LEN bytes from the file descriptor FD into the byte array B.
+     Return the number of bytes read, or -1 if an error occurs.  The
+     variable `sys.errno.errno' is set accordingly.
+
+ - Function:  unlink (FILENAME: string): int
+     Delete a name from the filesystem.  If that name was the alst
+     linkt to a file and no processes have the file open the file is
+     deleted and the space it was using is made available for reuse.
+
+     On success, zero is returned.  On error, -1 is returned and the
+     variable `sys.errno.errno' is set appropriately.
+
+
+File: turtle.info,  Node: sys.dirs module,  Next: sys.net module,  Prev: sys.files module,  Up: Modules in the subsystem sys
+
+sys.dirs module
+---------------
+
+   Module for handling directories.  The exported data type `dirs'
+serves as a handle for directories and must be obtained by calling the
+function `opendir'.  Calling `readdir' repeatedly on a valid `dir'
+value will return all entries of a directory, and the directory stream
+can then be closed with `closedir' or reset to the beginning with
+`rewinddir'.
+
+ - Data type: dir
+     Defined as:
+
+          datatype dir =
+            adir
+
+     Directory handle for use with the directory functions below.
+
+ - Function:  opendir (NAME: string): dir
+     Open a directory stream corresponding with the directory called
+     NAME, and return a handle for that stream.  The stream is
+     positioned at the first entry in the directory.  Return a handle
+     for the opened stream on success, or `null' if an error occurs.
+     The variable `sys.errno.errno' will be set accordingly.
+
+ - Function:  readdir (D: dir): string
+     Return a string representing the next directory entry in the
+     directory stream D.  Return `null' if the end of the stream is
+     reached or an error occurs.  `sys.errno.errno' will be set
+     accordingly.
+
+ - Function:  closedir (D: dir): int
+     Close the directory stream associated with the handle D.  The
+     stream descriptor D cannot be used anymore after this call.
+     Return 0 on success or -1 on failure, and set `sys.errno.errno'
+     accordingly.
+
+ - Function:  rewinddir (D: dir)
+     Reset the position of the directory stream D to the beginning of
+     the directory.
+
+
+File: turtle.info,  Node: sys.net module,  Next: sys.times module,  Prev: sys.dirs module,  Up: Modules in the subsystem sys
+
+sys.net module
+--------------
+
+   Module for network programming.
+
+   Currently, only IPv4 is supported, and only the most basic
+operations are provided.
+
+ - Constant:  PF_UNSPEC : int
+ - Constant:  PF_UNIX : int
+ - Constant:  PF_LOCAL : int
+ - Constant:  PF_INET : int
+     These constants are to be used as the DOMAIN parameter to the
+     `socket' function.  Note that currently only IPv4 (`PF_INET')
+     sockets are supported.
+
+ - Constant:  SOCK_STREAM : int
+ - Constant:  SOCK_DGRAM : int
+ - Constant:  SOCK_RAW : int
+     These are the socket type constants for calls to the `socket'
+     function.  Only stream sockets (`SOCK_STREAM') have been tested
+     yet.
+
+ - Function:  socket (DOMAIN: int, TYP: int, PROTOCOL: int): int
+     Create an endpoint for communication and return a descriptor.
+
+     The DOMAIN parameter specifies a communication domain; this
+     selects the protocol family which will be used for communication.
+     These families are defined as the `PF_*' constants.
+
+     The socket has the indicated type TYP, which specifies the
+     communication semantics.  The currently defined types are the
+     `SOCK_*' constants.
+
+     -1 is returned if an error occurs and `sys.errno.errno' is set
+     accordingly, othersie the return value is a descriptor referencing
+     the socket.
+
+ - Data type: sockaddr
+     Defined as:
+
+          datatype sockaddr =
+            inet(port: int, addr: internal.binary.binary)
+
+     Data type for specifying network addresses.  Currently only IPv4
+     is supported.
+
+ - Function:  sockaddr_addr (ADDR: sockaddr): internal.binary.binary
+ - Function:  sockaddr_port (ADDR: sockaddr): int
+     Return the IP number or the port of the socket address ADDR,
+     respectively.
+
+ - Function:  bind (SOCKFD: int, ADDR: sockaddr): int
+     Give the socket SOCKFD the local address ADDR.  This is necessary
+     for a stream socket may receive connections with `accept'.
+
+ - Function:  connect (SOCKFD: int, SERV_ADDR: sockaddr): int
+     Establish a connection for socket descriptor SOCKFD to the server
+     specified by SERV_ADDR.  The return value is -1 if an error occurs
+     and zero on success.
+
+ - Function:  listen (SOCKFD: int, BACKLOG: int): int
+     Before accepting connections with `accept', the willingness to
+     accept incoming connections and a queue limit for incoming
+     connections are specified with `listen'.
+
+ - Function:  accept (SOCKFD: int): (int, sockaddr)
+     Accept a client connection on the given socket SOCKFD.  Return a
+     pair of a socket descriptor for the connection to the client, and
+     the address of the client.
+
+ - Function:  inetaddr (PORT: int, B0: int, B1: int, B2: int, B3: int):
+          sockaddr
+ - Function:  inetaddr (PORT: int): sockaddr
+ - Function:  inetaddr (PORT: int, B: internal.binary.binary): sockaddr
+     Create an internet address structure with a given PORT and the
+     given bytes of the internet address.  The bytes are to be passed
+     highest-order byte first, for example:
+
+          "127.0.0.1"
+          =>
+          127, 0, 0, 1
+
+     The second version of the function will set the address to zero
+     and can be used when binding an address for a server socket where
+     the address should be the default.
+
+ - Function:  gethostbyname (NAME: string): internal.binary.binary
+     Return the IPv4 address of host NAME.  NAME must be either a valid
+     host name or an internet address in dotted decimal notation.
+
+     The return value is a byte array representing the internet address
+     or `null', if the host name cannot be resolved.
+
+   ==========================================================
+
+
+File: turtle.info,  Node: sys.times module,  Next: sys.users module,  Prev: sys.net module,  Up: Modules in the subsystem sys
+
+sys.times module
+----------------
+
+   Module for handling times.
+
+ - Data type: tm
+     Defined as:
+
+          datatype tm =
+            tm(sec: int, min: int, hour: int, mday: int, mon: int, year: int, wday: int, yday: int, isdst: int)
+
+     This data type represents date and time information.
+
+ - Function:  gmtime (T: long): tm
+     Return a `tm' structure representing the current time in Universal
+     Coordinated Time (UTC).
+
+ - Function:  localtime (T: long): tm
+     Return a `tm' structure representing the current time in local
+     time.
+
+ - Function:  time (): long
+     Return the current time in seconds since the Epoch (00:00:00 UTC,
+     January 1, 1970), measured in seconds.
+
+ - Function:  asctime (TM: tm): string
+     Return a string representation of the time TM or T, respectively.
+
+ - Function:  ctime (T: long): string
+

@@ -1,0 +1,91 @@
+								-*-text-*-
+
+Turtle Hacking Guide
+~~~~~~~~~~~~~~~~~~~~
+
+What to Hack =========================================================
+
+You can hack whatever you want, thank GNU.
+
+
+Hacking It Yourself ==================================================
+
+When you have checked out Turtle from CVS, you have to take a few
+extra steps before the usual building with configure, make, make
+install.  You will need to have up-to-date versions of the tools
+listed below, correctly installed.  I.e., they must be found in the
+current PATH and not shadowed or otherwise broken by files left behind
+from other versions.
+
+"up-to-date" means the latest released versions at the time that
+Turtle was obtained from CVS.  Sometimes older or newer versions will
+work.
+
+Then you must run the autogen.sh script by entering the command
+
+  ./autogen.sh
+
+After that, you can configure and make the package as usual.
+
+
+Required Tools =======================================================
+
+Autoconf
+
+  A system for automatically generating `configure' scripts from
+  templates which list the non-portable features a program would like
+  to use.  Available in "ftp://ftp.gnu.org/pub/gnu/autoconf".
+
+  As of 2003-02-20, version 2.53 works fine.
+
+Automake
+
+  A system for automatically generating Makefiles that conform to the
+  GNU coding standards.  The nice thing is that it takes care of hairy
+  targets like 'make dist' and 'make distclean', and automatically
+  generates Makefile dependencies.  Automake is available in
+  "ftp://ftp.gnu.org/pub/gnu/automake".
+
+  As of 2003-02-20, version 1.6.1 works fine.
+
+libtool
+
+  A system for managing the zillion hairy options needed on various
+  systems to produce shared libraries.  Available in
+  "ftp://ftp.gnu.org/pub/gnu/libtool".
+
+  As of 2003-02-20, version 1.4.2 works fine.
+
+
+Coding Standards =====================================================
+
+Turtle is not an official project (at least not at the time of
+writing), so there are no real `Coding Standards' defined.
+Nevertheless, some principles apply when hacking on Turtle.
+
+* Safety comes first
+
+  Everyone wants fast programs, but unstable programs are much more of
+  a PITA.  Keep this in mind, and check return values for error
+  conditions, avoid buffer overflows, etc.
+
+* Readability comes second
+
+  When choosing whether to implement something fast or clear,
+  implement it clear.
+
+* Performance comes third
+
+  Try to make things fast.  Especially, check out the asymptotical
+  complexity.  It's no problem if it takes a second to compile a short
+  program, as long as a 10000-LOC module compiles reasonably fast.
+
+* We write GNU style
+
+  Turtle is written and maintained as defined in the GNU coding
+  standard.  This makes life easier for everyone involved in the
+  project.
+
+
+Happy hacking,
+  'martin

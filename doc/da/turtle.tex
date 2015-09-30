@@ -1,0 +1,2709 @@
+%% turtle.tex -- Chapter on the programming language Turtle
+%%
+%% Copyright (C) 2003 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+%%%
+%%% This chapter documents the design of the constraint imperative
+%%% language Turtle and describes the language.  At the end, the
+%%% formal operational semantics are given.
+%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\lsq}{{\normalfont [\![}}
+\newcommand{\rsq}{{\normalfont ]\!]}}
+\newcommand{\ST}[1]{{\mathcal{S}\lsq #1 \rsq}}
+\newcommand{\TT}[1]{{\mathcal{T}\lsq #1 \rsq}}
+\newcommand{\ET}[1]{{\mathcal{E}\lsq #1 \rsq}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter[\turtle{} -- a Constraint Imperative Language]%
+{\turtle{} -- a Higher-order Constraint Imperative Programming Language}
+\label{cha:turtle}
+
+As seen in the last chapter, there already exist several approaches to
+the design and implementation of constraint imperative programming
+languages.  But they all focus on other aspects of the constraint
+imperative approach than the ones we are interested in.  The
+combination of constraints and object-oriented programming has been
+covered in detail by Lopez~\cite{lopez97phd} and we will not deal with
+that topic at all.  The same applies to backtracking and search, which
+are the main properties of the language Alma-0~\cite{apt97search,
+  apt98alma, apt98almaproject}.  We are more interested in
+investigating more fundamental properties of constraint imperative
+languages, such as the interaction of side-effects and constraints or
+constraints as a means of preserving program invariants. Additionally,
+we want to integrate other properties of high-level languages, such as
+higher-order functions and algebraic
+data types%
+\index{algebraic data type}.  Thus we have designed the
+higher-order constraint imperative programming language \turtle{},
+which combines functional, constraint and imperative programming
+concepts into one language, hopefully benefitting from the advantages
+of each of them.
+
+This chapter presents the principles behind the design of the
+constraint imperative language \turtle{}.
+Chapter~\ref{cha:turtle-impl} describes how these principles have been
+dealt with in the implementation of the language.
+
+
+%%
+%% List of features required in a proper constraint imperative 
+%% language.
+%%
+\section{Requirements}
+\label{sec:requirements}
+
+It is important to recall the most important requirements one wishes
+to address with a constraint imperative language, before going into
+details of the language design.
+%
+\begin{itemize}
+\item The use of high-level programming constructs should be optional,
+  so that the unexperienced programmer can start with the features he
+  or she is used to, and use the additional facilities when required.
+  In the author's opinion, higher-level features will be used as soon
+  as their usefulness (especially in conjunction with supporting
+  libraries) is noted by programmers.
+
+\item Constraint statements should fit smoothly into other imperative,
+  block-structured statements.  For example, the scope of constraints
+  should be similar to the scope of functions and variables.  This
+  makes it easier to understand constraints in the context of the
+  imperative program control flow.
+  
+\item Constraint imperative programs must be reasonably efficient.
+  This means at least that constraint solving should not unnecessarily
+  slow down normal program execution.  Programs which do not use
+  constraint programming features should be as fast as programs
+  written in a normal imperative language.
+  
+\item Even though imperative language features are supported, the
+  language must be safe: this requires garbage collection and type
+  checking. (\turtle{} uses static type checking, but dynamic type
+  checking as known from languages in the \lisp{} family would work as
+  well.)
+  
+\item The semantics of the constraint programming extensions should be
+  clear and declarative, in order to minimize their impact on program
+  complexity.
+\end{itemize}
+%
+Freeman-Benson and Borning~\cite{benson92int} have also developed a
+list of goals for their integration of constraints into imperative
+languages, but this list is mostly oriented towards object-oriented
+features, and could therefore easily be combined with our
+requirements, should an integration of object-oriented programming be
+needed.
+
+%%
+%% General arguments for and against integrating constraint into 
+%% the base programming language.
+%%
+\section{Library or Language Integration}
+
+Before starting to design and implement a new language, one should ask
+whether the goals of this new language could be achieved by
+alternative, maybe simpler or more effective methods.  For most
+extensions of programming languages, a library of suitable data
+structures and functions suffices to accomplish the desired effect.
+Examples for this are constraint solving libraries like ILOG for
+\cplusplus{}~\cite{ILOG} or Koalog for \java{}~\cite{koalog}.  The
+library approach has a number of advantages:
+
+\begin{itemize}
+\item Compatibility with existing source code and programming
+  environments.
+  
+\item Preserving investments (financial as well as intellectual).
+  Existing libraries can often be combined with the language extension
+  libraries, so they do not need be re-written to be used in new
+  applications.  The learning curve for integrating libraries is not
+  as steep as for a new language extension and mostly consists of
+  learning the application programming interface (API) of the new
+  library.
+\end{itemize}
+
+\noindent
+On the other hand, a complete integration into a language (both
+syntactically and semantically) also has advantages:
+
+\begin{itemize}
+\item Better optimization possibilities because the compiler knows
+  about the semantics of certain constructs, such as constrainable
+  variables or constraint statements.
+  
+\item Cleaner syntax because of smooth syntactic integration instead
+  of an add-on library, where the functionality can be accessed only
+  by data structure manipulations and function calls.  Both of these
+  constructs obscure the meaning of the used programming constructs.
+  For example, the use of a compound statement for expression
+  synchronization as in \java{} or \ada{} is less error prone than
+  several calls to different library functions, which must be done in
+  the correct order.
+  
+\item Less semantic and syntactic restrictions than for library
+  implementations.  These are restricted to the possibilities of the
+  underlying language.  For example, it is relatively easy to write a
+  library for emulating lazy evaluation in strict functional
+  languages, but the opposite is significantly harder and probably
+  results in a new implementation of a lazy language.  Another example
+  is the addition of multithreading to the C language by using thread
+  libraries. This extension is only possible because the library can
+  side-step the language semantics using operating system calls.
+  Integrating new language features into the base language lifts most
+  of these restrictions.
+\end{itemize}
+
+\noindent
+For this thesis, we take the approach of defining a new programming
+language which incorporates many well-understood concepts with
+constraint programming.  One more reason in addition to the arguments
+listed above is the existence of many library implementations, whereas
+only few languages have built-in support for constraints.  So it is
+more interesting to study the latter, especially as it seems to be
+harder to design and implement a tightly integrated system than to
+build an add-on library.
+
+%%
+%% A short overview of the imperative base constructs of the Turtle
+%%  language
+%%
+\section{The Base Language}
+\label{sec:base-language}
+
+Before looking at the language features typical for constraint
+imperative languages, we describe the imperative language on which the
+complete \turtle{} language is built.
+
+The imperative subset of the \turtle{} language allows the programmer
+to define variables, functions and data types.  In this language,
+program variables are names for storage locations and their contents
+can be changed by assignment.  Functions are sub-programs which take
+parameters as input values and can return output values, like
+functions in the \cee{}
+%~\cite{fixme:c} 
+or \cplusplus{}
+%~\cite{fixme:cpp}
+languages, methods in \java{}
+%~\cite{fixme:java} 
+or procedures in \modula{}~\cite{wirth85modula}.  Functions contain
+code in the form of statement lists, consisting of assignment,
+conditional and iteration statements.  All common arithmetic and
+boolean expressions known from imperative languages are also allowed.
+
+The execution model of the imperative base language is the traditional
+model where statements are executed top-down, and each statement
+executes in the state resulting from its predecessor.  When constraint
+programming is added to the base language, these basic execution rules
+will not be changed, in order to minimize the semantic changes
+introduced by this extension.
+
+\turtle{} supports the development process by providing a module
+system, algebraic data types%
+\index{algebraic data type} as known from functional languages and
+support for overloading of functions and variables, also known as
+ad-hoc polymorphism.  As already mentioned, functions can be
+higher-order.  Functions can be passed as arguments to other
+functions, they can be the results of functions and they can be stored
+into variables and data structures.  These features will be described
+in more detail in following sections.
+
+\turtle{} does not have explicit memory management like \modula{}'s
+{\tt new/dispose} or \cee{}'s {\tt malloc/free}.  Like most modern
+languages, it uses automatic storage reclamation, also known as
+garbage collection.  This makes the use of dynamic data structures
+safe, because it avoids many sources of programming errors which
+result in memory leaks or the use of already freed memory regions.
+
+The language is statically typed and all variables and functions must
+be declared with their types.  The compiler checks at compile time
+whether the program is type correct, so when the program is run, it
+cannot fail because of type errors.  This makes the language safer
+than weakly typed languages like {\sc C}.
+
+Finally, the \turtle{} base language has a simple exception model for
+handling run-time errors.  Whenever a \turtle{} program fails, an
+exception is raised and terminates the program.  This ensures that no
+run-time error goes by unnoticed and leads to wrong results or worse
+errors later in the program run.
+
+%%
+%% What is needed to grow a traditional imperative language to a
+%% constraint imperative language.
+%%
+\section{Constraint Programming Extensions}
+\label{sec:constraint-programming-extensions}
+
+The step from an imperative to a constraint imperative language
+involves the addition of several language constructs as well as the
+adaption of existing features to the new programming style.  In this
+section, we will investigate the constructs which were added to the
+imperative base language.  Please note that the language modifications
+suggested in this section are oriented towards a language design which
+starts from a traditional imperative language and adds constraint
+features to result in a constraint imperative language.  The
+alternative way of adding imperative features to a constraint language
+would require different modifications.
+
+This section will introduce the various constraint programming
+extensions which have been incorporated into the imperative base
+language of \turtle{}.  Section~\ref{sec:language-description} will
+describe the complete language informally, but in more detail.
+
+
+\subsection{Constrainable Variables}
+\label{sec:constrainable-vars}
+
+\index{normal variables}
+\index{constrainable variables}
+%
+Normal variables in imperative languages are names for storage
+locations which hold values, and into which new values can be stored
+with imperative assignment statements.  In addition, \turtle{} has
+{\em constrainable variables}.  Their values are not modified by
+assignment statements, but can be derived from sets of constraints.
+It is the task of the {\em constraint solver} (see below) to manage
+the constraints and to calculate the values of the constrainable
+variables.
+
+In \turtle{}, constrainable variables can be used like normal
+variables most of the time.  It is possible to store values into
+constrainable variables, to use them in expressions or to pass them as
+parameters to functions.  When used in this way, they work like normal
+variables.  Only when used in constraint statements, the two types of
+variables differ: normal variables work like constants whereas
+constrainable variables are treated like variables in the mathematical
+sense, and the constraint solver can modify their values in order to
+satisfy the constraints of the constraint statement.
+
+\index{constrained type}
+
+When declaring constrainable variables, these variables must be marked
+as such by declaring them with a {\em constrained type}.  The
+following program fragment illustrates this by defining two normal
+variables $x$ and $y$ of type {\em int} and a constrainable variable
+$z$ of type {\bf !} {\em int}.
+
+\begin{ttlprog}
+\>\ttlVar{} $x$: int, $y$: int;\quad\ttlVar{} $z$: {\bf!} int;
+\end{ttlprog}
+% var x: int;
+% var y: ! real;
+%
+Constrained types must have a base type which is an integer or a real
+type, and are declared with an exclamation mark preceding the base
+type.
+
+For a complete description on how constrainable variables are created
+and used, see section~\ref{sec:turtle-constraints}.
+
+%
+% Which constraint statements are there, and how are they used.
+%
+\subsection{Constraint Statements}
+\label{sec:constraint-statements}
+
+The language must provide statements for maintaining the constraint
+store and for examining the state of the store.  It must be possible
+to add constraints to the store and to remove them when they are no
+longer needed.  This is best done by providing a compound statement
+which clearly describes how long each constraint will stay in effect.
+This is similar to lexical scoping, where it is always syntactically
+apparent where each variable is accessible and where not.  We
+therefore propose a statement for enforcing constraints while a
+sequence of statements is executed:
+%
+\begin{ttlprog}
+\>\ttlRequire{} $z > 0$ \res{in}\\
+\>\>$y \leftarrow 2$;\\
+\>\>$x \leftarrow x$ * $y$;\\
+\>\ttlEnd{};
+\end{ttlprog}
+%
+This statement, called a {\bf require} statement, adds a constraint
+($x>0$ in the previous example) to the store and then executes the
+statements between the {\bf in} and {\bf end} keywords.  When the {\bf
+  require} statement is left, the constraint is removed from the store
+and does not constrain the involved variables ($x$ in the example) any
+longer.
+
+\index{constraint!strength}
+%
+Support for constraint hierarchies requires a mechanism for attaching
+strengths to constraints.  For example, each constraint can have a
+strength annotation in its definition:
+%
+\begin{ttlprog}
+\>\ttlRequire{} $x > 0$ : {\em strong} \ttlAnd{}\\
+\>\>\>\>\>$y = 0$ : {\em mandatory} \ttlIn{}\\
+\>\>\dots\\
+\>\ttlEnd{};
+\end{ttlprog}
+%
+\index{constraint conjunction}
+%
+When a constraint is annotated with a strength, it is added to the
+store with the given strength, otherwise with the strongest strength.
+The strongest strength is {\em mandatory}, and was specified in the
+previous example for clarity.  In \turtle{}, constraint strengths must
+be integer constants, but it is possible to give symbolic names to
+constants using a {\bf const} declaration.  The example makes use of
+another feature of the {\bf require} statement: more than one
+constraint can be enforced at the same time, by writing a {\em
+  constraint
+  conjunction}%
+\index{constraint conjunction}%
+\index{constraint!conjunction}%
+\index{conjunction} instead of a single constraint.  A conjunction is
+a set of constraints separated by the keyword {\bf and}.
+It is not possible to specify {\em constraint disjunctions}%
+\index{constraint disjunction}%
+\index{constraint!disjunction}%
+\index{disjunction} in \turtle{}, because disjunctions introduce
+non-determinism and there are no means in \turtle{} to handle this.
+
+A {\bf require} statement without a body ensures that the given
+constraint will be enforced as long as the variables in the constraint
+are alive.
+%
+\begin{ttlprog}
+\>\ttlRequire{} $z > 1$;
+\end{ttlprog}
+% require z > 1;
+%
+The life time and scope of constraints are discussed in detail in
+section~\ref{sec:turtle-constraints}.
+
+% Additionally, we do not only want to support constraints which are
+% enforced for the time a statement is executed, but also constraints
+% which live as long as the data structures they are placed on.  For
+% example, given the following data structure which represents an
+% abstract syntax tree for typed arithmetic expressions ({\em operator}
+% is the type of all binary operators and {\em typeset} is the type of
+% all sets of types):
+
+% \begin{ttlprog}
+% 1\>\ttlDatatype{} expr = rnumber (value: real, typ: !typeset) \ttlOr{}\\
+% 2\>\>\>\>\>\>\>\>\>inumber (value: int, typ: !typeset) \ttlOr{}\\
+% 3\>\>\>\>\>\>\>\>\>bin (op: operator, l: expr, r: expr, typ: !typeset);\\
+% \end{ttlprog}
+% % datatype expr = rnumber (value: real, typ: !typeset) or
+% %                 inumber (value: int, typ: !typeset) or
+% %                 bin (op: operator, l: expr, r: expr, typ: !typeset);
+
+% It would be nice to be able to place constraints on the types of the
+% individual abstract syntax node.\footnote{In this example, we suppose
+%   that the primitive constraint solver supported set constraints.}
+% Then we would like to place the constraint that the type of a binary
+% node is the intersection of the types of the operand nodes:
+
+% \begin{ttlprog}
+% 1\>\ttlVar{} b: expr $\leftarrow$ bin (left, right, fulltypeset ());\\
+% 2\>\ttlRequire{} typ (b) $\subseteq$ typ (left) $\cap$ typ (right);\\
+% \end{ttlprog}
+
+% % var b: expr := bin (left, right, emptyset ());
+% % require typ (b) $\subseteq$ typ (left) $\cup$ typ (right);
+
+% By initialising the type of the binary node with the set of all types
+% and then placing a constraint on this set, we can narrow this set
+% until it contains exactly one type.  If the set becomes empty a type
+% error can be diagnosed and if the set contains more than one element,
+% the expression is ambiguous and should be rejected by the type
+% checker, too.
+
+% To be more precise, the constraint on the binary node should be weaker
+% than the constraints on the leaves (which are normally constants of
+% declared variables), and weaker than the constraint placed on the
+% result type of an expression by the context in which the expression
+% appears.  For example, if an expression appears on the right-hand side
+% of an assignment, the type of the expression should be constrained to
+% be in the type(s) found for the l-value on the left-hand side.
+
+
+\subsection{User-defined Constraints}
+
+\index{user-defined constraint}
+
+Besides the constraints provided by the language, it must be possible
+to define additional, more complex constraints.  These so-called {\em
+  user-defined constraints} are means of abstraction over constraints
+in the same way as functions are abstractions over statements.  For
+illustration, consider the following constraint statement, which
+constrains three variables to be pairwise distinct:
+
+\begin{ttlprog}
+\>\ttlRequire{} {\em x} $\neq$ {\em y} \ttlAnd{} {\em x} $\neq$ {\em z} \ttlAnd{} {\em y} $\neq$ {\em z};
+\end{ttlprog}
+% require x <> y and x <> z and y <> z;
+
+\noindent
+The use of user-defined constraints makes it possible to write this
+constraint statement more cleanly, by first defining a constraint for
+pair-wise inequality of variables, and then using this user-defined
+constraint in the constraint statement.
+
+\begin{ttlprog}
+\>\ttlConstraint{} distinct ({\em x}: {\bf!} int, {\em y}: {\bf!} int, {\em z}: {\bf!} int)\\
+\>\>\ttlRequire{} {\em x} $\neq$ {\em y} \ttlAnd{} {\em x} $\neq$ {\em z} \ttlAnd{} {\em y} $\neq$ {\em z};\\
+\>\ttlEnd{};\\
+\>\ttlRequire{} distinct ({\em x}, {\em y}, {\em z});
+\end{ttlprog}
+% constraint distinct(x: ! int, y: ! int, z: ! int)
+%   require x <> y and x <> z and y <> z;
+% end;
+% require distinct (x, y, z);
+
+\noindent
+Of course, for this small program fragment, the advantage is not so
+clear, but for large programs with many such constraints, it is much
+harder to write down correctly the inequalities and not forgetting a
+constraint on a pair of variables.  Using the user-defined constraint
+{\em distinct} will solve this problem by avoiding the need to write
+down the same constraints over and over again.
+
+\subsection{Constraint Store and Solver}
+\label{sec:store-and-solver}
+
+Whereas the addition of constrainable variables, constraint statements
+and user-defined constraints is directly visible in the syntax of a
+programming language, the addition of a {\em constraint store} and a
+{\em constraint solver} is more related to the language semantics.
+
+Usage of constrainable variables and constraint statements requires a
+mechanism for deducing their values from constraints.  This mechanism
+consists of a constraint store which is necessary to store constraints
+as long as they are in effect, and of a constraint solver which
+derives values for constrainable variables from the constraints.
+
+The constraint store holds constraints in some symbolic representation
+which allows the solver to efficiently access the properties of
+constraints and constrainable variables included in constraints.
+Therefore it is organized differently than the normal store known from
+imperative machines which is just an array of memory cells.
+
+
+% \section{Syntax}
+
+% A programming language's syntax requires some thought.  Not only
+% technical, but also psychological aspects have to be considered, since
+% many programmers are very used to the languages they have known since
+% a long time, and no technical advantage would get them to use another
+% programming language if they did not like its appearance.  There are a
+% lot of advocates both for a very terse syntax and a redundant syntax,
+% for various reasons, and normally the arguments for either of them are
+% not technical as well.  Writing and reading are very subjective
+% activities, not only as far as the outer form is concerned, but also
+% for the contents.
+
+% The syntax chosen for \turtle{} tries to make a compromise between too
+% terse (and sometimes cryptic) and too long (and sometimes tiresome)
+% syntax.  Appendix~\ref{cha:turtle-grammar} contains the formal
+% definition of the grammar, and appendix~\ref{cha:example-modules}
+% contains some complete programs for illustration.  As an example, a
+% short program has been written in program~\ref{prog:turtle-syntax}.
+
+% \begin{Program}
+% \begin{ttlprog}
+% 1\>\ttlFun{} fib($i$: int): int\\
+% 2\>\>\ttlIf{} $i$ $\leq$ 1 \ttlThen{}\\
+% 3\>\>\>\ttlReturn{} 1;\\
+% 4\>\>\ttlElse{}\\
+% 5\>\>\> \ttlReturn{} fib($i$ $-$ 1) $+$ fib($i$ $-$ 2);\\
+% 6\>\>\ttlEnd{};\\
+% 7\>\ttlEnd{};
+% \end{ttlprog}
+% \caption{Syntax for \turtle{}}
+% \label{prog:turtle-syntax}
+% \end{Program}
+
+% It would be possible to provide other syntaxes for \turtle{}-programs
+% and let the programmer decide which syntax suits her best.  This could
+% be implemented by adding different parsers for each different input
+% syntax to the compiler, which would translate the program text into a
+% single, internal representation for further processing.
+
+% A {\sc Lisp}-like syntax would have to be extended with type
+% declarations, because the language semantics require these.  In the
+% example in program~\ref{prog:lisp-syntax} we extended the syntax of
+% Scheme~\cite{kelsey98r5rs} with type declarations for functions and
+% function parameters.
+
+% \begin{Program}
+% \begin{ttlprog}
+% 1\>({\bf define} ({\bf int} fib ({\bf int} $i$))\\
+% 2\>\>({\bf if} ($\leq$ $i$ 1)\\
+% 3\>\>\>1\\
+% 4\>\>\>(+ (fib ($-$ $i$ 1)) (fib ($-$ $i$ 2)))))
+% \end{ttlprog}
+% \caption{{\sc Lisp}-Syntax}
+% \label{prog:lisp-syntax}
+% \end{Program}
+
+% A syntax similar to that of {\sc C, C++} or {\sc Java} could be
+% adapted without changes, but of course the semantics would be
+% restricted to the abilities of \turtle{}.  A fibonacci-function in
+% this syntax can be found in program~~\ref{prog:c-syntax}.
+
+% \begin{Program}
+% \begin{ttlprog}
+% 1\>{\bf int} fib({\bf int} $i$) \{\\
+% 2\>\>{\bf if} ($i$ $\leq$ 1) {\bf return} 1;\\
+% 3\>\>{\bf else} {\bf return} fib($i$ $-$ 1) $+$ fib($i$ $-$ 2);\\
+% 4\>\}
+% \end{ttlprog}
+% \caption{{\sc C, C++} or {\sc Java}-Syntax}
+% \label{prog:c-syntax}
+% \end{Program}
+
+% Modula-syntax is much more verbose (see
+% program~\ref{prog:modula-syntax}), and contains much redundancy.  This
+% could help the compiler to deliver better diagnostics, but requires
+% the programmer to type and read much more text.
+
+% \begin{Program}
+% \begin{ttlprog}
+% 1\>{\bf PROCEDURE} fib($i$: {\bf INTEGER}): {\bf INTEGER}\\
+% 2\>{\bf BEGIN}\\
+% 3\>\>{\bf IF} $i$ $\leq$ 1 {\bf THEN}\\
+% 4\>\>\>{\bf RETURN} 1\\
+% 5\>\>{\bf ELSE}\\
+% 6\>\>\>{\bf RETURN} fib($i$ $-$ 1) $+$ fib($i$ $-$ 2)\\
+% 7\>\>{\bf END}\\
+% 8\>{\bf END} fib;
+% \end{ttlprog}
+% \caption{Modula-syntax}
+% \label{prog:modula-syntax}
+% \end{Program}
+
+% On the other extreme, there is the syntax of many functinal languages
+% (e.g. Haskell, Clean, Standard ML or Opal), which omits all
+% superfluous language elements of the other examples.  This leads to
+% very concise programs and is extended by language features like
+% pattern matching, how it was used in program~\ref{prog:fp-syntax} to
+% implement a case distinction.
+
+% \begin{Program}
+% \begin{ttlprog}
+% 1\>fib 0 = 1\\
+% 2\>fib 1 = 1\\
+% 3\>fib $i$ = (fib $i - 1$) $+$ (fib $i - 2$)
+% \end{ttlprog}
+% \caption{Syntax of functional programs}
+% \label{prog:fp-syntax}
+% \end{Program} 
+
+% The examples were shown to illustrate how difficult it is to choose
+% from any of these possibilities when designing a new language.  The
+% concrete syntax chosen for \turtle{} will have to be investigated in
+% the future and could be replaced in the future if if proves to be
+% inconvenient.
+
+
+\section{Language Description for \turtle{}}
+\label{sec:language-description}
+
+Now that the imperative base language as well as the constraint
+extensions of \turtle{} have been introduced, this section describes
+all concepts of the complete language.
+
+\turtle{} is a higher-order constraint imperative programming
+language.  It combines concepts from functional and imperative
+programming languages with constraint programming by introducing few
+but powerful programming constructs.
+
+\index{module}
+\index{module!main}
+\index{main module}
+\index{public}
+\index{private}
+%
+A \turtle{} program consists of a set of one or more {\em modules},
+where one module is the {\em main module} which is the first to get
+control when the program is started.  Each module is a compilation
+unit which encapsulates a set of functions, constraints, constants,
+variables and data type definitions.  These definitions can be {\em
+  public}, which means that other modules can {\em import} and use
+these definitions.  Non-public definitions are {\em private} to the
+module and there is no access from the outside.
+
+Modules are used to organize subsystems of a program into pieces which
+can be separately developed, tested and maintained, and are therefore
+important for software engineering purposes.  Additionally, modules in
+\turtle{} can be parametrized by data types, so that algorithms can be
+expressed independently of the actual data types they work on.
+
+Functions are first-class objects in \turtle{}, which can be passed as
+parameters or function results and can be stored in data structures.
+\turtle{} is lexically scoped, so the scope of every variable,
+function and user-defined constraint is defined by its syntactic
+position in the source code.
+
+\turtle{} has a variety of built-in primitive data types such as
+integers, floating-point reals, characters, strings, booleans and
+built-in type constructors for arrays and lists, as well as the
+ability to define recursive algebraic data types%
+\index{algebraic data type}.
+
+Last but not least, \turtle{} supports constraint programming by
+providing syntax for specifying constraint hierarchies over arbitrary
+domains with built-in constraint solvers and control over the life
+time of constraints, both smoothly integrated into the higher-order
+imperative base language.  Constraints can be used to determine values
+for global and local variables as well as for constraining the fields
+of {\em compound data types}, %
+\index{compound data type}%
+such as arrays, lists or algebraic data types%
+\index{algebraic data type}.  User-defined constraints can be
+specified which define higher-level constraints in terms of the
+primitive constraints provided by the built-in constraint solvers.
+
+The language features will be described in more detail in the
+following subsections.  For the formal syntax of \turtle{}, consult
+Appendix~\ref{cha:turtle-grammar}.
+
+\subsection{Variables and Functions}
+
+\index{variables}
+\index{variables!local}
+\index{variables!global}
+\index{global variables}
+\index{local variables}
+
+Variables in \turtle{} can be global or local.  Global variables are
+accessible from all functions and user-defined constraints in the module
+where the variables are defined.  When the variables are declared {\em
+  public}, they are also accessible to the functions and user-defined
+constraints in all modules of the same program which imported the
+variables' defining module.
+
+Local variables can only be accessed from code in the functions or
+user-defined constraints they are defined in, or from local functions
+or user-defined constraints defined in the body of the function.
+
+\index{functions}
+%
+Functions are used like functions or procedures in other imperative
+programming languages.  They expect parameters as input values and
+return values to the calling context.  The main difference to some
+other imperative languages is the fact that functions in \turtle{} may
+return compound data types like arrays, lists, tuples and user-defined
+data structures.
+
+The calling convention for functions is call-by-value, parameters are
+evaluated before they are passed to a function.  Compound data types
+are reference types, so that the evaluated form of such values are
+references, and these references are then passed to functions.  A
+function which receives a reference type as a parameter can thus
+modify the passed value, similar to many object-oriented languages
+like \java{}
+%~\cite{java:fixme}
+or \smalltalk{}%
+%~\cite{smalltalk:fixme}
+.
+
+User-defined constraints are similar to functions and the same rules
+apply for local variables, functions, exporting and importing of
+constraints etc., but there are different calling conventions for
+user-defined constraints (the constraint store is not re-solved while
+user-defined constraints are executed).  User-defined constraints are
+described in more detail in section~\ref{sec:turtle-constraints}
+
+\subsubsection{Overloading}
+
+Functions and variables in \turtle{} may have the same names, as long
+as it is possible to determine unambiguously which function or
+variable is used at each occurence of its name.  Whenever variables
+and functions of the same name have different types, this can be done,
+and data types can have the same name as variables or functions
+because they only appear in type expressions.
+
+Overloading in \turtle{} is similar to that in \ada{}
+%~\cite{ada:fixme} 
+and is more powerful than for example in \java{} or \cplusplus{},
+because functions can not only be overloaded in their parameter types
+but also in their return types.
+
+\subsubsection{Constant Variables}
+
+Variables can be declared with the {\bf const} keyword instead of the
+{\bf var} keyword, then the storage location they stand for cannot be
+changed by assignment after the variable has been initialized.  The
+value stored in the variable, if it is a compound value, can be
+modified, so it is not possible to define constant data structures in
+\turtle{}.
+
+\subsubsection{Constrainable Variables}
+
+See section~\ref{sec:turtle-constraints} for a description of
+constraints and constrainable variables in \turtle{}.
+
+
+\subsubsection{Higher-order Functions}
+
+Functions can be the return values and parameters of other functions,
+and can even be stored in data structures.  Functions which accept
+functions as parameters or return them are called higher-order
+functions, and are a central concept of functional programming
+languages.  Since it is not difficult to combine them with imperative
+languages and make the language considerably more powerful, they have
+been integrated into \turtle{}.\footnote{\turtle{} could therefore be
+  called a {\em functional constraint imperative}
+\index{functional constraint imperative}%
+language, but that is not the focus of this work.  See
+Chapter~\ref{cha:summary} for possible future work in this direction.}
+
+Especially for handling data structures such as lists or arrays, and
+for building reusable software libraries, higher-order functions are
+very useful.
+
+Local variables declared in a function exist as long as the
+surrounding function lives, and whenever the function is invoked, it
+can operate on the variables in its scope.  A nice example for this is
+a function which creates another function with the functionality of
+counting the number of times it was called.
+Program~\ref{prog:counter} defines a function which creates such a
+counter function.  Whenever the returned function is executed, it
+yields the next integer in the increasing sequence starting from 1.
+This is possible because the returned function maintains a copy of the
+variable $x$ which exists as long as the function lives, and maintains
+its state across function invocations.  Function and user-defined
+constraint values are created by function/constraint expressions as
+shown in the example program~\ref{prog:counter} in lines 3--6.
+
+\begin{Program}
+\begin{ttlprog}
+1\>\ttlFun{} make\_counter (): \ttlFun{} (): int\\
+2\>\>\ttlVar{} {\em x}: int $\leftarrow$ 0;\\
+3\>\>\ttlReturn{} \ttlFun{} (): int\\
+4\>\>\>\>\>\> {\em x} $\leftarrow$ {\em x} $+$ 1;\\
+5\>\>\>\>\>\> \ttlReturn{} {\em x};\\
+6\>\>\>\>\> \ttlEnd{};\\
+7\>\ttlEnd{};
+\end{ttlprog}
+\caption{Counter function example}
+\label{prog:counter}
+\end{Program}
+% fun make_counter (): fun (): int
+%   var x: int := 0;
+%   return fun (): int
+%            x := x + 1;
+%            return x;
+%          end;
+% end;
+
+\subsection{Statements and Expressions}
+
+The bodies of functions and user-defined constraints contain sequences
+of statements.  When a function or user-defined constraint is
+executed, the statements in its body are evaluated in order, and each
+statement executes in the program state which was left by the previous
+statement.
+
+Statements may contain expressions as some component, for example the
+condition inside a conditional statement.  The difference between
+statements and expressions is that expressions produce values and
+statements do not.
+
+\turtle{} provides all basic imperative statement kinds
+and expression forms, which will be documented in the rest of this
+section.
+
+\subsubsection{Conditionals}
+
+Conditionals are expressed as {\bf if-then-else} statements of the
+form
+%
+\begin{ttlprog}
+\>\ttlIf{} {\em condition} \ttlThen{}\\
+\>\>{\em stmt1};\\
+\>\ttlElse{}\\
+\>\>{\em stmt2};\\
+\>\ttlEnd{};
+\end{ttlprog}
+%
+For the common idiom where one conditional is nested inside the {\em
+  else}-part of another conditional, \turtle{} provides the shorter
+syntax:
+%
+\begin{ttlprog}
+\>\ttlIf{} {\em condition1} \ttlThen{}\\
+\>\>{\em stmt1};\\
+\>\ttlElsif{} {\em condition2} \ttlThen{}\\
+\>\>{\em stmt2};\\
+\>\ttlElse{}\\
+\>\>{\em stmt3};\\
+\>\ttlEnd{};
+\end{ttlprog}
+
+\subsubsection{Loops}
+
+Only one kind of loop statement is provided by \turtle{}, the {\bf
+  while} loop:
+%
+\begin{ttlprog}
+\>\ttlWhile{} {\em condition} \ttlDo{}\\
+\>\>{\em stmt};\\
+\>\ttlEnd{};
+\end{ttlprog}
+
+\subsubsection{Function Calls and Return}
+
+A call to a function which has the predefined return type {\bf void}
+is also a statement.  Calls to functions with other return types are
+not allowed as statements and can only be used inside of expressions.
+A function call is written by giving the name of the function
+(possibly qualified, see section~\ref{sec:module-system}), followed by
+the list of parameters in parentheses.  When there are no parameters,
+empty paratheses must be written.  The following example writes the
+string ``Good morning, Sir!'' \!\!and goes to the beginning of the next
+line:
+%
+\begin{ttlprog}
+  \>io.put ("Good morning, Sir!");\\
+  \>io.nl ();
+\end{ttlprog}
+%
+The last statement which is executed in a function with a return type
+other than {\bf void} must be a {\bf return} statement, which
+specifies the value which is returned by the currently active function
+call.  The following program fragment returns the value of the
+variable $x$ to the calling function.
+%
+\begin{ttlprog}
+\>\ttlReturn{} $x$;
+\end{ttlprog}
+
+\subsubsection{Expressions}
+
+Expressions allowed in \turtle{} are arithmetic and boolean
+expressions as well as all other expressions which result in a value
+which is not of type {\bf void}.  A few examples for expressions are:
+%
+\begin{ttlprog}
+\>{\em x} $+$ {\em y}\\
+\>3 * 4 $+$ ({\em a} $-$ 2)\\
+\>\ttlTrue{} \ttlAnd{} \ttlNot{} {\em a}\\
+\>io.get({\em f})\\
+\>lists.map(\ttlFun{} ({\em a}: int): real \ttlReturn{} reals.from\_int ({\em a}); \ttlEnd{}, [2, 3, 1])\\
+\>[2.0, 3.0, 1.0]
+\end{ttlprog}
+
+\subsection{Data Types}
+\index{data types}
+
+\index{integer}
+\index{type!integer}
+\index{floating point}
+\index{type!real}
+\index{characters}
+\index{type!character}
+\index{strings}
+\index{type!string}
+\index{algebraic data type}
+\index{type!algebraic}
+
+For practical programming, a rich set of data types is necessary to
+model objects of the problem domain conveniently.  Therefore,
+\turtle{} supports a variety of predefined data types ({\em primitive} %
+\index{primitive type}%
+\index{type!primitive}%
+and
+{\em structured}%
+\index{structured type}%
+\index{type!structured}%
+) and a method for defining new data types.
+
+Predefined data types in \turtle{} are integers, floating point
+numbers, characters, strings, booleans, lists, arrays, tuples and
+function types.  Moreover, the user can define her or his own data
+types, in the form of recursive algebraic types.
+
+\index{primitive type}
+
+The number, character, string and boolean types are primitive types.
+Strings could also be considered structured, because they consist of
+element values.  They are listed with the primitive types because they
+cannot contain values of arbitrary element types, but only characters.
+
+\index{array}
+\index{type!array}
+\index{list}
+\index{type!list}
+\index{tuple}
+\index{type!tuple}
+\index{user-defined type}
+\index{type!user-defined}
+
+Structured data types are {\em arrays}, {\em lists}, {\em tuples} and
+{\em user-defined types}. Arrays are vectors of fixed length and
+uniform element types, lists are ordered collections of varying length
+and uniform element types and tuples are ordered collections of fixed
+length and heterogeneous element types.  User-defined data types are
+also structured data types.
+
+The following description lists the available data types.  See
+Appendix~\ref{cha:turtle-grammar} for the syntax of type expressions
+and values of the various types.
+
+\begin{description}
+  
+\item[int] The data type {\em int} is a finite set of (possibly
+  negative) integer numbers, where the minimum and maximum
+  representable values are implementation-specific.  In the reference
+  implementation, this type ranges from -536870912 to 536870911.
+
+\item[long] Similar to {\em int}, but the minimum and maximum values
+  of this type are guaranteed to range at least from -2147483648 to
+  2147483647.  This is the range of 32-bit two-complement numbers and
+  is provided for easy interfacing with the operating system.
+  
+\item[real] Approximations of real numbers, implemented as floating
+  point numbers of type {\bf double} in the underlying C
+  implementation.  Nowadays, these are IEEE~754 64-bit floating point
+  numbers on most machines.
+  
+\item[bool] The type {\em bool} consists of the two constants {\bf
+    true} and {\bf false}.
+  
+\item[char] This is the set of characters, such as 'a', 'Y' or '!'.
+  The encoding for characters is the 16-bit Unicode encoding.
+  Currently, the reference implementation only supports input and
+  output of extended 8-bit ASCII characters, although it is capable of
+  handling the full 16-bit character set internally.
+  
+\item[void] The void type, written as {\bf ()} is only used as the
+  result type of functions which do not return anything (similar to
+  procedures in \modula{} or void functions in \cee{}).
+
+\item[string] A finite sequence of characters.
+  
+\item[Lists] The type {\bf list of} $\tau$ is the type of finite lists
+  of values of type $\tau$, of varying length.  The access to
+  individual elements of a list is only possible in linear time, but
+  prepending an element needs only constant time.
+  
+\item[Arrays] The type {\bf array of} $\tau$ is the type of finite
+  arrays of values of type $\tau$, where the length is fixed on array
+  value creation.  Access to individual array elements is possible in
+  constant time.
+  
+\item[Tuples] Tuple types are written $(\tau_1, \dots, \tau_n)$, and
+  denote the type of $n$-tuples of the given element types.  Tuple
+  values are written as the tuple elements in parentheses, separated
+  by commas: ("hello", 3.14) has the type ({\bf string}, {\em real}).
+  
+\item[User-defined types] Users can define arbitrary algebraic types,
+  which are similar to record or union types in other languages.
+
+\end{description}
+
+
+\subsubsection{User-defined data types}
+
+\index{discriminated record}
+\index{tagged union}
+%
+The user-defined data types are similar to the data types in
+functional languages like \haskell{}~\cite{peytonjones98haskell98} or
+\mllanguage{}~\cite{milner97sml}.  In the context of imperative
+languages these data types could be considered as {\em discriminated
+  records} in \pascal{} or \modula{} or {\em tagged unions} in \cee{}.
+A variable of a user-defined type can be assigned different variants
+of the same type.  When reading a field from the value stored in the
+variable it is checked whether the variant stored in the variable does
+have the field, and if not, an exception is raised.  These explicit
+checks make user-defined types much safer than records or unions in
+other imperative languages.
+
+Besides the automatic checking for correctness, the programmer has the
+possibility to examine the actual variant of a value and to adjust the
+program flow accordingly.
+
+As an example we will show a data type for representing binary trees
+in Program~\ref{prog:tree-definition}.  The data type {\em tree} has
+two variants: the variant {\em leaf} which represents a leaf of the
+tree with a value, and the variant {\em node} which represents an
+inner node with a search key.
+
+\begin{Program}
+\begin{ttlprog}
+1\>\ttlDatatype{} tree = \>\>\>\>\>\>\>\>leaf({\em value}: int) \ttlOr{}\\
+2\>\>\>\>\>\>\>\>\>node({\em left}: tree, {\em right}: tree, {\em key}: int);
+\end{ttlprog}
+\caption{Tree data type definition}
+\label{prog:tree-definition}
+\end{Program}
+
+Using this data type declaration, the \turtle{} compiler automatically
+generates a set of functions for creating instances of the type, for
+accessing the fields and for examining the variant of a given value of
+the type.  Program~\ref{prog:induced-signature} shows the names and
+types of these generated functions.  The constructor functions receive
+the values which will be stored into the fields of the value as
+parameters and create either a leaf or a node value.  The disciminator
+functions can be used to determine the variant of a given tree value,
+and the selectors return the values stored in the corresponding
+fields.  The mutators can be used to modify the fields by storing new
+values into the appropriate storage locations.
+
+The user-defined data types in \turtle{} are inspired by the algebraic
+data types in the strict purely functional programming language
+\opal{}~\cite{Pepper.Opal}.  Mutator functions have been added to
+allow imperative programming with data structures constructed from
+user-defined data types.
+
+\begin{Program}
+\begin{ttlprog}
+1\>// {\em Constructors}\\
+2\>\ttlFun{} leaf ({\em value}: int): tree\\
+3\>\ttlFun{} node ({\em left}: tree, {\em right}: tree, {\em key}: int): tree\\
+4\>// {\em Discriminators}\\
+5\>\ttlFun{} leaf? ($t$: tree): bool\\
+6\>\ttlFun{} node? ($t$: tree): bool\\
+7\>// {\em Selectors}\\
+8\>\ttlFun{} value ($t$: tree): int\\
+9\>\ttlFun{} left ($t$: tree): tree\\
+10\>\ttlFun{} right ($t$: tree): tree\\
+11\>\ttlFun{} key ($t$: tree): int\\
+12\>// {\em Mutators}\\
+13\>\ttlFun{} value{!} ($t$: tree, {\em value}: int)\\
+14\>\ttlFun{} left{!} ($t$: tree, {\em left}: tree)\\
+15\>\ttlFun{} right{!} ($t$: tree, {\em right}: tree)\\
+16\>\ttlFun{} key{!} ($t$: tree, {\em key}: int)
+\end{ttlprog}
+\caption{Induced signature for the {\em tree} data type}
+\label{prog:induced-signature}
+\end{Program}
+% // Constructors
+% fun leaf (value: int): tree
+% fun node (left: tree, right: tree, key: int): tree
+% // Discriminators
+% fun leaf? (t: tree): bool
+% fun node? (t: tree): bool
+% // Selectors
+% fun value (t: tree): int
+% fun left (t: tree): tree
+% fun right (t: tree): tree
+% fun key (t: tree): int
+% // Mutators
+% fun value! (t: tree, value: int)
+% fun left! (t: tree, left: tree)
+% fun right! (t: tree, right: tree)
+% fun key! (t: tree, key: int)
+
+By using the automatically generated discriminator and selector
+functions {\em leaf?}, {\em node?}, {\em left} and {\em right} a
+function can traverse a tree made up of objects of this type.  The
+function {\em leaves} in program~\ref{prog:tree-leaves} makes use of these
+functions for calculating the number of leaves in a given tree.
+
+\begin{Program}
+\begin{ttlprog}
+1\>\ttlFun{} leaves($t$: tree): int\\
+2\>\>\ttlIf{} leaf?($t$) \ttlThen{}\\
+3\>\>\>\ttlReturn{} $1$;\\
+4\>\>\ttlElse{}\\
+5\>\>\>\ttlReturn{} leaves(left($t$)) + leaves(right($t$));\\
+6\>\>\ttlEnd{};\\
+7\>\ttlEnd{};
+\end{ttlprog}
+\caption{Function {\em leaves}}
+\label{prog:tree-leaves}
+\end{Program}
+
+The automatically generated functions can be used like any other
+\turtle{} functions, they can be passed to higher-order functions or
+stored in data structures.
+
+\turtle{} user-defined data types can be parametrized.  In conjunction
+with the parametric modules described in
+section~\ref{sec:module-system}, polymorphic data types can be
+programmed.  Consider for example the following data type, whose only
+purpose is to encapsulate (``box'') another type:
+
+\begin{ttlprog}
+\>\ttlDatatype{} box$<a>$ = box ($value$: $a$);
+\end{ttlprog}
+% datatype box<a> = box (value: a);
+
+Because the data type is parametrized with a data type, it can be used
+for storing values of any type by instantiating it with an actual data
+type:
+
+\begin{ttlprog}
+\>\ttlVar{} b: box$<$int$>$, c: box$<$\ttlArray{} \ttlOf{} char$>$;
+\end{ttlprog}
+% var b: box<int>, c: box<array of char>;
+
+\subsubsection{Type Aliases}
+
+Type expressions can be abbreviated in \turtle{} by defining type
+aliases%
+\index{type alias}%
+\index{alias!type}%
+\index{type!alias}.  This is done by giving a name to a type
+expression in a {\bf type} declaration:
+%
+\begin{ttlprog}
+\>\ttlType{} b = box$<$\ttlArray{} \ttlOf{} char$>$
+\end{ttlprog}
+%
+In declarations following such a type declaration, the name $b$ can be
+used instead of the longer type expression it stands for.  The
+compiler expands type aliases when necessary to check for type
+equality.  For example, in the following program fragment the types
+$a$ and $b$ are equal as far as the type checker is concerned.
+%
+\begin{ttlprog}
+\>\ttlType{} a = \ttlArray{} \ttlOf{} \ttlString{};\\
+\>\ttlType{} b = \ttlArray{} \ttlOf{} \ttlString{};
+\end{ttlprog}
+
+\subsection{The Module System}
+\label{sec:module-system}
+
+\turtle{} has a module system which provides private name-spaces and
+parametric modules.
+
+Modules are a very important component when building larger software
+systems, because parts of the system can be developed independently
+from others.  By separating the signature (the set of externally
+visible entities) from the implementation (e.g. the implementation
+of an abstract data structure, such as a stack), the system remains
+flexible despite its size, because the implementation can change over
+time without affecting the components which use it.  Only when the
+signature changes the using modules need to be modified.
+
+\begin{Program}[htb]
+\begin{ttlprog}
+1\>\ttlModule{} a$<$$\alpha$$>$;\\
+2\>\ttlExport{} f${}_a$;\\
+3\>\ttlFun{} f${}_a$($x$: $\alpha$) \dots{} \ttlEnd{};\\
+\\
+4\>\ttlModule{} b$<$$\alpha$$>$;\\
+5\>\ttlExport{} f${}_b$;\\
+6\>\ttlFun{} f${}_b$($x$: $\alpha$) \dots{} \ttlEnd{};\\
+\\
+7\>\ttlModule{} c;\\
+8\>\ttlImport{} a$<$int$>$, b$<$\ttlString{}$>$;\\
+9\>\ttlFun{} f${}_c$($x$: int) \dots{} \ttlEnd{};
+\end{ttlprog}
+\caption{Example modules}
+\label{prog:modules}
+\end{Program}
+
+In order to illustrate the working of the module system we will
+discuss an example program.  The program consists of three modules,
+which are shown in Program~\ref{prog:modules}.  Module $a$ has a
+module parameter, $\alpha$, and exports the functions f${}_a$, which
+is defined using the module parameter.  Module $b$ exports f${}_b$,
+which is parametrized, too.  Module $c$ is the main program and
+imports modules $a$ and $b$, where the modules are instantiated with
+the data types {\em int} and {\bf string}, respectively.
+
+In module $c$, the functions imported from $a$ and $b$ are made
+available with the types which are created by replacing the module
+parameters with the actual types.  That means, that module $c$ sees a
+function f${}_a$ with type {\bf fun}({\em int}) and function f${}_b$
+with type {\bf fun}({\bf string}).  In combination with overloading,
+this becomes a very powerful tool for structuring programs.  The
+\turtle{} standard library makes extensive use of parametric modules,
+for example with a module which exports generic list manipulation
+functions.  By importing the module with different parameter types
+multiple times, lists of different element types can be manipulated
+using the same functions.
+
+In addition to fully qualified access to module members, such as using
+{\tt io.nl()} in order to call the function {\tt nl} from module {\tt
+  io}, the user can specify a list of identifiers which should be
+imported unqualified, that means which can be used by just writing the
+identifier, omitting the module name.  This is especially useful when
+an imported entity is often used, but of course it increases the
+possibility of name clashes with identifiers defined in the current
+module.  The following example illustrates the import of the {\em
+  lists} module, parametrized with the type {\bf string}. The
+identifier {\em reverse} can be used without giving its module name,
+as shown in the second line.
+
+\begin{ttlprog}
+\>\ttlImport{} lists$<$\ttlString{}$>$(reverse);\\
+\>\ttlVar{} {\em s}: \ttlList{} \ttlOf{} \ttlString{} $\leftarrow$ reverse (["a", "b", "c"]);\\
+\end{ttlprog}
+
+
+\subsection{Constraints}
+\label{sec:turtle-constraints}
+
+Constraints in \turtle{} are used only for determining the values of
+program variables.  This is in contrast to other constraint imperative
+languages and especially to constraint logic languages.  In these
+languages, either imperative or logic constructs are built on top of
+constraint features, whereas in \turtle{}, constraints are added to an
+imperative language solely for the purpose of calculating the values
+for (explicitly declared) constrainable variables. In Kaleidoscope,
+for example, constraints can be placed on any variable, and there is
+no need to explicitly declare variables as being constrainable.  The
+same applies to constraint logic programming languages, where any
+variable may appear in a constraint and can be determined by
+constraints if it is unbound.  \turtle{}, on the other hand, does not
+have unbound variables.
+
+The usage of constrainable variables shall be demonstrated by some
+examples.
+
+First, an example for a simple constraint imperative program will be
+discussed (see Program~\ref{prog:maximum-two}).  The function {\em
+  max} calculates the maximum of two nonnegative integer values by
+declaring a local constrainable variable $mx$ and requiring that this
+variable must be greater than or equal to the two parameters.  By
+requesting (but not requiring) that $mx$ should be equal to zero, the
+constraint solver will calculate the smallest value which is both
+greater or equal to $x$ and $y$.  The expression {\bf var} 0 creates a
+constrainable variable with initial value 0 and {\bf !}{\em mx}
+retrieves the value of {\em mx} as calculated by the constraint
+solver.
+
+\begin{Program}
+%% fun max(x: int, y: int): int
+%%   var mx: ! int := var 0;
+%%   require mx = 0 : strong and
+%%     mx >= x and
+%%     mx >= y in
+%%     return !mx;
+%%   end;
+%% end;
+\begin{ttlprog}
+1\>\ttlFun{} max($x$: int, $y$: int): int\\
+2\>\>\ttlVar{} $mx$: {\bf!} int $\leftarrow$ \ttlVar{} 0;\`{\em declare constrainable variable}\\
+3\>\>\ttlRequire{} $mx$ = 0 : strong \ttlAnd{}\`{\em require minimal value}\\
+4\>\>\>$mx$ $\geq$ $x$ \ttlAnd{}\`{\em require value greater or equal to parameters\dots}\\
+5\>\>\>$mx$ $\geq$ $y$ \ttlIn{}\\
+6\>\>\>\ttlReturn{} {\bf !}$mx$;\`{\em return the maximum}\\
+7\>\>\ttlEnd{};\\
+8\>\ttlEnd{};
+\end{ttlprog}
+\caption{Maximum of two nonnegative integers}
+\label{prog:maximum-two}
+\end{Program}
+
+Program~\ref{prog:maximum} defines an extended variant of function
+{\em max}, which illustrates an additional feature of constraint
+imperative programming in \turtle{}: user-defined constraints.  The
+program calculates the maximum element of a nonempty list of
+nonnegative integers.  The function defines a variable $mx$, which has
+the same role as in the previous example.  Now the program requires
+the user-defined constraint {\em greatereq} for every element of the
+list.  This constraint requires its first parameter to be greater or
+equal than the second.  Since only the first parameter of the
+constraint {\em greatereq} is marked as constrainable, only this
+variable will be adjusted to satisfy the constraint.
+
+It can easily be seen that the function {\em max} calculates the
+maximum element of its arguments in both examples.  Of course an
+imperative solution to this problem would be shorter, but the purpose
+of the examples was to show as many aspects of constraint programming
+in \turtle{} as possible, not to show the shortest possible solution.
+The introductory example of
+Chapter~\ref{cha:constraint-imperative-programming} is more suitable
+for illustrating the advantages of constraint imperative programming.
+
+\begin{Program}
+%% constraint greatereq(x: ! int, y: int)
+%%   require x >= y;
+%% end;
+%% fun max(l: list of int): int
+%%   var mx: ! int := var 0;
+%%   require mx = 0 : strong in
+%%     while l <> null do
+%%       require greatereq(mx, hd l);
+%%       l := tl l;
+%%     end;
+%%     return !mx;
+%%   end;
+%% end;
+\begin{ttlprog}
+1\>\ttlConstraint{} greatereq ({\em x}: {\bf!} int, {\em y}: int)\\
+2\>\>\ttlRequire{} {\em x} $\geq$ {\em y};\`{\em {\em x} must be at least as large as {\em y}}\\
+3\>\ttlEnd{};\\
+4\>\ttlFun{} max ({\em }l: \ttlList{} \ttlOf{} int): int\\
+5\>\>\ttlVar{} {\em mx}: {\bf!} int $\leftarrow$ \ttlVar{} 0;\\
+6\>\>\ttlRequire{} {\em mx} = 0 : strong \ttlIn{}\\
+7\>\>\>\ttlWhile{} {\em l} $\neq$ \ttlNull{} \ttlDo{}\`{\em for every element of the list\dots}\\
+8\>\>\>\>\ttlRequire{} greatereq ({\em mx}, \ttlHd{} {\em l});\`{\em the constraint {\em greatereq} is required}\\
+9\>\>\>\>{\em l} $\leftarrow$ \ttlTl{} {\em l};\\
+10\>\>\>\ttlEnd{};\\
+11\>\>\>\ttlReturn{} {\bf!}{\em mx};\`{\em now {\em mx} holds the maximum}\\
+12\>\>\ttlEnd{};\\
+13\>\ttlEnd{};
+\end{ttlprog}
+\caption{Maximum of a list of nonnegative integers}
+\label{prog:maximum}
+\end{Program}
+
+
+\subsubsection{Definitions of Notation}
+\label{sec:definitions}
+
+Before describing the constraint extensions of \turtle{} in detail,
+some notation needs to be defined.  It will be used in subsequent
+sections.
+
+\index{primitive constraint}
+\index{constraint!primitive}
+\index{user-defined constraint}
+\index{constraint!user-defined}
+%
+A constraint is either a {\em primitive constraint}, which can be
+handled directly by the built-in constraint solver, or a {\em
+  user-defined constraint}.  Primitive constraints are boolean
+expressions, for example $x > y$ or $2x-y\leq 3$.  User-defined
+constraints are similar to functions, but are defined with the keyword
+{\bf constraint}.  Constraint definitions are independent of the
+program execution, until they are {\em instantiated}, e.g.~until they
+are invoked with actual parameters in constraint statements.
+
+The constraint conjunctions given in the constraint statement {\bf
+  require} may consist of primitive and user-defined constraints.
+Both kinds of constraints can be annotated with {\em constraint
+  strengths} when they appear in constraint statements.
+
+\subsubsection{Constraint Strengths}
+
+\index{constraint!strength}
+\index{constraint strength}
+\index{strength}
+%
+When constraints are added to the constraint store by using them in
+constraint statements, each constraint can have an associated strength
+which indicates its importance.  A constraint strength is written
+after the constraint, separated by a colon, like in the following
+example:
+%
+\begin{ttlprog}
+\>\ttlRequire{} $x > 1$ : strong;
+\end{ttlprog}
+%
+Each constraint strength must be either an integer constant or a name
+which is defined as an integer constant.  The strongest constraint
+strength has the value 0, and numerically greater values indicate
+weaker strengths.  When no strength annotation is given for a
+constraint, the strongest strength is assumed.
+
+The \turtle{} language does not define the semantics of constraint
+strengths, except that when a solver respects the associated strengths
+for constraints, it is required to satisfy all mandatory constraints
+(with strength 0), whenever possible, even if that requires the
+violation of weaker constraints.
+
+The \turtle{} compiler and run-time system (see
+Chapter~\ref{cha:turtle-impl}) do not interpret constraints in any
+way, they are just translated into a symbolic representation and
+passed to one of the constraint solvers.  The representation currently
+used only supports linear equations and inequalities, so the compiler
+only accepts expressions of this form in constraint statements.
+Lifting this limitation is an important task for future work.
+
+\subsubsection{Constrainable Variables}
+
+\index{constrainable}
+\index{variable!constrainable}
+%
+Variables whose values can be determined (and modified) by constraints
+are declared by annotating their data type.  They are called {\em
+  constrainable variables}.  These variables must be explicitly
+declared as such and be initialized by constructing a variable object
+and storing it into the constrainable variable.  The variable is
+marked as being constrainable by writing an exclamation mark before
+the type of the values which can be stored into the variable.  The
+program fragment
+%
+\begin{ttlprog}
+\>{\bf var} $x$: {\bf!} int := \ttlVar{} 0;
+\end{ttlprog}
+%
+defines and initializes a variable $x$ of type {\em int}, which can be
+determined by constraints.  The expression
+%
+\begin{ttlprog}
+\>\ttlVar{} 0
+\end{ttlprog}
+%
+in the previous declaration of $x$ creates the variable object which
+holds the value of the variable (0 in the example).
+
+The use of variable objects for representing constrainable variable
+requires an additional indirection for fetching values from the
+variables or storing into them.
+
+In places other than in constraints, constrainable variables can be
+used like normal variables.  However, the programmer must keep in mind
+that the value of such a variable might change when constraints (which
+can be directly or indirectly related to the variable) are added or
+removed from the store, if there is a connection between the variable
+and one of the variables in these constraints.
+
+Normal variables are just names for storage locations.  They may
+appear in constraints, too, but they are treated as constants whose
+values are determined by the time the constraints are instantiated.
+Constrainable variables are more complicated, because they are
+actually data objects which contain values and additional information
+needed by the constraint solvers for handling the variable whenever
+they appear in primitive constraints.
+
+The following example declares both a normal and a constrainable
+variable.  The variable $x$ is declared as a normal variable of type
+{\em int} and initialized with the value $1$.  The variable $y$ is
+declared as a constrainable variable (note the exclamation mark in the
+type), and is initialized with a variable object holding the value
+$2$.  The expression {\bf var} 2 creates this object.
+%
+\begin{ttlprog}
+\>\ttlVar{} {\em x}: int $\leftarrow$ 1;\\
+\>\ttlVar{} {\em y}: {\bf!} int $\leftarrow$ \ttlVar{} 2;
+\end{ttlprog}
+%
+Figure~\ref{pic:constrainable-vars} illustrates the situation after
+the two variables have been declared and initialized.
+
+\begin{figure}[htp]
+\begin{center}
+\input{constrainable-vars.epic}
+\end{center}
+\caption{Normal and constrainable variables}
+\label{pic:constrainable-vars}
+\end{figure}
+
+\index{"!!operator}
+%
+Since the value of a constrainable variable is not directly stored in
+the location reserved for that variable, but in the variable object, a
+special operator for retrieving the stored value must be used in
+\turtle{}.  This operator is the exclamation mark, used as a prefix
+operator.  In the following example, a constrainable variable $z$
+containing the value 3 is declared.  Another variable $a$ is declared
+in the second line and initialized with the value fetched from the
+variable object of $z$.
+%
+\begin{ttlprog}
+\>\ttlVar{} $z$: {\bf!} int $\leftarrow$ \ttlVar{} 3;\\
+\>\ttlVar{} $a$: int $\leftarrow$ {\bf!}$z$;
+\end{ttlprog}
+%
+The explicit handling of constrainable variables---creation of
+variable objects and fetching their values---makes it possible to
+share constrainable variables in different data structures, e.g.~for
+placing several constraints on all the elements of a list of
+constrainable variables.  It is not possible to change the value of
+stored in the variable object of a constrainable variable by
+assignment, it is only possible to create a new variable object and
+let the constrainable variable contain that.  When the value in a
+variable object shall be changed, constraint statements must be used.
+
+Note that the exclamation mark in the type of variable $z$ marks the
+type as constrainable, whereas the exclamation mark in the expression
+{\bf !}$z$ fetches a value from the variable object.
+
+Constrainable variables in \turtle{} are similar to reference values
+in languages like Standard ML~\cite{milner97sml}, where they work like
+a box into which a single value may be stored.  The main difference is
+that the compiler knows about the special status of constrainable
+variables and that they hold additional information for use with the
+constraint solver.
+
+
+\subsubsection{Liveness and Scope}
+\label{sec:liveness-scoping}
+
+Constraints have limited liveness ranges and scopes, similar to
+variables.  A constraint lives---and is enforced---as long as the
+body of the constraint statement is executing, or, for constraint
+statements without a body, as long as the constrainable variables in
+the constraints are alive.  A constrainable variable lives until the
+program terminates (if it is a global variable), as long as their
+defining environment (for local variables) or the containing data
+structure (for constrainable fields of compound data types) lives.  An
+environment lives as long as the function invocation for which it was
+created is active, or as long as the closure lives in which it is
+captured.  Compound data structures live as long as a reference to
+them exists, which again is held in (global or local) variables.
+
+
+\subsubsection{Constraint Translation}
+\label{sec:constraint-translation}
+
+\index{constraint!translation}
+
+The expressions which appear in {\em require} statements must be
+translated to machine code in another way than normal boolean
+expressions as they appear in imperative statements.  After type
+checking the constraint expression (in the same way as for normal
+expressions) the constraints are translated to a symbolic
+representation.  During run-time, these symbolic representations are
+passed to the constraint solver, which can add them to its store to
+check for consistency and for determining values for the variables.
+
+\index{constraint!user-defined}
+
+User-defined constraints cannot be passed to the constraint solver
+directly, since the solver does not know anything about them and does
+not have the necessary knowledge to work on general constraints.  When
+a user-defined constraint appears in a constraint statement, the
+compiler generates a call to the code generated for the constraint
+definition, similar to normal function calls.  The definition contains
+the constraint statements which implement the user-defined constraint;
+if they are primitive constraints, they are added to the store,
+otherwise, they are called again, until the code reaches a primitive
+constraint.
+
+
+\subsubsection{Constraint Solver Interface}
+
+\turtle{} requires at least one constraint solver in the run-time
+system which has to determine the values of constrainable variables
+appearing in constraint statements.  Constraint statements must be
+able to add constraints to the constraint store and to remove them
+again, when they are no longer needed.  The interface between the
+\turtle{} code and the constraint solvers is designed to consist of
+only three primitive operations: constraint creation, addition and
+removal.  The creation of constraints requires a symbolic
+representation of constraints being built during run-time.  This
+representation is solver-independent and contains only the information
+necessary to deduce the relations between contained constrainable
+variables and constants.  Constraints are then added to the constraint
+solvers, and the solvers are allowed to add additional information to
+the symbolic representation, for example upper and lower bounds for
+the variable's value.  Whenever an added constraint cannot be
+satisfied, the responsible constraint solver is expected to raise an
+exception.  The last operation is constraint removal, and tells the
+constraint solver which owns that constraint to remove it from the
+store.
+
+When a constraint solver has determined that a newly added constraint
+is satisfiable, it must assign values to all contained constrainable
+variables so that the values form a solution for the current
+constraint store.  Because the symbolic representation of the
+constraints contains the constrainable variables, the solver can
+directly assign the calculated values to the value slots of the
+variables.
+
+
+% \subsubsection{Constraint Representation}
+% \label{sec:constraint-representation}
+
+% The semantics of constraints, constaint stores and constraint solvers
+% in \turtle{} has already been discussed.  We will now have a closer
+% look at the implementation of constraint integration into the
+% imperative base language.  The following section will explain how
+% primitive constraints are translated into a symbolic representation
+% suitable for processing in the constraint solvers.
+
+% Program~\ref{prog:constraint-example} declares two variables $x$ and
+% $y$, where $x$ is constrainable.  Two constraints are defined on these
+% variables.  Fig.~\ref{pic:constraints} shows the representation of the
+% variables and the constraints as an object graph.
+
+% \begin{Program}
+% \begin{ttlprog}
+% % fun ex()
+% %   var x: ! int;
+% %   var y: int;
+% %   y := 1;
+% %   prefer x = 0;
+% %   require x < y;
+% % end;
+% 1\>\ttlFun{} ex()\\
+% 2\>\>\ttlVar{} $x$: {\bf!} int;\\
+% 3\>\>\ttlVar{} $y$: int;\\
+% 4\>\>y $\leftarrow$ 1;\\
+% 5\>\>\ttlPrefer{} $x = 0$;\\
+% 6\>\>\ttlRequire{} $x < y$;\\
+% 7\>\ttlEnd{};
+% \end{ttlprog}
+% \caption{Constraint example}
+% \label{prog:constraint-example}
+% \end{Program}
+
+% The constrainable variable $x$ is implemented as a reference to an
+% object, which holds references to all constraints this variable
+% appears in, and the actual value of the variable.  The environment, in
+% which the variables are declared holds references to all constraints
+% in which local variables appear.  The constraints hold references to
+% the memory locations into which the values of the variables must be
+% stored.
+
+% \begin{figure}[htp]
+% \begin{center}
+% \input{constraint.epic}
+% \end{center}
+% \caption{Constraint representation}
+% \label{pic:constraints}
+% \end{figure}
+
+% Constrainable variables have a mark which determines whether the value
+% of the variable is currently ``fixed'' or not.  The value of a
+% variable is fixed in assignment statements, so that it will not be
+% changed immediately after assignment when other constraints are
+% satisfied.  This enforces the effect of assignment and breaks possible
+% cycles in the constraint graph.
+
+% For each global or local constrainable variable, a variable object is
+% created as soon as the location for the variable is created (at
+% startup for global variables and when an environment is created for
+% local variables).  This variable object is then stored into the
+% variable's location and remains there until the variable dies.  This
+% means that in order to access constrainable variables, an extra
+% indirection is necessary.
+
+% For user-defined data types which contain constrainable fields, the
+% same principle applies.  The constructor for the data type stores
+% newly created variable objects into the constrainable fields when
+% creating the data object.  The accessor and mutator functions for
+% constrainable fields are changed accordingly.
+
+\section{Operational Semantics for \turtle{}}
+\label{operational-semantics}
+
+This section provides a formal semantics for a subset of \turtle{}
+called $\mu$\turtle{}.  All \turtle{} programs can be transformed into
+$\mu$\turtle{} by syntactic transformation (see
+section~\ref{sec:syntactic-transformation}), therefore, this semantics
+specifies the complete \turtle{} language.
+
+We present the semantics by defining an abstract machine and showing
+how \turtle{} programs are translated to instructions for this
+machine.
+
+\subsection{The \turtle{} Abstract Machine}
+
+The \turtle{} Abstract Machine (TAM) maintains a machine state, which
+is repeatedly modified as specified below, until a terminating state
+is reached.  While it is running, the TAM modifies the store and the
+constraint store by interpreting TAM instructions.  The TAM is
+basically a standard stack machine for imperative languages equipped
+with registers for maintaining the computation environment, and
+extended with instructions for managing the constraint store.
+
+The constraint store and the constraint solvers work mostly
+independent of the rest of the machine, except for the TAM
+instructions which modify the store, and the fact that the constraint
+solvers are allowed to modify the contents of constrainable variables.
+
+Some of the ideas for the TAM were taken from abstract machines
+described by Abelson et al.~\cite{abelson96sicp} and
+Wilson~\cite{wilson03schintro}.
+
+\subsubsection{Register Set}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|ll|}
+\hline
+{\em acc} & accumulator\\
+{\em sp} & evaluation stack pointer\\
+{\em cont} & continuation\\
+{\em pc} & program counter\\
+{\em env} & environment\\
+{\em ex} & exception handler\\
+\hline
+\end{tabular}
+\end{center}
+\caption{TAM registers}
+\label{tab:tam-registers}
+\end{table}
+
+The TAM works on the registers shown in Table~\ref{tab:tam-registers}.
+The accumulator {\em acc} stores intermediate values calculated during
+program execution.  Function calls, as well as all primitive
+operations, leave their results in this register.  The stack pointer
+{\em sp} points to the top of the evaluation stack.  This stack is
+only used for evaluation of nested expressions, function return points
+are kept in a chain of {\em continuation}%
+\index{continuation}%
+\index{continuation record}%
+\index{continuation!record} records, which is pointed to
+by the continuation register%
+\index{continuation register}%
+\index{continuation!register} {\em cont}%
+\index{cont@{\em cont} (register)}.  The program counter%
+\index{program counter} {\em pc}%
+\index{pc@{\em pc} (register)}
+always points to the next TAM instruction to be executed and is
+incremented after each instruction, or set to specific code addresses
+by the call and branching instructions.  The environment register%
+\index{environment register}, {\em env}%
+\index{env@{\em env} (register)}, always points to the environment
+which holds the local variables of the currently executing function as
+well as a reference to the enclosing environment, which is needed to
+access free variables.  The
+last register, {\em ex}%
+\index{ex@{\em ex} (register)}, holds a list of exception handlers.  An
+exception handler consists of a code address at which execution should
+be resumed when an exception occurs, and a continuation to use for
+this code.
+
+
+\subsubsection{Memory Model}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|ll|}
+\hline
+{\em Code} & function and user-defined constraint store\\
+{\em Stack} & evaluation stack\\
+{\em Store} & dynamic data storage\\
+{\em CStore} & constraint store\\
+\hline
+\end{tabular}
+\end{center}
+\caption{TAM memory}
+\label{tab:memory-model}
+\end{table}
+
+The TAM operates on four memory areas.  The {\em Code}\/ area contains
+the machine instructions of the executing program.  Each machine
+instruction uses exactly one cell of the code area. All intermediate
+values which are produced during evaluation of expressions and
+function calls are stored on the {\em Stack}.  The {\em Store} holds
+all dynamic data structures which are created during execution,
+including environments, closures, continuation records and the chain
+of exception handlers.  These data structures are necessary for the
+execution of the TAM and are described below.  {\em CStore} is the
+constraint store which is maintained by the integrated constraint
+solvers.  Table~\ref{tab:memory-model} summarizes these memory
+segments.
+
+The {\em Code} segment has a fixed size and contains only the program
+code, whereas the {\em Stack} and {\em Store} areas are conceptionally
+of unlimited size and are arrays of equal-sized memory cells.  In a
+practical implementation, they are of course finite in size and some
+kind of memory management is required to maintain the illusion of
+unbounded memory.  Section~\ref{sec:memory-management} describes how
+this works in the \turtle{} reference implementation.  The
+organization of the constraint store is undefined in order to make the
+implementation more flexible.  The integrated constraint solvers are
+responsible for maintaining some representation of the constraints in
+the store, and the TAM accesses the constraint store only by abstract
+machine instructions.
+
+In the following sections, the notation $A[X]$ refers to the element
+of the array $A$ at index $X$ and will be used to indicate locations
+in the $Store$ and $Stack$ arrays.
+
+\subsubsection{Instruction Set}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|ll|}
+\hline
+{\em Load and store instructions}&\\
+\hline
+{\tt load-constant} $c$& load a constant into {\em acc}\\
+{\tt load-variable} $l$& load from a memory location\\
+{\tt load-array} & load indexed\\
+{\tt store-variable} $l$& store into a memory location\\
+{\tt store-array} & store indexed\\
+{\tt fetch} & fetch from constrainable variable\\
+%{\tt store} & store into constrainable variable\\
+{\tt push} & push the content of the {\em acc} register\\
+\hline
+{\em Closure and environment creation}&\\
+\hline
+{\tt make-closure} $l$& create a closure\\
+{\tt make-environment} $n$& create an environment\\
+\hline
+{\em Function call and return}&\\
+\hline
+{\tt call} & call a closure\\
+{\tt save-continuation} $l$& set up return location\\
+{\tt restore-continuation} & go to return location\\
+\hline
+{\em Branching instructions}&\\
+\hline
+{\tt jump} $l$& unconditional jump\\
+{\tt jump-if-true} $l$& conditional jump\\
+{\tt jump-if-false} $l$& conditional jump\\
+\hline
+{\em Constraint handling}&\\
+\hline
+{\tt make-constraint} $c, s$& create a constraint object\\
+{\tt add-constraints} $l_1,\dots,l_n$& add to the constraint store\\
+{\tt remove-constraints} $l_1,\dots,l_n$& remove from the constraint store\\
+\hline
+{\em Exception handling}&\\
+\hline
+{\tt handle} $l$& set up an exception handler\\
+{\tt unhandle} & remove an exception handler\\
+{\tt raise} & raise an exception\\
+\hline
+{\em Machine control}&\\
+\hline
+{\tt halt} & halt the machine\\
+\hline
+\end{tabular}
+\end{center}
+\caption{TAM instructions}
+\label{tab:tam-instructions}
+\end{table}
+
+Table~\ref{tab:tam-instructions} lists the TAM instructions.  When not
+otherwise noted, the instructions which calculate some values leave
+their results in the register {\em acc}.
+
+The various load and store instructions fetch values from memory
+locations or constants to the accumulator or store the accumulator
+value to memory.  The array instructions expect the array address and
+the offset of the indexed array slot on the evaluation stack.  The
+presence of constrainable variables makes the instruction {\tt fetch}
+%and {\tt store} 
+necessary, which performs the additional indirection
+for constrainable variables. {\tt push} saves the value in the
+accumulator to the stack, incrementing the stack pointer.
+
+Closures are created by the {\tt make-closure} $l$ instruction, which
+stores the code pointer $l$ and the current environment into a closure
+record.  {\tt make-environment} $n$ creates a new environment with
+space for holding $n$ local variables. The content of the {\em env}
+register is saved to the environment, and all values on the evaluation
+stack (which are the arguments passed to the function) are stored to
+their corresponding environment slots.  The address of the newly
+created environment record is then placed in the {\em env} register.
+
+{\tt call} jumps to the procedure whose closure record is in the {\em
+  acc} register.  The {\tt save-con\-tinuation} instruction saves the
+current state of the machine (that is, the contents of the registers
+and the evaluation stack) to a continuation record.  The {\tt
+  restore-continuation} instruction restores the machine state from
+the state pointed to by the continuation register.
+
+The branching instructions control the program flow either
+unconditionally ({\tt jump}) or depending on the value in the {\em
+  acc} register: {\tt jump-if-false} jumps to a different location
+when {\em acc} contains the constant {\bf false} and {\tt
+  jump-if-true} jumps when {\em acc} contains {\bf true}.
+
+The machine has several instructions for constraint and constraint
+store management.  The instruction {\tt make-constraint} $c, s$
+creates a constraint record from the constraint specification $c$ and
+associates with it the strength $s$.  This instruction does not modify
+the constraint store, it simply creates the run-time representation
+for a constraint and stores a reference to that representation in the
+accumulator.  The instructions {\tt add-constraints} $l_1,\dots,l_n$
+and {\tt remove-constraints} $l_1,\dots,l_n$ manage the constraint
+store by adding or removing $n$ constraints $l_1,\dots,l_n$ at once.
+The constraint instruction for adding constraints automatically causes
+the constraint solver to check whether the constraint store together
+with the newly added constraints can be satisfied.  In that case, the
+store is modified accordingly, otherwise, an exception is raised.
+When constraints are removed, the solver re-solves its store, too, but
+in this case the store cannot get unsatisfied, so no exception can be
+raised.
+
+Three instructions are used for handling exceptions.  The {\tt handle}
+instruction adds an entry to the exception handler chain in register
+{\em ex} by storing a pair consisting of a label and the current
+continuation to the chain.  {\tt unhandle} removes the first entry
+from the chain, which acts as a last-in-first-out (LIFO) list.  {\tt
+  raise} raises an exception by taking the continuation and exception
+handler from the first element of the exception list and installing
+them in the registers {\em cont} and {\em pc}.
+
+The {\tt halt} instruction stops machine execution.
+
+\subsubsection{Environments, Closures and Continuations}
+
+The TAM maintains three kinds of data structures: environments for
+storing local variables, closures for handling higher-order functions
+and continuations for function calls.
+
+Environments are records which hold one pointer to the environment of
+the surrounding function (parent environment), and zero or more slots
+for variables, depending on the number of local variables of the
+defining function.
+
+Closures are two-element records which store one environment pointer
+and the address of a function.  The address is necessary for
+transferring control to the function's code and the environment must
+be stored in the closure because the function must execute in the
+environment in which it was defined, even if that defining function
+was already left (for example when a function is returned by a
+defining function).
+
+Continuations are used for storing the machine state.  This is
+necessary for function calls, because the called function must return
+to the caller when it has executed all its statements.  This return is
+done by simply copying back the machine state from a continuation.
+Continuations combined with environments are similar to the stack
+frames of traditional imperative languages which hold both local
+variables and return addresses, but because of the separation of the
+two concepts, continuations can be used in more powerful ways, for
+example for implementing the function {\em
+  call-with-current-continuation}%
+\index{call-with-current-continuation} as in Scheme%
+\index{Scheme}~\cite{kelsey98r5rs} and
+some dialects of Standard ML%
+\index{Standard ML}~\cite{milner97sml}.
+
+\subsubsection{Program Execution}
+
+Execution of a $\mu$\turtle{} program requires first the preparation
+of the machine, and then the interpretation of the program's TAM
+instructions until a {\tt halt} instruction is executed.  The machine
+is prepared by storing all constants and functions into the store of
+the TAM, pushing the program parameters (input of the program, a list
+of strings which is given on the command line when the machine
+interpreter is started) onto the evaluation stack, storing a function
+containing only the {\tt halt} instruction into the initial
+continuation record and placing the address of the program's main
+function into {\em pc}.  By using a special function for halting the
+machine, the main function can be treated like any other function,
+except for using it as the program's entry point.
+
+The following rules specify how the TAM instructions operate on the
+TAM state.  The function $new(n)$, which appears in the evalutation
+rules below, returns the index of the first of $n$ unused cells and
+marks the cells as being in use.  
+
+\index{E@$\mathcal{E}$ (evaluation function)}
+%
+The evaluation rules for the TAM instructions are of the form 
+%
+$$\ET{i}\rightarrow m$$
+%
+where $i$ is the instruction to be evaluated and $m$ is a sequence of
+register-transfer expressions%
+\index{register-transfer expression}%
+\index{RTE} (RTE) of the form
+%
+$$d\leftarrow s.$$
+%
+$d$ is either a register, a {\em Stack} or a {\em Store} location and
+$s$ is a register, a {\em Stack} location, a {\em Store} location or a
+constant.  The notation $d\leftarrow s$ means that the contents of the
+location $s$ is transferred to the location $d$.  By applying the
+rules to each instruction of a program in turn, the registers and
+store contents will be changed and eventually the program will halt,
+with the contents of the registers and stores as the program's
+results.
+
+When interpreting TAM instructions with these rules, the register {\em
+  pc} is incremented after each instruction except for the jump
+instructions {\tt jump}, {\tt jump-if-true} and {\tt jump-if- false}
+and the function call/return instructions {\tt call} and {\tt
+  restore-continuation}.  
+
+The evaluation function $\mathcal{E}$ has the following functionality
+($TAM$ stands for the set of TAM instructions):
+%
+$$\mathcal{E}: TAM\rightarrow RTE\,\,\,list$$
+%
+The first group of instructions are the load and store instructions.
+The load instructions work by fetching values from either the
+instruction stream (as for {\tt load-constant}) or from the {\em
+  Store} and placing them in the register {\em acc}.  The store
+instructions take values from either the {\em acc} register or the
+{\em Stack} and transfer them to the {\em Store}.  {\tt load-array}
+and {\tt store-array} require more than one operand, so that one
+operand is taken from {\em acc} and the other(s) from the {\em Stack}.
+{\tt fetch} loads the value pointed to by {\em acc}.
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt load-constant }} c} \rightarrow$\\
+\>$acc \leftarrow c$
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt load-variable }} l} \rightarrow$\\
+\>$acc \leftarrow Store[l]$
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt load-array}}} \rightarrow$\\
+\>$acc \leftarrow Store[acc+Stack[sp-1]]$\\
+\>$sp \leftarrow sp-1$
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt store-variable }} l} \rightarrow$\\
+\>$Store[l] \leftarrow acc$
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt store-array}}} \rightarrow$\\
+\>$Store[acc+Stack[sp-1]] \leftarrow Stack[sp-2]$\\
+\>$sp \leftarrow sp-2$
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt fetch}}} \rightarrow$\\
+\>$acc \leftarrow Store[acc]$
+\end{tabbing}
+%
+% \begin{tabbing}
+% \qquad \= \quad \kill
+% $\ET{\text{{\tt store}}} \rightarrow$\\
+% \>$Store[acc] \leftarrow Stack[sp-1]$\\
+% \>$sp \leftarrow sp-1$
+% \end{tabbing}
+%
+{\tt push} is the only instruction which explicitly manipulates the
+stack by pushing the contents of the {\em acc} register onto the {\em
+  Stack}.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt push}}} \rightarrow$\\
+\>$Stack[sp] \leftarrow acc$\\
+\>$sp \leftarrow sp+1$
+\end{tabbing}
+%
+The instructions for creating closures and environment records first
+allocate unused storage cells and then initialize them.  The {\tt
+  make-closure} instruction stores the label of the closure's code and
+the current environment register into the closure record, and the
+environment creation instruction copies the contents of the {\em
+  Stack} and the {\em env} register into the environment record.  Then
+the saved contents of the {\em Stack} is removed from the stack, and
+the address of the environment record is stored into the {\em env}
+register.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt make-closure }} l} \rightarrow$\\
+\>$acc \leftarrow new(2)$\\
+\>$Store[acc+0] \leftarrow l$\\
+\>$Store[acc+1] \leftarrow env$
+\end{tabbing}
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt make-environment }} n} \rightarrow$\\
+\>$acc \leftarrow new(n+1)$\\
+\>$Store[acc+0] \leftarrow env$\\
+\>$Store[acc+1\dots acc+n] \leftarrow Stack[sp-n\dots sp-1]$\\
+\>$sp \leftarrow sp - n$\\
+\>$env \leftarrow acc$
+\end{tabbing}
+%
+Control transfer on function calls is accomplished by simply fetching
+the code location and the environment from the closure record
+currently in the {\em acc} register.
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt call}}} \rightarrow$\\
+\>$pc \leftarrow Store[acc+0]$\\
+\>$env \leftarrow Store[acc+1]$
+\end{tabbing}
+%
+Functions are called by jumping directly to the machine instructions
+of their function bodies.  Since it is normally necessary to return to
+some code location after the call instruction, the current state of
+the machine must be saved to the {\em Store} before performing the
+control transfer to the called function.  This is done by the {\tt
+  save-continuation} instruction which stores all machine registers
+(except for {\em acc}, which holds function results and must therefore
+not be saved across function calls) and the contents of the {\em
+  Stack} to the continuation record in the {\em Store}.  The result of
+the instruction is stored in the {\em cont} register, which points to
+the chain of active continuation records, chained through the field at
+index zero of the records.
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt save-continuation }} l} \rightarrow$\\
+\>$acc \leftarrow new(4+sp)$\\
+\>$Store[acc+0] \leftarrow cont$\\
+\>$Store[acc+1] \leftarrow l$\\
+\>$Store[acc+2] \leftarrow sp$\\
+\>$Store[acc+3] \leftarrow env$\\
+\>$Store[acc+4\dots acc+4+sp-1] \leftarrow Stack[0\dots sp-1]$\\
+\>$sp \leftarrow 0$\\
+\>$cont \leftarrow acc$
+\end{tabbing}
+%
+{\tt restore-continuation} is the complementary instruction to {\tt
+  save-continuation} and restores the machine state (except for {\em
+  acc} and {\em ex}) from the continuation register {\em cont}.
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt restore-continuation}}} \rightarrow$\\
+\>$pc \leftarrow Store[cont+1]$\\
+\>$sp \leftarrow Store[cont+2]$\\
+\>$env \leftarrow Store[cont+3]$\\
+\>$Stack[0\dots sp-1] \leftarrow Store[cont+4\dots cont+4+sp-1]$\\
+\>$cont \leftarrow Store[cont+0]$
+\end{tabbing}
+%
+The branching instructions control the flow of execution by
+transferring control to other code locations.  The {\tt jump}
+instruction transfers control directly to some code location, whereas
+the {\tt jump-if-true} and {\tt jump-if-false} instructions change the
+flow of control only if the content of the {\em acc} register is {\bf
+  true} or {\bf false}, respectively.
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt jump }} l} \rightarrow$\\
+\>$pc \leftarrow l$
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt jump-if-true }} l} \rightarrow$\\
+\>{\bf if} $acc$ {\bf then} $pc \leftarrow l$ {\bf end}
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt jump-if-false }} l} \rightarrow$\\
+\>{\bf if not} $acc$ {\bf then} $pc \leftarrow l$ {\bf end}
+\end{tabbing}
+%
+The three constraint instructions are responsible for the creation of
+constraints and for their addition to and removal from the store.  The
+instruction {\tt make-constraint} creates the symbolic representation
+of a constraint $c$, annotated by the constraint strength $s$.  How
+this representation is designed depends on the implementation of both
+the used constraint solver and the run-time interface, so the
+operations are defined as the abstract operations $create$, $add$ and
+$remove$.  $create$ allocates memory for the symbolic representation
+and fills it with the constrainable variables, constants and strength
+of the constraint and leaves a reference to the representation in the
+{\em acc} register.  $add$ adds constraints to the constraint store
+and raises an exception if the store cannot be satisfied with the new
+constraints, $remove$ removes the constraints from the constraint
+store again.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt make-constraint }} c,s} \rightarrow$\\
+\>$create(c, s)$
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt add-constraints }} l_1,\dots,l_n} \rightarrow$\\
+\>$add (CStore, l_1,\dots,l_n)$
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt remove-constraints }} l_1,\dots,l_n} \rightarrow$\\
+\>$remove (CStore, l_1,\dots,l_n)$
+\end{tabbing}
+%
+The {\tt handle} instruction sets up an exception handler by adding an
+exception record to the exception handler list.  The current
+continuation and the address of an exception handler are stored into
+this record.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt handle }} l} \rightarrow$\\
+\>$acc \leftarrow new(2)$\\
+\>$Store[acc+0]\leftarrow new(2)$\\
+\>$Store[Store[acc+0]+0]\leftarrow cont$\\
+\>$Store[Store[acc+0]+1]\leftarrow l$\\
+\>$Store[acc+1]\leftarrow ex$\\
+\>$ex\leftarrow acc$
+\end{tabbing}
+%
+The {\tt unhandle} instruction, which removes an exception handler,
+simply drops the first element from the exception handler list.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt unhandle}}} \rightarrow$\\
+\>$ex\leftarrow Store[ex+1]$
+\end{tabbing}
+%
+Raising an exception is done by loading the continuation and code
+address for the first exception handler from the list in register {\em
+  ex}.
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt raise}}} \rightarrow$\\
+\>$cont \leftarrow Store[Store[ex+0]+0]$\\
+\>$pc \leftarrow Store[Store[ex+0]+1]$\\
+\>$ex \leftarrow Store[ex+1]$
+\end{tabbing}
+%
+The {\tt halt} instruction stops the execution of the machine.  The
+final state of the machine represents the final state of the program
+to be executed, and the result of the {\em main} function which was
+first called when starting the machine is located in the {\em acc}
+register.
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ET{\text{{\tt halt}}} \rightarrow$\\
+\>Halt the machine.
+\end{tabbing}
+
+\subsection{Syntactic Transformation}
+\label{sec:syntactic-transformation}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lll}
+$e$ & $::= c\; |\;  v\;  |\;  f(e_1, \dots,e_n)\;|\;e_1 := e_2\;|\;e_1[e_2]\;|\;\text{\bf !}e$\\
+& $|\quad  \text{\bf fun}\;(x_1,\dots,x_n)\;  e;\dots\; \text{\bf end}$\\
+& $|\quad  \text{\bf constraint}\;(x_1,\dots,x_n)\;  e;\dots\; \text{\bf end}$\\
+& $| \quad\text{\bf require}\; c_1:s_1\wedge\dots\wedge c_n:s_n\;\text{\bf in}\; e;\dots\;\text{\bf end}$\\
+& $| \quad\text{\bf while}\; c\;\text{\bf do}\; e;\dots\;\text{\bf end}$\\
+& $| \quad\text{\bf if}\; c\;\text{\bf then}\; e_1;\dots\;\text{\bf else}\; e_2;\dots\;\text{\bf end}$\\
+& $|\quad  \text{\bf return} \;e$
+\end{tabular}
+\end{center}
+\caption{$\mu$\turtle{} Syntax}
+\label{tab:mu-turtle}
+\end{table}
+
+Before translating full \turtle{} source code to TAM code, the source
+program must be type-checked and all type annotations must be removed.
+Additionally, the storage locations for global and local variables
+must be reserved in the code segment or in the environment frames of
+the defining functions.\footnote{Of course, some features of the full
+  \turtle{} syntax (such as array, list and string constructors) must
+  be transformed so that appropriate run-time support functions are
+  called.  Strings are treated as arrays of characters at this level.}
+Then the simplification function $\mathcal{S}$ is to be applied to the
+program, yielding a program in $\mu$\turtle{} syntax. This syntax
+(shown in Table~\ref{tab:mu-turtle}) has constants, variables,
+function applications, assignments, array accesses, the constrainable
+variable dereferencing operator, function and user-defined constraint
+expressions and constraint, loop, conditional and return statements.
+%
+\index{S@$\mathcal{S}$ (syntactic transformation)}
+$$\mathcal{S}: Expr \rightarrow Expr$$
+%
+Function and constraint definitions are translated to function- and
+constraint-valued variable assignments. The compiler is expected to
+declare the automatically introduced variables during semantic
+analysis. The initialization expressions of variable and constant
+definitions are converted to assignments, too, and simplified
+recursively.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf fun}\; n\;(x_1,\dots x_n)\;e;\dots\text{\bf end}} \rightarrow$\\
+\>$n :=\text{\bf fun}\; (x_1,\dots x_n)\;\ST{e};\dots\text{\bf end}$
+\end{tabbing}
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf constraint}\; n\;(x_1,\dots x_n)\;e;\dots\text{\bf end}} \rightarrow$\\
+\>$n :=\text{\bf constraint}\; (x_1,\dots x_n)\;\ST{e};\dots\text{\bf end}$
+\end{tabbing}
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf var}\; n\; := e} \rightarrow$\\
+\>$n := \ST{e}$
+\end{tabbing}
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf const}\; n\; := e} \rightarrow$\\
+\>$n := \ST{e}$
+\end{tabbing}
+%
+One-armed {\bf if} statements are normalized by adding an empty {\bf
+  else} part, other compound statements are recursively simplified.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf if}\; c\;\text{\bf then}\; e;\dots\;\text{\bf end}} \rightarrow$\\
+\>$\text{\bf if}\; \ST{c}\;\text{\bf then}\; \ST{e};\dots\;\text{\bf else}\;\text{\bf end}$
+\end{tabbing}
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf if}\; c\;\text{\bf then}\; e_1;\dots\;\text{\bf else}\;e_2;\dots\;\text{\bf end}} \rightarrow$\\
+\>$\text{\bf if}\; \ST{c}\;\text{\bf then}\; \ST{e_1};\dots\;\text{\bf else}\; \ST{e_2};\dots\;\text{\bf end}$
+\end{tabbing}
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf while}\; c\;\text{\bf do}\; e;\dots\;\text{\bf end}} \rightarrow$\\
+\>$\text{\bf while}\; \ST{c}\;\text{\bf do}\; \ST{e};\dots\;\text{\bf end}$
+\end{tabbing}
+%
+Tuple assignment is translated to multiple single-assignments with
+temporary variables.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{l_1,\dots,l_n := r_1,\dots,r_n} \rightarrow$\\
+\>$t_1 := \ST{r_1};\dots t_n := \ST{r_n};$\\
+\>$\ST{l_1} := t_1;\dots \ST{l_n} := t_n;\qquad \text{where}\; t_1,\dots,t_n\;\text{are generated variables}$
+\end{tabbing}
+%
+The fetch operator {\bf !} %and the variable object constructor {\bf
+%  var} are 
+is treated by simplifying its operand.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf !}e} \rightarrow$\\
+\>{\bf !}$\ST{e}$
+\end{tabbing}
+%
+% \begin{tabbing}
+% \qquad \= \quad \kill
+% $\ST{\text{\bf var}\;e} \rightarrow$\\
+% \>{\bf var} $\ST{e}$
+% \end{tabbing}
+%
+Binary and unary operators (including the {\bf var} operator for
+constructing constrainable variables) are eliminated by replacing
+their uses with applications of functions performing their respective
+operations, such as addition or negation.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{e_1 \;op\; e_2} \rightarrow$\\
+\>$f_{op}(\ST{e_1}, \ST{e_2})\quad\text{where}\; f_{op} \;\text{is the function for}\; op$
+\end{tabbing}
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{op\; e} \rightarrow$\\
+\>$f_{op}(\ST{e})\quad\text{where}\;f_{op}\;\text{is the function for}\; op$
+\end{tabbing}
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{e_1[e_2]} \rightarrow$\\
+\>$\ST{e_1}[\ST{e_2}]$
+\end{tabbing}
+%
+{\bf require} statements are recursively simplified, similar to the
+other compound statements.  Note that the strengths are not
+simplified, because only constants (or names of constants) are allowed
+as strengths.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf require}\; c_1 : s_1 \wedge\dots\wedge c_n : s_n} \rightarrow$\\
+\>$\text{\bf require}\; \ST{c_1} : s_1 \wedge\dots\wedge \ST{c_n} : s_n\;$
+\end{tabbing}
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf require}\; c_1 : s_1 \wedge\dots\wedge c_n : s_n\;\text{\bf in}\;e;\dots;\text{\bf end}} \rightarrow$\\
+\>$\text{\bf require}\; \ST{c_1} : s_1 \wedge\dots\wedge \ST{c_n} : s_n\;\text{\bf in }\;\ST{e};\dots\;\text{\bf end}$
+\end{tabbing}
+%
+Return statements without an expression are provided with a constant
+expression.  It does not matter which one, because the value will not
+be used, it is just added to reduce the number of cases to be
+considered in later stages of the transformation.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf return}} \rightarrow$\\
+\>$\text{\bf return}\; 0$
+\end{tabbing}
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\ST{\text{\bf return}\; e} \rightarrow$\\
+\>$\text{\bf return}\; \ST{e}$
+\end{tabbing}
+
+\subsection{Translating $\mu$\turtle{} to the \turtle{} Abstract Machine}
+
+The function $\mathcal{T}$ translates $\mu$\turtle{} code to machine
+code for the TAM.  The following definition of this function expects
+its input to be simplified with the function $\mathcal{S}$ given
+above.  $\mathcal{T}$ takes a $\mu$\turtle{} expression as its input
+and produces a list of TAM instructions:
+%
+\index{T@$\mathcal{T}$ (transformation function)}
+$$\mathcal{T}: Expr \rightarrow TAM \; list$$
+%
+$\mathcal{T}$ requires that variables are represented as a location
+descriptor which tells the TAM how to access the location allocated
+for the variables.  The function $\mathcal{L}$, used in the definition
+of $\mathcal{T}$ below, transforms variables to location descriptors
+at compile time.  A location descriptor $l\in
+Location=\text{I\!N}\times \text{I\!N}$ consists of a back-pointer,
+which tells how many environment links need to be followed to reach
+the environment in which a variable $v\in Var$ is stored, and an index
+which tells the position in this environment.  Global variables are
+defined in the topmost environment, which encloses all locally defined
+environments.
+%
+\index{L@$\mathcal{L}$ (location assignment)}
+$$\mathcal{L}: Var \rightarrow Location$$
+%
+For the operational semantics of \turtle{}, the formal definition of
+$\mathcal{L}$ is not necessary, therefore it has been omitted.
+Informally, the definition of this function simply searches for the
+given variable in the compile-time environment in which all declared
+variables are held, and computes the back-pointer and the index during
+the search.
+
+Constants and variables are simply loaded into the accumulator,
+assignments are translated to store instructions.  Indexed references
+and assignments require the array as well as the index expression to
+be evaluated before performing an indexed load or store operation.
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{c} \rightarrow$\\
+\>{\tt load-constant }$c$
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{v} \rightarrow$\\
+\>{\tt load-variable }$\mathcal{L}\lsq{}v\rsq{}$
+\end{tabbing}
+
+% \begin{tabbing}
+% \qquad \= \quad \kill
+% $\TT{v} \rightarrow$\\
+% \>{\tt load-variable }$\mathcal{L}\lsq{}v\rsq{}$\\
+% \>{\tt fetch}$\qquad\qquad\text{iff}\;v\;\text{is a constrainable variable}$
+% \end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{e_1[e_2]} \rightarrow$\\
+\>$\TT{e_2}$\\
+\>{\tt push}\\
+\>$\TT{e_1}$\\
+\>{\tt load-array}
+\end{tabbing}
+
+% \begin{tabbing}
+% \qquad \= \quad \kill
+% $\TT{e_1[e_2]} \rightarrow$\\
+% \>$\TT{e_2}$\\
+% \>{\tt push}\\
+% \>$\TT{e_1}$\\
+% \>{\tt load-array}\\
+% \>{\tt fetch}$\qquad\qquad\text{iff}\;e_1[e_2]\;\text{is a constrainable field}$
+% \end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{v := e} \rightarrow$\\
+\>$\TT{e}$\\
+\>{\tt store-variable }$\mathcal{L}\lsq v\rsq$
+\end{tabbing}
+
+% \begin{tabbing}
+% \qquad \= \quad \kill
+% $\TT{v := e} \rightarrow$\\
+% \>$\TT{e}$\\
+% \>{\tt push}\\
+% \>{\tt load-variable }$\mathcal{L}\lsq{}v\rsq{}$\\
+% \>{\tt store}$\qquad\qquad\text{iff}\;v\;\text{is a constrainable variable}$
+% \end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{e_1[e_2] := e_3} \rightarrow$\\
+\>$\TT{e_3}$\\
+\>{\tt push}\\
+\>$\TT{e_2}$\\
+\>{\tt push}\\
+\>$\TT{e_1}$\\
+\>{\tt store-array }
+\end{tabbing}
+%
+% \begin{tabbing}
+% \qquad \= \quad \kill
+% $\TT{e_1[e_2] := e_3} \rightarrow$\\
+% \>$\TT{e_3}$\\
+% \>{\tt push}\\
+% \>$\TT{e_2}$\\
+% \>{\tt push}\\
+% \>$\TT{e_1}$\\
+% \>{\tt load-array}\\
+% \>{\tt store}$\qquad\qquad\text{iff}\;e_1[e_2]\;\text{is a constrainable field}$
+% \end{tabbing}
+The constrainable variable dereferencing operator is directly
+translated to a {\tt fetch} instruction.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{\text{\bf !} e} \rightarrow$\\
+\>$\TT{e}$\\
+\>{\tt fetch}
+\end{tabbing}
+%
+Function calls are translated to code which first saves the return
+point in the continuation chain, then evaluates and pushes all
+arguments onto the stack, evaluates the function expression and calls
+the code from the resulting closure.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{f(a_1,\dots,a_n)} \rightarrow$\\
+\>{\tt save-continuation} $l$\\
+\>$\TT{a_1}$\\
+\>{\tt push}\\
+\>\dots{}\\
+\>$\TT{a_n}$\\
+\>{\tt push}\\
+\>$\TT{f}$\\
+\>{\tt call }\\
+$l:$
+\end{tabbing}
+%
+Function calls in {\em tail position} (that is, function calls which
+are the last thing a function does before it returns) do not set up a
+continuation for returning, but reuse the current continuation, which
+was set up by the calling function. That means that these calls simply
+omit the {\tt save-continuation} instruction necessary for non-tail
+calls.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{f(a_1,\dots,a_n)} \rightarrow$\\
+\>$\TT{a_1}$\\
+\>{\tt push}\\
+\>\dots{}\\
+\>$\TT{a_n}$\\
+\>{\tt push}\\
+\>$\TT{f}$\\
+\>{\tt call }\\
+\end{tabbing}
+%
+Function expressions are translated to the code for the body of the
+function, enclosed in function prologue and epilogue code.  Then a
+closure is constructed which references this code.  The code for the
+function body is simply placed at the current position of the
+generated instruction stream, so the jump around the body is
+necessary.  In the actual implementation, the function bodies are
+collected during translation and placed at the end of the
+instructions.  This saves one jump instruction per function creation.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{\text{\bf fun}\;(x_1,\dots,x_n)\; e;\dots\;\text{\bf end}} \rightarrow$\\
+\>{\tt jump} $l_2$\\
+$l_1:$\>{\tt make-environment} $n$\\
+\>$\TT{e;\dots}$\\
+\>{\tt restore-continuation}\\
+$l_2:$\>{\tt make-closure} $l_1$
+\end{tabbing}
+%
+The translation of constraint expressions is nearly identical to that
+of function expressions.  The only difference is that all constraint
+statements inside of the user-defined constraint need not re-solve the
+constraint store after adding constraints.  Re-solving can be avoided
+because user-defined constraints can only be invoked from constraint
+statements which will re-solve the constraint store anyway.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{\text{\bf constraint}\;(x_1,\dots,x_n)\; e;\dots\;\text{\bf end}} \rightarrow$\\
+\>{\tt jump} $l_2$\\
+$l_1:$\>{\tt make-environment} $n$\\
+\>$\TT{e;\dots}$\\
+\>{\tt restore-continuation}\\
+$l_2:$\>{\tt make-closure} $l_1$
+\end{tabbing}
+%
+{\bf require} statements with body statements are the most complicated
+statements to compile, because they require the management of the
+constraint store.  Before entering the body of the statement, the
+constraints are created and added to the store, and upon exit from the
+body, they are removed.  An additional complication arises from the
+fact that the constraints must be removed from the store not only when
+the body finishes normally, but also when an exception is raised
+during the execution of the body.  The following translation
+accomplishes this by setting up an exception handler before entering
+the body which removes the constraints before re-raising the
+exception.
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{\text{\bf require}\; c_1:s_1\wedge\dots\wedge c_n:s_n\;\text{\bf in}\; e;\dots\;\text{\bf end}} \rightarrow$\\
+\>{\tt make-constraint} $c_1, s_1$\\
+\>{\tt store-variable} $\mathcal{L}\lsq t_1\rsq$\\
+\>\dots\\
+\>{\tt make-constraint} $c_n, s_n$\\
+\>{\tt store-variable} $\mathcal{L}\lsq t_n\rsq$\\
+\>{\tt add-constraints} $\mathcal{L}\lsq t_1\rsq,\dots,\mathcal{L}\lsq t_n\rsq$\\
+\>{\tt handle} $l_1$\\
+\>$\TT{e;\dots}$\\
+\>{\tt remove-constraints} $\mathcal{L}\lsq t_1\rsq,\dots,\mathcal{L}\lsq t_n\rsq$\\
+\>{\tt unhandle}\\
+\>{\tt jump} $l_2$\\
+$l_1:$\>{\tt remove-constraints} $\mathcal{L}\lsq t_1\rsq,\dots,\mathcal{L}\lsq t_n\rsq$\\
+\>{\tt raise}\\
+$l_2:\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad \text{where}\; t_1,\dots,t_n\;\text{are generated variables}$\>
+\end{tabbing}
+%
+When {\bf require} statements do not have a body, the creation of an
+exception handler is not necessary, so the transformation consists
+only of the creation of the symbolic constraint representation and the
+addition of the constraints to the store.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{\text{\bf require}\; c_1:s_1\wedge\dots\wedge c_n:s_n\;} \rightarrow$\\
+\>{\tt make-constraint} $c_1, s_1$\\
+\>{\tt store-variable} $\mathcal{L}\lsq t_1\rsq$\\
+\>\dots\\
+\>{\tt make-constraint} $c_n, s_n$\\
+\>{\tt store-variable} $\mathcal{L}\lsq t_n\rsq$\\
+\>{\tt add-constraints} $\mathcal{L}\lsq t_1\rsq,\dots,\mathcal{L}\lsq t_n\rsq\qquad \text{where}\; t_1,\dots,t_n\;\text{are generated variables}$
+\end{tabbing}
+%
+{\bf while} and {\bf if} statements are translated straightforwardly
+using conditional and unconditional jump instructions.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{\text{\bf while}\; c\;\text{\bf do}\; e;\dots\;\text{\bf end}} \rightarrow$\\
+\>{\tt jump} $l_2$\\
+$l_1:$\>$\TT{e;\dots}$\\
+$l_2:$\>$\TT{c}$\\
+\>{\tt jump-if-true} $l_1$
+\end{tabbing}
+
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{\text{\bf if}\; c\;\text{\bf then}\; e_1;\dots\;\text{\bf else}\; e_2;\dots\;\text{\bf end}} \rightarrow$\\
+\>$\TT{c}$\\
+\>{\tt jump-if-false} $l_1$\\
+\>$\TT{e_1;\dots}$\\
+\>{\tt jump} $l_2$\\
+$l_1:$\>$\TT{e_2;\dots}$\\
+$l_2:$
+\end{tabbing}
+%
+The {\bf return} statement simply calculates the function result (left
+in the register {\em acc}, where the calling function expects it) and
+restores the continuation saved by the caller.
+%
+\begin{tabbing}
+\qquad \= \quad \kill
+$\TT{\text{\bf return}\; e} \rightarrow$\\
+\>$\TT{e}$\\
+\>{\tt restore-continuation}
+\end{tabbing}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "da.tex"
+%%% End: 
+
+%% End of turtle.tex.

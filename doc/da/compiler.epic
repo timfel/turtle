@@ -1,0 +1,56 @@
+\setlength{\unitlength}{0.00087489in}
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+{\renewcommand{\dashlinestretch}{30}
+\begin{picture}(6414,1327)(0,-10)
+\drawline(102,1030)(912,1030)(912,580)
+	(102,580)(102,1030)
+\put(192,850){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Scanner}}}}}
+\drawline(1182,1030)(1812,1030)(1812,580)
+	(1182,580)(1182,1030)
+\put(1272,850){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Parser}}}}}
+\drawline(2082,1210)(2892,1210)(2892,400)
+	(2082,400)(2082,1210)
+\put(2172,670){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Overload}}}}}
+\put(2172,1030){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Context}}}}}
+\put(2172,850){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}check/}}}}}
+\put(2172,490){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}resolution}}}}}
+\drawline(5592,1030)(6312,1030)(6312,580)
+	(5592,580)(5592,1030)
+\put(5682,850){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Code}}}}}
+\put(5682,670){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}emitter}}}}}
+\dottedline{45}(3252,1030)(4152,1030)(4152,580)
+	(3252,580)(3252,1030)
+\put(3342,850){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Optimizer}}}}}
+\drawline(4512,1030)(5322,1030)(5322,580)
+	(4512,580)(4512,1030)
+\put(4602,850){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Code}}}}}
+\put(4602,670){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}generator}}}}}
+\drawline(912,805)(1182,805)
+\drawline(1062.000,775.000)(1182.000,805.000)(1062.000,835.000)
+\drawline(1812,805)(2082,805)
+\drawline(1962.000,775.000)(2082.000,805.000)(1962.000,835.000)
+\drawline(2892,805)(3252,805)
+\drawline(3132.000,775.000)(3252.000,805.000)(3132.000,835.000)
+\drawline(12,1300)(2982,1300)(2982,220)
+	(12,220)(12,1300)
+\drawline(5322,805)(5592,805)
+\drawline(5472.000,775.000)(5592.000,805.000)(5472.000,835.000)
+\drawline(4152,805)(4512,805)
+\drawline(4392.000,775.000)(4512.000,805.000)(4392.000,835.000)
+\drawline(4422,1300)(6402,1300)(6402,220)
+	(4422,220)(4422,1300)
+\put(1722,310){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}AST}}}}}
+\put(867,310){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Token}}}}}
+\put(3027,310){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}HIL}}}}}
+\put(5367,310){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}LIL}}}}}
+\put(12,40){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}analysis phase}}}}}
+\put(4422,40){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}synthesis phase}}}}}
+\put(4107,310){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}HIL}}}}}
+\end{picture}
+}

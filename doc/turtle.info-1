@@ -1,0 +1,1364 @@
+This is turtle.info, produced by makeinfo version 4.0 from turtle.texi.
+
+INFO-DIR-SECTION Turtle
+START-INFO-DIR-ENTRY
+* turtle: (turtle).     Turtle reference manual.
+END-INFO-DIR-ENTRY
+
+   This file documents the Turtle compiler.
+
+   Copyright (C) 2003 Martin Grabmueller
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+
+File: turtle.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
+
+   This document describes the Turtle programming language and how to
+use the Turtle compiler and standard library.
+
+   It applies to version 1.0.0 of Turtle.
+
+* Menu:
+
+* Introduction::                Introduction to Turtle
+* Using Turtle::                How to use Turtle
+* Language Reference::          Language description
+* Constraint Programming::      Using constraints in Turtle programs.
+* Standard library::            The Turtle library modules.
+* Glossary::                    The glossary
+* Index::                       Function and variable index
+
+ --- The Detailed Node Listing ---
+
+Introduction
+
+* About Turtle::                What is Turtle anyway?
+* Turtle History::              How Turtle was developed.
+* Turtle Future::               What are the future plans about Turtle?
+
+Using Turtle
+
+* Compiling source programs::   How to compile Turtle programs.
+* Command line options::        How to instruct the compiler.
+* Handcoding::                  How to interface Turtle to C code.
+* Documenting Turtle Modules::  Automatic Turtle source documentation.
+
+Handcoding
+
+* Compiling handcoded modules::  Compiler invocation for handcoded modules.
+* Implementation include file::  Details about the include file.
+* Implementation macros::       How to handcode implementation macros.
+* Mapped functions::            Details about mapped functions.
+
+Documenting Turtle Modules
+
+* Preparing Turtle Modules for turtledoc::  turtledoc markup.
+* Extracting the Documentation::  How to invoke the compiler for turtledoc.
+
+Language Reference
+
+* Turtle Grammar::              Syntactic definition of the Turtle language.
+* Turtle semantics::            Semantic definitions for Turtle.
+* Data Types::                  Data types provided in Turtle.
+* Runtime environment::         Turtle's runtime environment.
+
+Turtle Grammar
+
+* Notation::                    The notation used in this section.
+* Lexical Structure::           Lexical entities (aka tokens).
+* Turtle Syntax::               The formal syntax of Turtle programs.
+
+Turtle Syntax
+
+* Module Syntax::               The syntax of compilation units.
+* Declaration Syntax::          Declarations in Turtle.
+* Statement Syntax::            Program statements.
+* Expression Syntax::           Expressions.
+* Basic syntax items::          Grammar leftovers.
+
+Turtle semantics
+
+* Expression Types::            How expressions get types.
+* List operators::              Operators on lists.
+* Array operators::             Operators on arrays.
+* List and array expressions::  Compound expressions.
+* Return statements::           How values are returned from functions.
+* Overloading::                 Identifier overloading.
+* Generic Modules::             Parametrized modules.
+
+Data Types
+
+* Basic data types::            Basic builtin data types.
+* Compound data types::         Data types made up of other data types.
+* User-defined data types::     Special-purpose self-made data types.
+
+Basic data types
+
+* Integers::                    Integer numbers.
+* Longs::                       Long integer numbers.
+* Reals::                       Real numbers.
+* Booleans::                    Truth values, `true' and `false'.
+* Characters::                  Characters.
+* Strings::                     Strings of characters.
+
+Compound data types
+
+* Array data type::             Fixed-length random-access sequences.
+* List data type::              Varying-length, linear-access sequences.
+* Function data type::          Types for functions.
+* Tuple data type::             Fixed-length, varying-types aggregates.
+
+Constraint Programming
+
+* Constraints and the Constraint Store::  Basic definitions.
+* Constrainable Variables::     Variables for constraints.
+* Constraint Statements::       Statements for constraint programming.
+* Constraints as Assertions::   Constraint application as runtime checks.
+
+Standard library
+
+* General modules::             Generally useful utilities.
+* Input and output modules::    Input and output.
+* Data type related modules::   Modules for handling specific data types.
+* List utility modules::        List functions.
+* Array utility modules::       Array functions.
+* Tuple utility modules::       Modules for accessing tuple elements.
+* Low level modules::           Low-level system functions.
+* Modules in the subsystem sys::  System-dependant modules.
+* Modules in the subsystem internal::  Internal modules.
+
+General modules
+
+* math module::                 Mathematical constants and functions.
+* random module::               Random number generation.
+* compose module::              Function composition.
+* identity module::             The identity function.
+* compare module::              Functions for comparing basic data types.
+* option module::               The `option' data type.
+* cmdline module::              Command line parsing.
+* hash module::                 Functions for calculating hash values.
+* hashtab module::              Hash table implementation.
+* trees module::                Module for binary trees.
+* bstrees module::              Binary search trees.
+* bintree module::              Binary search trees (older version).
+* binary module::               Byte-arrays.
+* exceptions module::           Exception handling.
+* filenames module::            Filename manipulation.
+
+Input and output modules
+
+* io module::                   Basic input and output.
+
+Data type related modules
+
+* ints module::                 Integer constants and functions.
+* longs module::                Long integer functions.
+* reals module::                Real constants and functions.
+* bools module::                Boolean value utilities.
+* chars module::                Character handling.
+* strings module::              Basic string operations.
+* union module::                Union data type of the buildin types.
+* strformat module::            String formatting a la sprintf ().
+
+List utility modules
+
+* lists module::                General list functions.
+* listmap module::              Mapping functions over lists.
+* listfold module::             Folding a function over lists.
+* listreduce module::           Reducing lists with initial value.
+* listzip module::              Combine two lists into one and the reverse.
+* listindex module::            Functions on lists operating with indices.
+* listsearch module::           Searching in lists.
+* listsort module::             Sorting lists.
+
+Array utility modules
+
+* arrays module::               Basic array operations.
+* arraymap module::             Mapping functions over arrays.
+* arraysearch module::          Searching in arrays.
+* arraysort module::            Sorting arrays.
+
+Tuple utility modules
+
+* pairs module::                Module for handling 2-tuples.
+* triples module::              Module for handling 3-tuples.
+
+Low level modules
+
+* core module::                 Some low-level utilities.
+
+Subsystem sys
+
+* sys.files module::            Low-level file handling.
+* sys.dirs module::             Directory handling.
+* sys.net module::              Low-level network programming.
+* sys.times module::
+* sys.users module::            Accessing the user data base.
+* sys.procs module::            Handling operating system processes.
+* sys.errno module::            Accessing the errno variable.
+* sys.signal module::
+
+Subsystem internal
+
+* internal.version module::     Version information.
+* internal.random module::      Random number functions.
+* internal.stats module::
+* internal.gc module::          Garbage collection interface.
+* internal.ex module::          Exception raising and handling.
+* internal.timeout module::
+* internal.limits module::      System limits.
+
+
+File: turtle.info,  Node: Introduction,  Next: Using Turtle,  Prev: Top,  Up: Top
+
+Introduction
+************
+
+   Turtle is both a programming language and the name of a compiler for
+this language.
+
+   The language Turtle is a programming language which supports
+constraint imperative programming, that means that standard imperative
+programming constructs can be combined with the declarative style of
+constraint programming.
+
+   The chapter after this introduction describes the Turtle compiler
+from the user's point of view, you will learn how to run the compiler
+and how to develop programs using it.
+
+   After that, in the third chapter, the Turtle programming language is
+presented in detail, including formal descriptions like EBNF grammars,
+and an informal description of the semantics of Turtle.
+
+   The fourth chapter contains the reference documentation for the
+standard library modules which come with the Turtle system.
+
+   The manual is closed by a a glossary and an index of all functions
+and variables of the standard library.
+
+* Menu:
+
+* About Turtle::                What is Turtle anyway?
+* Turtle History::              How Turtle was developed.
+* Turtle Future::               What are the future plans about Turtle?
+
+
+File: turtle.info,  Node: About Turtle,  Next: Turtle History,  Prev: Introduction,  Up: Introduction
+
+About Turtle
+============
+
+   The Turtle programming language has these main characteristics:
+
+Imperative
+     Turtle has the basic imperative constructs like variables,
+     side-effects, loops, procedures, procedure calls, statements, and
+     statement sequencing.  Thus the semantics of a Turtle program
+     relies on state and time.
+
+Constraints
+     Turtle supports constraint programming.  That means that
+     constraints can be asserted on program variables, so that these
+     constraints can be checked and values for the variables can be
+     deduced.
+
+Higher-order programming
+     Functions and procedures are first-class values, they can be
+     returned from functions and even be stored in data structures.
+     Additionally to the imperative and constraint programming styles,
+     this makes functional programming possible.
+
+Garbage collection
+     Memory is managed automatically in Turtle programs.  Garbage
+     collection is now standard in new programming languages, since it
+     frees the programmer from many possible bug sources, such as
+     dangling pointers (because references to freed memory regions are
+     used) or memory leaks (because unneeded references are kept).
+
+Module system
+     Turtle comes with a module system for structuring programs in
+     smaller, encapsulated subsystems.  This is a key feature for
+     software engineering, because it makes the interfaces between
+     subsystems clean and makes life easier if several programmers are
+     working on different parts of a larger program.
+
+     Additionally, modules can be parametrisized over data types.  The
+     programmer can thus write generic modules which implement abstract
+     data types which can be used with arbitrary objects of arbitrary
+     types.
+
+Rich set of data types
+     Turtle comes with builtin basic data types (integers, reals,
+     booleans, strings, characters) as well as aggregate types such as
+     arrays, lists and tuples.
+
+Efficiency
+     Turtle programs run reasonably fast, mainly because they are not
+     interpreted but compiled to machine code (via generating C code and
+     running a C compiler).
+
+
+File: turtle.info,  Node: Turtle History,  Next: Turtle Future,  Prev: About Turtle,  Up: Introduction
+
+Turtle History
+==============
+
+   Turtle is the product of my master's thesis, written at the Technical
+University of Berlin.
+
+   The language definition was sketched in February 2002, and after the
+thesis was officially started, development towards turning it into a
+usable constraint imperative language began.
+
+
+File: turtle.info,  Node: Turtle Future,  Prev: Turtle History,  Up: Introduction
+
+Turtle Future
+=============
+
+   I don't know.
+
+
+File: turtle.info,  Node: Using Turtle,  Next: Language Reference,  Prev: Introduction,  Up: Top
+
+Using Turtle
+************
+
+   This chapter describes how to use the Turtle compiler.  You will
+learn how to invoke the compiler in order to produce an executable
+program, what command line options the compiler understands and how the
+compiler can be used to access the underlying system an how to produce
+documentation from source code comments.
+
+* Menu:
+
+* Compiling source programs::   How to compile Turtle programs.
+* Command line options::        How to instruct the compiler.
+* Handcoding::                  How to interface Turtle to C code.
+* Documenting Turtle Modules::  Automatic Turtle source documentation.
+
+
+File: turtle.info,  Node: Compiling source programs,  Next: Command line options,  Prev: Using Turtle,  Up: Using Turtle
+
+Compiling source programs
+=========================
+
+   The Turtle compiler is run by executing the command `turtle', giving
+the names of the source files to be compiled on the command line:
+
+     turtle ex1.t
+
+   Turtle source code files are named with the file name extension `.t'
+by convention.
+
+   The compiler will generate a bunch of files from earch Turtle source
+file:
+
+`ex1.ifc'
+     This is the interface file in which the exported identifiers,
+     imported modules and some other data is stored.  Interface files
+     are read when modules are imported.
+
+`ex1.c'
+     This is the C source code generated for the input file.  It is
+     compiled by the C compiler to produce the file `ex1.o' mentioned
+     below.
+
+`ex1.h'
+     This is the header file (for the C compiler) which contains
+     declarations for all exported variables and functions and for the
+     initialization files.
+
+`ex1.o'
+     This is the object code for the input file, it contains the machine
+     code.
+
+   If you don't want to compile a library module, but a complete
+program, you have to give the `--main=NAME' option to the compiler.
+*Note Command line options:: for details.
+
+
+File: turtle.info,  Node: Command line options,  Next: Handcoding,  Prev: Compiling source programs,  Up: Using Turtle
+
+Command line options
+====================
+
+   The following command line options are available.
+
+`-h, --help'
+     This option will force the compiler to show a short usage message
+     and to exit successfully.
+
+`-v, --version'
+     The compiler will print its version number and exit successfully.
+
+`-m, --main=NAME'
+     This option must be given when compiling the main module of a
+     program.  It tells the compiler to link the module with all
+     imported modules and to produce an executable program called NAME.
+     With this option, only one source file may be given, which must
+     be the main module.
+
+`-p, --module-path=PATH'
+     Tells the compiler to look in all directories in PATH (which must
+     be a colon-separated list of directory names) when searching for
+     imported modules.
+
+`-d, --debug=MODIFIER'
+     This options switches on one or more debugging options.  Each
+     debugging option is denoted by a different letter; they must be
+     given one after the other without intervening spaces, as in the
+     following example:
+
+          turtle --debug=ae
+
+    `a'
+          This option causes the compiler to print out the abstract
+          syntax tree of each parsed source file after reading it.
+
+    `e'
+          With this option, the compiler prints the top-level
+          environment of each source file after parsing and analyzing
+          it.
+
+    `i'
+          The highlevel intermediate language (HIL) representation of
+          the source program will be printed to standard out just after
+          type checking.
+
+    `b'
+          The lowlevel intermediate language (LIL) representation of
+          the source module will be printed to standard out just after
+          code generation.
+
+`-z, --pragma=PRAGMA'
+     This option is used to pass additional information about the
+     source file or the compilation process.  The following pragmas can
+     be given:
+
+    `handcoded'
+          Handcoded modules (that is, modules which contain functions
+          implemented in C) must be compiled with this option,
+          otherwise the compiler will refuse to compile the source
+          file.  This is a safety feature, because declarations for
+          handcoded functions can be easily written by error and would
+          otherwise lead to hard understandable error messages.
+
+    `compile-only'
+          With this option, the C compiler will not be run on the
+          generated C code.  This option is mainly useful for debugging
+          the compiler.
+
+    `static'
+          Causes the linker to statically link the program.  Only has
+          an effect if the `--main=NAME' option is also given.  This
+          option may require GCC.
+
+    `turtledoc'
+          Instead of compiling the source files on the command line,
+          the compiler will extract documentation comments and create
+          Texinfo documentation for the modules.  For each module to be
+          compiled, a Texinfo node will be written to standard output
+          with documentation for all data types, variables and
+          functions defined in the module.
+
+    `deps'
+          In addition to normal compilation, a the dependencies of the
+          source file will be written to a file with the same basename
+          as the input file, but with the extension `.P'.  The
+          dependencies are formatted to be usable with `make'.
+
+    `deps-stdout'
+          Like the pragma `deps', but instead of writing to a dependency
+          file, the dependencies are written to standard output.
+
+`-O, --optimize=FLAGS'
+     Set some flags for the Turtle optimizer and the C compiler.  By
+     default all Turtle optimizations are on and the C optimizations
+     are off. One or more of the following flags can be given:
+
+    `C'
+          Optimize module-local calls.
+
+    `c'
+          Do not optimize module-local calls.
+
+    `J'
+          Convert module-local calls to jumps.
+
+    `j'
+          Do not convert module-local calls to jumps.
+
+    `G'
+          Merge all GC checks which appear in a basic block into one at
+          the start of the block.
+
+    `g'
+          Do not merge all GC checks in one basic block.
+
+    `0...6'
+          Set the optimization level for the C compiler to the given
+          value.  This option may require GCC.
+
+
+File: turtle.info,  Node: Handcoding,  Next: Documenting Turtle Modules,  Prev: Command line options,  Up: Using Turtle
+
+Handcoding
+==========
+
+   A lot of low-level functions cannot be implemented in Turtle, because
+there is currently no way to access operating system features or the C
+library directly.  Therefore, `handcoded' modules have been added to
+the Turtle compiler.
+
+   Handcoded modules can contain normal Turtle definitions for
+functions, variables and data types, but additionally they can contain
+functions whose body has been omitted, and whose implementation is
+written in C in another place.  This other place is a C source code
+file which must be named like the module to be compiled, but with the
+added extension `.i'.  That means that the implementation of handcoded
+functions in the module file `core.t' must reside in the file called
+`core.t.i'.
+
+   Currently, there are two kinds of handcoded functions.  The first is
+to simply omit the function body and give the implementation as a C
+macro which will be placed into the generated C code by the cmopiler.
+This has the advantage that there is no runtime penalty for using a
+handcoded function, and that the macro can directly access all virtual
+registers without the need to flush them to their memory locations.  The
+disadvantage is that it is quite easy to mess up the virtual machine's
+state.  Handcoded functions written as macros are called
+"implementation macros".
+
+   The second method is to write down the function header, followed by
+an equal sign and a string which names a C function.  This function will
+then be called from the generated code.  The parameters to the declared
+Turtle function are passed as normal C parameters to the named function,
+so that there is no way to mess with the Turtle stack or registers.
+This method is recommended and should be used unless their is an urgent
+need for efficiency or access to the virtual machine from inside the
+handcoded function.  Functions of this kind are called "mapped
+functions", because their functionality is mapped directly to a C
+function.
+
+* Menu:
+
+* Compiling handcoded modules::  Compiler invocation for handcoded modules.
+* Implementation include file::  Details about the include file.
+* Implementation macros::       How to handcode implementation macros.
+* Mapped functions::            Details about mapped functions.
+
+
+File: turtle.info,  Node: Compiling handcoded modules,  Next: Implementation include file,  Prev: Handcoding,  Up: Handcoding
+
+Compiling handcoded modules
+---------------------------
+
+   Because it is easy to break your programs with handcoded modules, the
+compiler will only accept such modules when explicitly instructed with
+the pragma option `handcoded'.  For example:
+
+     turtle --pragma=handcoded math.t
+
+
+File: turtle.info,  Node: Implementation include file,  Next: Implementation macros,  Prev: Compiling handcoded modules,  Up: Handcoding
+
+Implementation include file
+---------------------------
+
+   An implementation include file must list all needed implementation
+macros and mapped function implementations.  If the macros or functions
+need any declaration from the C library, file inclusion statements can
+also appear in the file, and C variables and typedefs can also be
+written here.
+
+
+File: turtle.info,  Node: Implementation macros,  Next: Mapped functions,  Prev: Implementation include file,  Up: Handcoding
+
+Implementation macros
+---------------------
+
+   These macro definitions must be written in a file called like the
+Turtle source file, but with a `.i' added to the file name.  This file
+is included into the compiled C file.  The implementation macros are
+expected to be named like the mangled function names, appended with the
+string `_implementation', and they must not have parameters.  The
+easiest way to get at the mangled name is to implement the function in
+the Turtle module, compile it with the `--pragma=handcoded' option,
+ignore the errors from the linker and take the mangled name from the C
+output file.  Additionally, you may want to add the function's signature
+to the implementation macro, for documentation purposes.
+
+   Function entry and exit code are compiled like for normal Turtle
+functions, so that the parameters to the Turtle function can be found in
+the first elements of the array `env->locals'.
+
+   This is an example for an implementation macro as used in the library
+module `core'.  The following is code from the module file `core.t':
+
+     fun version (): string;
+
+   And this is the corresponding implementation macro from the file
+`core.t.i':
+
+     #define core_version_F_0__To_S_implementation                   \
+     {                                                               \
+       TTL_SAVE_REGISTERS;                                           \
+       {                                                             \
+         ttl_global_acc = ttl_string_to_value (ttl_version_string (),\
+                                               -1);                  \
+       }                                                             \
+       TTL_RESTORE_REGISTERS;                                        \
+     }
+
+   There are some important rules to keep in mind when writing handcoded
+functions, but note that there may be other problems as well, which have
+just not yet come to the surface:
+
+   * They must expand into proper C compound statements (because the
+     macro call is not terminated by a semicolon).
+
+   * They must not expect parameters.
+
+   * They must be called like the mangled name of the function they
+     implement, with the string `_implementation' appended.
+
+   * When they call any runtime function which might invoke the garbage
+     collector, the code must be surrounded by a
+     `TTL_SAVE'/`RESTORE_REGISTERS' pair and operate on global registers
+
+   * The parameters to the functions must be taken from
+     `env->locals[X]', where X ranges from 0 to the number of
+     parameters - 1.
+
+   * No higher-order programming is allowed.
+
+   * Implementation macros may not call back to Turtle code, since
+     there is no way to set up continuation labels, so the Turtle code
+     would not be able to return.
+
+   * Boxing/unboxing of Turtle values must be done by hand.  Be careful
+     not to screw up the tagging of Turtle values, or the program will
+     most probably blow up.  Handcoding is your own risk, since the
+     compiler cannot do anything about it.
+
+   * You are responsible for checking for null pointers as well when
+     working with compound data types, and for raising the correct
+     exception by hand.
+
+
+File: turtle.info,  Node: Mapped functions,  Prev: Implementation macros,  Up: Handcoding
+
+Mapped functions
+----------------
+
+   Mapped functions are much easier to write than implementation macros,
+because you don't have to take care of heap overflows causing garbage
+collection, for extracting the parameters from the correct environment
+locations or for finding the mangled name of functions from the
+generated C code.  As an example for a mapped functions, we'll examine
+the `getlogin' function from the `unix' module.
+
+   This is the function declaration as it appears in the Turtle file:
+
+     fun getlogin (): string = "ttl_getlogin";
+
+   The function is declared as a mapped function, which should be
+mapped to the C function `ttl_getlogin'.  This function is an additional
+layer between the code generated for the Turtle function and the C
+library function.  Its responsibility is to unbox the parameters (if
+any), call the C library function and to box the result and return it to
+the caller.  Here is how this looks like for the `getlogin' example:
+
+     ttl_value
+     ttl_getlogin (void)
+     {
+       char * val = getlogin ();
+       if (val)
+         return ttl_string_to_value (val, -1);
+       else
+         return ttl_string_to_value ("", 0);
+     }
+
+   Compared to the implementation macros described above, this is really
+easy.  But note that the same restrictions apply as for the
+implementation macros described in the previous subsection.
+
+   In the future the Turtle compiler could be equipped with the
+additional functionality to generate such glue code itself, so that all
+boxing/unboxing etc. would be done by compiler-generated code, on the
+basis of some data type declrations.
+
+
+File: turtle.info,  Node: Documenting Turtle Modules,  Prev: Handcoding,  Up: Using Turtle
+
+Documenting Turtle Modules
+==========================
+
+   Documentation is a very important part in software creation.  It is
+not only important for programmers using third-party modules, but also
+to make sure that one's own modules will be reusable and can be still
+understood in the future.
+
+   The Turtle compiler has support for simple inline documentation of
+Turtle modules, called _turtledoc_.  It is similar in spirit to the
+well-known `JavaDoc' program which extracts documentation comments from
+Java source files and creates fully indexed and linked HTML
+documentation for Java packages.  Though turtledoc is much simpler, it
+is nevertheless quite useful and has been used to create the
+documentation for the Turtle standard library in this manual (*note
+Standard library::).
+
+* Menu:
+
+* Preparing Turtle Modules for turtledoc::  turtledoc markup.
+* Extracting the Documentation::  How to invoke the compiler for turtledoc.
+
+
+File: turtle.info,  Node: Preparing Turtle Modules for turtledoc,  Next: Extracting the Documentation,  Prev: Documenting Turtle Modules,  Up: Documenting Turtle Modules
+
+Preparing Turtle Modules for turtledoc
+--------------------------------------
+
+   The basic concept of turtledoc are so-called "documentation strings".
+Each function, variable or data type of a module can have a
+documentation string attached, and even the module itself can have one.
+The first step in using turtledoc is to attach documentation strings to
+these entities, and the second step is to use the Turtle compiler to
+extract these strings from the module and have them printed together
+with the name, type and kind of the entity they document.
+
+   This subsection documents the first step, the second step is
+described in the next subsection.
+
+   For illustration, we will prepare an example module with
+documentation strings.  This is the example:
+
+     module docex;
+     
+     fun do_nothing ()
+     end;
+     
+     fun do_nothing2 ()
+     end;
+     
+     fun ignored ()
+     end;
+     
+     fun do_nothing_too ()
+       var i: int := 10000;
+       while i > 0 do
+         i := i - 1;
+       end;
+     end;
+
+   We could already run the compiler on this and instruct it to extract
+documentation, but the result would be a bit disappointing:
+
+     @node docex module
+     @subsection docex module
+     @cpindex docex (Module)
+     
+     @deftypefn {Library function} {} do_nothing ()
+     @end deftypefn
+     
+     @deftypefn {Library function} {} do_nothing2 ()
+     @end deftypefn
+     
+     @deftypefn {Library function} {} ignored ()
+     @end deftypefn
+     
+     @deftypefn {Library function} {} do_nothing_too ()
+     @end deftypefn
+
+   Turtledoc comments are written like normal comments, but with an
+asterisk directly after the comment starting characters:
+
+     //* Like this...
+     /** ... or this.  */
+
+   The documentation strings must preceed the entity they document.  A
+module's documentation string will be written out preceeding the
+documentation of the variables, functions etc., Variable and function
+documentation will be placed between their Texinfo documentation
+constructs.  Datatype documentation is additionally equipped with the
+definition of the data type, which is normally very instructive for the
+reader who wishes to use the data type.
+
+   A function can be ommitted from the output by providing it with a
+documentation string starting with a `-' (minus sign).
+
+   Often it is useful to group several functions together with the same
+documentation, for example when they do similar things and only differ
+in the types of their arguments.  This can be accomplished by writing
+the documentation string down with the first of the functions to be
+grouped, and by placing the other functions of the group directly behind
+that, where each of the functions has a documentation string starting
+with `"' (doublequote).
+
+   This is the example, now equipped with documentation strings:
+
+     //* Example module for turtledoc.
+     module docex;
+     
+     //* This function does nothing.
+     fun do_nothing ()
+     end;
+     
+     //* ""
+     fun do_nothing2 ()
+     end;
+     
+     //* -
+     fun ignored ()
+     end;
+     
+     //* This function does nothing too, but expensively.
+     fun do_nothing_too ()
+       var i: int := 10000;
+       while i > 0 do
+         i := i - 1;
+       end;
+     end;
+
+   And this is the output produced from the annotated source code:
+
+     @node docex module
+     @subsection docex module
+     @cpindex docex (Module)
+     
+     Example module for turtledoc.
+     
+     @deftypefn {Library function} {} do_nothing ()
+     @deftypefnx {Library function} {} do_nothing2 ()
+     This function does nothing.
+     @end deftypefn
+     
+     @deftypefn {Library function} {} do_nothing_too ()
+     This function does nothing too, but expensively.
+     @end deftypefn
+
+   We can see that the module's documentation comes directly after the
+node header.  The `do_nothing' and `do_nothing2' functions are grouped
+together and the `ignore' function is not documented at all.  The last
+function, `do_nothing_too', is documented seperately.
+
+   The documentation strings can contain arbitrary Texinfo markup, such
+as for tables or node references.  The strings are not interpreted or
+modified in any way.
+
+
+File: turtle.info,  Node: Extracting the Documentation,  Prev: Preparing Turtle Modules for turtledoc,  Up: Documenting Turtle Modules
+
+Extracting the Documentation
+----------------------------
+
+   After having equipped the source code with properly marked
+documentation strings, you have to run the compiler on the source file
+and instruct it to create the turtledoc documentation.  This is done by
+simply giving the pragma option `turtledoc' to the compiler, like for
+the example module from the previous subsection:
+
+     turtle --pragma=turtledoc docex.t
+
+   The documentation is then written to standard output and can be
+included into the Texinfo documentation for your project.
+
+
+File: turtle.info,  Node: Language Reference,  Next: Constraint Programming,  Prev: Using Turtle,  Up: Top
+
+Language Reference
+******************
+
+   This chapter describes the Turtle programming language.  First, the
+syntax and semantics of the language are presented, then the runtime
+environment and the standard library are documented.
+
+* Menu:
+
+* Turtle Grammar::              Syntactic definition of the Turtle language.
+* Turtle semantics::            Semantic definitions for Turtle.
+* Data Types::                  Data types provided in Turtle.
+* Runtime environment::         Turtle's runtime environment.
+
+
+File: turtle.info,  Node: Turtle Grammar,  Next: Turtle semantics,  Prev: Language Reference,  Up: Language Reference
+
+Turtle Grammar
+==============
+
+   This section describes the grammar of the Turtle programming
+language.
+
+* Menu:
+
+* Notation::                    The notation used in this section.
+* Lexical Structure::           Lexical entities (aka tokens).
+* Turtle Syntax::               The formal syntax of Turtle programs.
+
+
+File: turtle.info,  Node: Notation,  Next: Lexical Structure,  Prev: Turtle Grammar,  Up: Turtle Grammar
+
+Notation
+--------
+
+   The lexical and grammatical structure of Turtle is described using
+Extended Backus Naur Form (EBNF).  This notation is summarized below.
+
+A ::= E
+     The non-terminal A produces the form E.
+
+E | F
+     Alternative; either E or F is produced.
+
+{ E }
+     The form E is repeated, possibly zero times.
+
+[ E ]
+     The form E is optional, it may be omitted completely.
+
+( E )
+     For grouping, denotes E itself.
+
+<empty>
+     Denotes the empty string.
+
+
+File: turtle.info,  Node: Lexical Structure,  Next: Turtle Syntax,  Prev: Notation,  Up: Turtle Grammar
+
+Lexical Structure
+-----------------
+
+   Turtle programs are composed by tokens of the following token
+classes:
+
+`Reserved words'
+     Reserved words look like identifiers (see below), but they have
+     special meanings in the source program.  They are summarized in the
+     Reserved Words Table below.  Identifiers denoting reserved words
+     cannot be used for other purposes (variable names, function names,
+     etc.).
+
+`Identifiers'
+     An identifier is used for naming semantic entities in the program
+     text: variables, functions, constraints, modules, etc.
+
+     Like in most other imperative languages descending from Algol,
+     identifiers start with an alphabetic letter or an underscore,
+     followed by a number of alphabetic letters, underscores or digits.
+     Additionally, identifiers may be terminated with a question mark.
+
+     There is no length restriction on identifiers.
+
+          Ident ::= (Letter | Underscore) {Letter | Underscore | Digit} [?|!]
+
+`String constants'
+     Strings of characters are enclosed in double quotes.  Inside of the
+     string, double quotes are denoted as the escape sequence `\"',
+     backslashes as `\\'.  Additionally, some non-printing characters
+     can be written as escape sequences as well:
+
+    `\n'
+          The newline character (ASCII 10).
+
+    `\r'
+          The carriage return character (ASCII 13).
+
+    `\t'
+          The tabulator character (ASCII 8).
+
+    `\b'
+          The backspace character (ASCII 9).
+
+          StringConst ::= "{any except Special | \" | \\ | \n | \r | \t | \b}"
+          Special     ::= " | \
+
+`Character constants'
+     Characters are enclosed in single quotes.  As in string constants,
+     escape characters can be used in character constants.  Only one
+     character (resp. escape sequence) can be in a character constant.
+
+          CharConst  ::= '(any except Special | \" | \\ | \n | \r | \t | \b)'
+
+`Integer constant'
+     Integer constants are currently limited to the range of `long'
+     values in the C implementation used to compile Turtle.
+
+          IntConst   ::= Digit{Digit}
+
+`Real constant'
+     Real constants denote floating point approximations of real
+     numbers.  They are currently limited to the range of `double'
+     values in the C implementation used to compile Turtle.
+
+          RealConst  ::= Digit{Digit}.Digit{Digit}[(e|E)[-|+]Digit{Digit}]
+
+`Operators'
+     The operators are summarized in the Operator Table below.
+
+   Reserved Words Table:
+
+`module export import'
+     `module' introduces a module, the others manage the import and
+     export of modules and identifiers.
+
+`fun'
+     Used for declaring functions, function expressions and function
+     types.
+
+`constraint'
+     Used for declaring constraints and constraint expressions.
+
+`if then else'
+     Used in if-then-else statements.
+
+`while do'
+     Used in while-do statements.
+
+`end'
+     Ends functions, constraints and compound statements.
+
+`return'
+     Returns values from functions.
+
+`var'
+     Variable declarations.
+
+`type'
+     Type declarations.
+
+`array list string of'
+     Used in type expressions, and in array, list and string
+     constructors.
+
+`and not or'
+     Logical operators.
+
+`false true'
+     Truth constants.
+
+`require prefer retract'
+     Used for managing the constraint store.
+
+`hd tl null'
+     List operators and the empty list constant.
+
+`sizeof'
+     Generic size operator.
+
+   Operator Table:
+
+`.'
+     Dot.  Used to separate the components of qualified identifiers.
+
+`,'
+     Comma.  Separating items in parameter lists, variable declarations,
+     lists, arrays tuples etc.
+
+`( )'
+     Parenthesis are used to group elements of value and type
+     expressions, parameter lists etc.
+
+`{ }'
+     Curly braces enclose array expressions.
+
+`[ ]'
+     Square brackets are used as indexing operators for using in indexed
+     (array) expressions and enclose list expressions.
+
+`!'
+     Annotates constrained types.
+
+`;'
+     The semicolon terminates declarations and statements.
+
+`+ - * / %'
+     Arithmetic operators.
+
+`= < <= > >= <>'
+     Comparison operators.
+
+`:='
+     Assignment operator.
+
+`hd tl :'
+     List operators.
+
+`sizeof'
+     Generic size operator.
+
+
+File: turtle.info,  Node: Turtle Syntax,  Prev: Lexical Structure,  Up: Turtle Grammar
+
+Turtle Syntax
+-------------
+
+   The description of the Turtle grammar is divided in various sections,
+and each section is provided with some additional comments.
+
+* Menu:
+
+* Module Syntax::               The syntax of compilation units.
+* Declaration Syntax::          Declarations in Turtle.
+* Statement Syntax::            Program statements.
+* Expression Syntax::           Expressions.
+* Basic syntax items::          Grammar leftovers.
+
+
+File: turtle.info,  Node: Module Syntax,  Next: Declaration Syntax,  Prev: Turtle Syntax,  Up: Turtle Syntax
+
+Module Syntax
+.............
+
+   Turtle programs are organized in compilation units.  These
+compilation units are called "Modules".  The head of a module consists
+of a module header which states the name of the module, and then the
+(possibly empty) import and export statements, followed by a sequence
+of declarations.  The import statements states which modules will be
+used in the module, and the export statement lists the bindings which
+are public.  These bindings can be variable, function and constraint
+definitions as well as type declarations.
+
+     CompUnit     ::= Module
+     Module       ::= 'module' QualIdent [ModuleParams] ';'
+                      ModDecls Declarations
+     ModuleParams ::= '<' ModuleParam {',' ModuleParam} '>'
+     ModuleParam  ::= Ident
+     ModDecls     ::= Imports Exports
+     Imports      ::= <empty>
+                   |  'import' ImportIdent {, ImportIdent} ';'
+     Exports      ::= <empty>
+                   |  'export' QualIdent {, QualIdent} ';'
+     ImportIdent  ::= QualIdent [ImportAnnotation]
+     ImportAnnotation ::= '<' Type {',' Type} '>'
+
+
+File: turtle.info,  Node: Declaration Syntax,  Next: Statement Syntax,  Prev: Module Syntax,  Up: Turtle Syntax
+
+Declaration Syntax
+..................
+
+   Declarations in Turtle can be type, variable, function and constraint
+declarations.  Their syntax is given below.  In a program, more than
+one declarations can have the same name, provided that they can be
+distinguished by declaration kind (type declarations vs. the other
+kinds) or by type.
+
+     Definitions     ::= { Definition ';' }
+     Definition      ::= TypeDef | DatatypeDef | VarDef | FunDef | ConstraintDef
+     TypeDef         ::= 'type' Ident = Type
+     DatatypeDef     ::= 'datatype' Ident '='
+                         DatatypeVariant {'or' DatatypeVariant}
+     DatatypeVariant ::= Ident ['(' VariableList ')']
+     
+     FieldList       ::= Field {',' Field}
+     Field           ::= Ident ':' Type
+     
+     VarDef          ::= 'var' VariableList
+     
+     VariableList    ::= Variable {',' Variable}
+     Variable        ::= Ident ':' Type [':=' ConsExpression]
+     
+     FunDef          ::= 'fun' Ident ParameterList [':' Type] SubrBody
+     ConstraintDef   ::= 'constraint' Ident ParameterList SubrBody
+     
+     ParameterList   ::= '(' [Parameter {',' Parameter}] ')'
+     Parameter       ::= ['out'] Ident ':' Type
+     
+     Type            ::= QualIdent
+                      |  '!' Type
+                      |  '(' ')'
+                      |  '(' Type {',' Type} ')'
+                      |  'array' 'of' Type
+                      |  'list' 'of' Type
+                      |  'string'
+                      |  'fun' '(' [Type {',' Type}] ')' [':' Type]
+     
+     SubrBody        ::= StmtList 'end'
+
+
+File: turtle.info,  Node: Statement Syntax,  Next: Expression Syntax,  Prev: Declaration Syntax,  Up: Turtle Syntax
+
+Statement Syntax
+................
+
+   Statements are the basic entities of which imperative programs are
+based.  Statements in a statement list are executed in top-down
+direction, and statements can have side effects.  In Turtle, there are
+three statements uncommon in other languages, the constraint statements
+`require', `prefer' and `retract'.  They are used for maintaining the
+constraint store.
+
+     StmtList        ::= { Statement ';' }
+     Statement       ::= VarDef | FunDef | ConstraintDef
+                      |  IfStatement | WhileStatement |  ReturnStatement
+                      |  RequireStatement | PreferStatement |  RetractStatement
+                      |  ExpressionStatement
+     IfStatement     ::= 'if' CompareExpression 'then' {Statement} 'end'
+                      |  'if' CompareExpression 'then' {Statement} 'else'
+                         {Statement} 'end'
+     WhileStatement  ::= 'while' CompareExpression 'do' {Statement} 'end'
+     ReturnStatement ::= 'return' [TupleExpression]
+     RequireStatement::= 'require' CompareExpression
+     PreferStatement ::= 'prefer' CompareExpression
+     RetractStatement::= 'retract' CompareExpression
+     ExpressionStatement ::= Expression
+
+
+File: turtle.info,  Node: Expression Syntax,  Next: Basic syntax items,  Prev: Statement Syntax,  Up: Turtle Syntax
+
+Expression Syntax
+.................
+
+   Expressions consist of assignment expressions, comparing and boolean
+expressions and arithmetic expressions.  Additionally, functions and
+constraints can result from evaluating expressions, such as in
+functional programming languages.
+
+     Expression           ::= AssignExpression
+     AssignExpression     ::= TupleExpression [':=' TupleExpression]
+     
+     TupleExpression      ::= ConsExpression {',' ConsExpression}
+     
+     ConsExpression       ::= CompareExpression ['::' ConsExpression]
+     
+     CompareExpression    ::= AddExpression [CompareOp AddExpression]
+     AddExpression        ::= MulExpression {AddOp MulExpression}
+     MulExpression        ::= Factor {MulOp Factor}
+     Factor               ::= SimpleExpression
+                           |  '-' Factor
+                           |  'not' Factor
+                           |  'hd' Factor
+                           |  'tl' Factor
+                           |  'sizeof' Factor
+     
+     SimpleExpression     ::= AtomicExpression {ActualParameters | Index}
+     ActualParameters     ::= '(' [ConsExpression {',' ConsExpression}] ')'
+     Index                ::= '[' AddExpression ']'
+     
+     AtomicExpression     ::= QualIdent
+                           |  IntConst | RealConst | StringConst | CharConst
+                           |  BoolConst | ArrayExpr | ListExpr
+                           |  FunExpression | ConstraintExpression
+                           |  'array' AddExpression 'of' TupleExpression
+                           |  'list' AddExpression 'of' TupleExpression
+                           |  'string' AddExpression 'of' SimpleExpression
+                           |  '(' TupleExpression ')'
+                           |  'null'
+     BoolConst           ::= 'false' | 'true'
+     
+     FunExpression        ::= 'fun' ParameterList [':' TypeExpr] SubrBody
+     ConstraintExpression ::= 'constraint' ParameterList SubrBody
+     ArrayExpr            ::= '{' [{ConsExpression}
+                                   {',' ConsExpression}] '}'
+     ListExpr             ::= '[' [{ConsExpression}
+                                   {',' ConsExpression}] ']'
+     
+     MulOp                ::= '*' | '/' | 'and'
+     AddOp                ::= '+' | '-' | 'or'
+     CompareOp            ::= '=' | '<>' | '<' | '<=' | '>' | '>='
+
+
+File: turtle.info,  Node: Basic syntax items,  Prev: Expression Syntax,  Up: Turtle Syntax
+
+Basic syntax items
+..................
+
+   In the beforementioned syntax descriptions, the following
+non-terminals have been used:
+
+     QualIdent      ::= Ident {'.' Ident}
+
+
+File: turtle.info,  Node: Turtle semantics,  Next: Data Types,  Prev: Turtle Grammar,  Up: Language Reference
+
+Turtle semantics
+================
+
+   This section documents informally the static and synamic semantics of
+Turtle programs.
+
+* Menu:
+
+* Expression Types::            How expressions get types.
+* List operators::              Operators on lists.
+* Array operators::             Operators on arrays.
+* List and array expressions::  Compound expressions.
+* Return statements::           How values are returned from functions.
+* Overloading::                 Identifier overloading.
+* Generic Modules::             Parametrized modules.
+
+
+File: turtle.info,  Node: Expression Types,  Next: List operators,  Prev: Turtle semantics,  Up: Turtle semantics
+
+Expression Types
+----------------
+
+   Arithmetic operators (AddOp and MulOp in the grammar, and unary `-')
+may only be applied to operands of numeric type, and the type for both
+operands of the binary operators must be the same.  The result type is
+the same type as the types of the operands.
+
+   The comparison operators may only be applied to operands of
+comparable types, which are integers, reals, characters and booleans.
+Both operands must be of the same type.  They yield a result of type
+boolean.
+
+   The operators `and', `or' and `not' may only be applied to operands
+of boolean types.  The result type is boolean, too.  The evaluation of
+`and' and `or' expressions is short-circuited, that means that if in an
+`and' expression the first operand evaluates to `false', the second
+operand is not evaluated, because the result of the overall expression
+is known.  Similarly, if the first operand to `or' evaluates to `true',
+there is no need to evaluate the second operand.
+
+
+File: turtle.info,  Node: List operators,  Next: Array operators,  Prev: Expression Types,  Up: Turtle semantics
+
+List operators
+--------------
+
+   The operators `hd' and `tl' return the head or tail of a list value,
+respectively.  If the list operand is `null' (the empty list), an
+exception is raised.
+
+   The `:' (pronounced "cons") operator takes an expression and a list
+expression and creates a new list cell with the expression as the list
+head and the list expression as the list tail.
+
+   In addition to the cons operation, lists can be created as
+documented in *Note List and array expressions::.
+
+   The empty list can be detected by comparing a list expression against
+`null': all lists are terminated by this constant.
+
+
+File: turtle.info,  Node: Array operators,  Next: List and array expressions,  Prev: List operators,  Up: Turtle semantics
+
+Array operators
+---------------
+
+   Arrays are aggregations of homogenous objects.  Arrays can have
+varying lengths, but the length must be specified when creating the
+array value.  Arrays can be constructed by the means documented in
+*Note List and array expressions::.
+
+   Array elements are addressed by their index, which must be in the
+range 0...N-1, where N is the length of the array.  An array index
+expression looks like this:
+
+     A[2]
+
+   This expressions references the array element with index 2 (the
+_third_ element, because of zero-based indexing).  If written on the
+lefthand side of an assignment operator (`:='), an array element can be
+overwritten with the expression on the right hand side.
+
+   This indexing can be used for string in the same way.
+
+   The length of an array expression (or string) can be determined with
+the `sizeof' operator.
+

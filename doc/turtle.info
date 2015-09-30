@@ -1,0 +1,146 @@
+This is turtle.info, produced by makeinfo version 4.0 from turtle.texi.
+
+INFO-DIR-SECTION Turtle
+START-INFO-DIR-ENTRY
+* turtle: (turtle).     Turtle reference manual.
+END-INFO-DIR-ENTRY
+
+   This file documents the Turtle compiler.
+
+   Copyright (C) 2003 Martin Grabmueller
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+
+Indirect:
+turtle.info-1: 440
+turtle.info-2: 49975
+turtle.info-3: 96546
+turtle.info-4: 144624
+
+Tag Table:
+(Indirect)
+Node: Top440
+Node: Introduction8206
+Node: About Turtle9446
+Node: Turtle History11698
+Node: Turtle Future12118
+Node: Using Turtle12250
+Node: Compiling source programs12971
+Node: Command line options14262
+Node: Handcoding18688
+Node: Compiling handcoded modules21061
+Node: Implementation include file21476
+Node: Implementation macros21967
+Node: Mapped functions25288
+Node: Documenting Turtle Modules26997
+Node: Preparing Turtle Modules for turtledoc28025
+Node: Extracting the Documentation32361
+Node: Language Reference33049
+Node: Turtle Grammar33669
+Node: Notation34106
+Node: Lexical Structure34687
+Node: Turtle Syntax38997
+Node: Module Syntax39529
+Node: Declaration Syntax40736
+Node: Statement Syntax42426
+Node: Expression Syntax43759
+Node: Basic syntax items46232
+Node: Turtle semantics46500
+Node: Expression Types47149
+Node: List operators48247
+Node: Array operators48982
+Node: List and array expressions49975
+Node: Return statements51527
+Node: Overloading51993
+Node: Generic Modules53693
+Node: Data Types54528
+Node: Basic data types55383
+Node: Integers56060
+Node: Longs56816
+Node: Reals57995
+Node: Booleans58791
+Node: Characters59577
+Node: Strings60462
+Node: Compound data types62361
+Node: Array data type62913
+Node: List data type64769
+Node: Function data type66678
+Node: Tuple data type67101
+Node: User-defined data types68060
+Node: Runtime environment71279
+Node: Constraint Programming71859
+Node: Constraints and the Constraint Store72797
+Node: Constrainable Variables74190
+Node: Constraint Statements75012
+Node: Constraints as Assertions76304
+Node: Standard library77326
+Node: General modules78903
+Node: math module80127
+Node: random module80750
+Node: compose module81322
+Node: identity module81780
+Node: compare module82363
+Node: option module83232
+Node: cmdline module84110
+Node: hash module85951
+Node: hashtab module86465
+Node: trees module88369
+Node: bstrees module89390
+Node: bintree module90530
+Node: binary module92349
+Node: exceptions module93625
+Node: filenames module95405
+Node: Input and output modules96093
+Node: io module96546
+Node: Data type related modules100507
+Node: ints module101600
+Node: longs module103758
+Node: reals module105743
+Node: bools module107179
+Node: chars module107768
+Node: strings module110333
+Node: union module114312
+Node: strformat module114883
+Node: List utility modules116251
+Node: lists module117061
+Node: listmap module120536
+Node: listfold module121298
+Node: listreduce module122194
+Node: listzip module123148
+Node: listindex module123917
+Node: listsearch module124604
+Node: listsort module125498
+Node: Array utility modules126276
+Node: arrays module126831
+Node: arraymap module127868
+Node: arraysearch module128512
+Node: arraysort module130068
+Node: Tuple utility modules130819
+Node: pairs module131298
+Node: triples module132080
+Node: Low level modules132934
+Node: core module133737
+Node: Modules in the subsystem sys135220
+Node: sys.files module136253
+Node: sys.dirs module138200
+Node: sys.net module139875
+Node: sys.times module143649
+Node: sys.users module144624
+Node: sys.procs module147476
+Node: sys.errno module154180
+Node: sys.signal module154814
+Node: Modules in the subsystem internal156110
+Node: internal.version module157180
+Node: internal.random module157570
+Node: internal.stats module157989
+Node: internal.gc module158853
+Node: internal.ex module159394
+Node: internal.timeout module160788
+Node: internal.limits module161593
+Node: Glossary161882
+Node: Index163556
+
+End Tag Table

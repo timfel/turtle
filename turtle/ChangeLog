@@ -1,0 +1,22 @@
+2003-02-20  Martin Grabmueller  <mg@glug.org>
+
+	* Cleaned up for release.
+
+2002-10-23  Martin Grabmueller  <mg@glug.org>
+
+	* turtle.c (main): Removed getenv("INCLUDES") cruft, can't
+	remember why it was ever put in there.
+
+2002-09-30  Martin Grabmueller  <mg@glug.org>
+
+	* README (Administrativa): Some commenting.
+
+2002-09-11  Martin Grabmueller  <mg@glug.org>
+
+	* README: Added build instructions.
+
+2002-09-10  Martin Grabmueller  <mg@glug.org>
+
+	* turtle.c: Some cleanup, new error message if no filenames are
+	given.
+

@@ -1,0 +1,190 @@
+%% thema.tex -- Aufgabenstellung.
+%%
+
+%\begin{center}{\bf \Large AUFGABENSTELLUNG F\"UR DIE DIPLOMARBEIT}\end{center}
+
+%\vspace*{5mm}
+
+\hrule
+
+\vspace*{2mm}
+
+\noindent Fachgebiet \"Ubersetzerbau und Programmiersprachen 
+
+\vspace*{2mm}
+
+\hrule
+
+\vspace*{2mm}
+
+\noindent Diplomand: Martin Grabm\"uller (Matr-Nr. 183283)
+
+\vspace*{2mm}
+
+\hrule
+
+\vspace*{2mm}
+
+\noindent Betreuer/Innen: Peter Pepper, Petra Hofstedt
+
+\vspace*{2mm}
+
+\hrule
+
+\vspace*{4mm}
+
+%----------------------------------------------------------------------------
+
+\noindent {\bf \underline{Thema:}} 
+\hspace*{5mm} 
+\begin{minipage}[t]{0.85\linewidth}
+Constraint-imperative Programmierung
+\end{minipage} 
+ 
+%\vspace{3mm}
+\section*{CIP -- Constraint-imperative Programmierung}
+
+W\"ahrend in imperativen Programmiersprachen Algorithmen in
+Anweisungen zerlegt werden, die angeben, {\em wie} durch die Modifikation
+des Programmzustands die L"osung eines Problems berechnet wird, 
+zeichnen sich deklarative Programmiersprachen dadurch aus,
+dass spezifiziert wird, {\em was} berechnet wird.  
+
+Eine der j"ungsten Entwicklungen der deklarativen Programmiersprachen
+ist das {\em Constraint Programming}, das sich aus der logischen
+Programmierung entwickelt hat und mittlerweile als eine Obermenge
+dieser betrachtet wird.  Constraint-Programme bestehen aus den
+Spezifikationen der Programmvariablen, der Wertebereiche dieser
+Variablen und der Bedingungen, die f"ur die Variablen gelten m"ussen.
+Da hier die Eigenschaften einer {\em L"osung} des Problems beschrieben
+werden, aber nicht ein oder der {\em L"osungsweg}, ist es die Aufgabe
+des Compilers und der Laufzeitumgebung, einen solchen Weg zu ermitteln
+und L"osungen zu berechnen.
+
+Constraint-Sprachen sind inzwischen um Konzepte verschiedener anderer 
+-- meist deklarativer -- Programmiersprachen erweitert worden.
+%
+Wenig untersucht ist dagegen die Kombination aus imperativen und
+Constraint-Sprachen.  Borning und Freeman-Benson
+\cite{benson92int,benson91cip} pr"agten den Begriff der {\em
+  constraint-imperativen Programmierung} \cite{CIP1,CIP2} und
+entwickelten die Sprache Kaleidoscope, die objektorientierte und
+Constraint-Konzepte in eine Sprache integriert.
+
+Im folgenden soll der Begriff der constraint-imperativen
+Programmiersprachen f"ur alle Sprachen verwendet werden, die sowohl
+Constraint-Programmierung als auch imperative Programmierung
+unterst"utzen.  Objektorientierung soll dabei keine Voraussetzung
+sein.  Stattdessen interessiert uns vor allem das Zusammenspiel
+zwischen Constraints und Constraintl"osern auf der einen und
+imperativen Sprachkonstrukten auf der anderen Seite.
+
+Die Kombination dieser beiden Programmierparadigmen bietet eine Reihe
+von Vorteilen: Imperative Programmierung ist sehr verbreitet und wird
+von vielen Programmierern verstanden und als nat"urlich angesehen.
+Weiterhin ist die imperative Programmierung gut untersucht und es gibt
+verbreitete und effizient implementierte Programmiersysteme.  
+%
+Viele Problemstellungen, die von Natur aus imperativer Art sind
+(Steuerungs- und Regelsysteme, interaktive Systeme), lassen sich sehr
+leicht imperativ l"osen.  
+%
+Auf der anderen Seite lassen sich komplexe Algorithmen nur sehr
+umst"andlich auf dem niedrigen Abstraktionsniveau imperativer Sprachen
+formulieren und f"uhren so zu schwer verst"andlichen Programmen.
+Genau bei diesen Problemen haben sich deklarative (funktionale,
+logische und constraintbasierte) Programmiersprachen bew"ahrt.  Beim
+Constraint Programming werden nur die Beziehungen formuliert, die
+zwischen den betrachteten Objekten bestehen, nicht aber die
+Algorithmen, die diese Beziehungen aufrechterhalten.  Auf diese Weise
+bleiben die formulierten Programme nahe an der Spezifikation, was
+nicht nur die Verst"andlichkeit, sondern auch die Korrektheit
+erh"oht.
+
+Die constraint-imperative Programmierung versucht, die Vorteile dieser
+beiden Paradigmen zu verbinden, um so intuitive, verst"andliche und
+effiziente Programme zu erm"oglichen.
+
+\section*{Aufgabenstellung}
+
+In der angestrebten Diplomarbeit soll eine constraint-imperative 
+Programmiersprache entwickelt werden.
+
+Dazu sind zun\"achst existierende Ans\"atze, wie die
+Programmiersprachen Alma-0 \cite{apt97search,apt98alma} und
+Kaleidoscope \cite{lopez94kaleidoscope,lopez94implementing},
+Erweiterungen objektorientierter Sprachen, wie COOL
+\cite{avesani90cool}, und Bibliotheken, die Constraintl"oser
+nachtr"aglich in bestehende Programmiersprachen einbetten, wie
+Smalltalk \cite{pachet95mixing}, Java
+\cite{abdennadher01:jack:inp,Jack2} und der ILOG-Solver \cite{ILOG} zu
+analysieren und zu ber\"ucksichtigen.
+
+Weiterhin ist der Einsatz von Constrainthierarchien, in denen
+erzwungene (required) und gew"unschte (preferential) Constraints
+unterschieden werden
+\cite{borning92constrainthierarchies,bartakHierarchies1}, zu
+diskutieren.  Constrainthierarchien erlauben es vor"ubergehend oder
+l"anger andauernd mit widerspr"uchlichen Constraints umzugehen, was in
+einer constraint-imperativen Sprache von Vorteil sein k\"onnte.
+
+In der zu entwickelnden Sprache sollen die "ublichen Steueranweisungen und
+Datenstrukturen imperativer Sprachen enthalten sein, 
+ebenso wie Konstrukte, die die Constraint-Programmierung unterst"utzen.
+
+Die Sprache soll gro"s genug sein, um mit con\-straint-im\-perativen
+Programmen experimentieren zu k"onnen, sich allerdings auf die
+imperativen Kernkonstrukte beschr"anken. 
+Um die Sprache klein zu halten, soll Objektorientierung nicht implementiert werden.
+%
+Die Programmiersprache ist zu entwerfen, zu definieren und
+prototypisch zu implementieren.
+
+Die Arbeit muss sowohl theoretische als auch praktische Gesichtspunkte 
+ber\"ucksichtigen. Es sind bei nachfolgenden Teilaufgaben jeweils 
+%
+eine kurze Einf\"uhrung in das entsprechende Thema zu geben, 
+notwendige Begriffe zu definieren und an Beispielen zu illustrieren.
+%
+Entwurfsentscheidungen sind zu begr\"unden und Alternativen zu diskutieren. 
+
+\vskip2ex
+%\newpage
+
+\noindent {\underline{Teilaufgaben:}}
+
+\begin{itemize}
+  
+\item Vorstellung und Einordnung des Themas, Bezug zu existierenden
+  Ans\"atzen herstellen.
+ 
+\item Sprachentwurf:
+
+  \begin{itemize}
+  \item Auswahl der notwendigen/gew\"unschten Konstrukte der zu
+    integrierenden Paradigmen,
+    
+  \item Demonstration ihres Zusammenspiels an Beispielen und
+    
+  \item Angabe von Syntax und Semantik (in angemessenem Umfang).
+
+  \end{itemize}
+ 
+\item Die Implementierung eines Compilers f\"ur die Sprache soll
+  lediglich prototypisch erfolgen.
+      
+\item Sp\"atere Erweiterungen der Sprache und ihrer Implementierung
+  sollen diskutiert werden.
+
+\end{itemize}
+
+%\bibliography{biblio.thema}
+
+%---------------------------------------------------------------------------
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "da.tex"
+%%% End: 
+
+%% End of cover-text.tex.

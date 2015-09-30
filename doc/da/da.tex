@@ -1,0 +1,225 @@
+%% da.tex -- Diplomarbeit
+%%
+%% Copyright (C) 2003 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+\documentclass[a4paper,12pt,oneside]{book}
+\usepackage[german,english]{babel}
+\usepackage{a4wide}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{epic}
+%\usepackage{fancyheadings}
+\usepackage{makeidx} \makeindex
+
+
+\pagenumbering{roman}
+\floatstyle{ruled}
+\newfloat{Program}{htbp}{lotp}[chapter]
+
+% Commands for adding annotations to the text.
+%
+\newcommand\fixme[1]{{\em [FIXME: #1]}}
+\newcommand\informal[1]{{\em [#1]}}
+
+% The following are the names of various programming languages.
+%
+\newcommand\turtle{Turtle}
+\newcommand\java{Java}
+\newcommand\modula{Modula-2}
+\newcommand\cool{COOL}
+\newcommand\ada{Ada}
+\newcommand\jack{JACK}
+\newcommand\djava{DJ}
+\newcommand\cee{C}
+\newcommand\cplusplus{C++}
+\newcommand\cobol{Cobol}
+\newcommand\fortran{Fortran}
+\newcommand\goffin{Goffin}
+\newcommand\smalltalk{Smalltalk}
+\newcommand\haskell{Haskell}
+\newcommand\mllanguage{ML}
+\newcommand\lisp{Lisp}
+\newcommand\opal{Opal}
+\newcommand\pascal{Pascal}
+\newcommand\gambit{Gambit}
+\newcommand\scheme{Scheme}
+
+% Environment for typesetting Turtle programs and pseudo code
+% fragments.
+%
+\newenvironment{ttlprog}%
+  {\newcommand\res[1]{{\bf ##1}}
+   \newcommand\ttlFun{\res{fun}}
+   \newcommand\ttlConstraint{\res{constraint}}
+   \newcommand\ttlConst{\res{const}}
+   \newcommand\ttlRequire{\res{require}}
+   \newcommand\ttlPrefer{\res{prefer}}
+   \newcommand\ttlRetract{\res{retract}}
+   \newcommand\ttlEnd{\res{end}}
+   \newcommand\ttlModule{\res{module}}
+   \newcommand\ttlImport{\res{import}}
+   \newcommand\ttlExport{\res{export}}
+   \newcommand\ttlOr{\res{or}}
+   \newcommand\ttlAnd{\res{and}}
+   \newcommand\ttlNot{\res{not}}
+   \newcommand\ttlArray{\res{array}}
+   \newcommand\ttlOf{\res{of}}
+   \newcommand\ttlList{\res{list}}
+   \newcommand\ttlType{\res{type}}
+   \newcommand\ttlVar{\res{var}}
+   \newcommand\ttlWhile{\res{while}}
+   \newcommand\ttlDo{\res{do}}
+   \newcommand\ttlIf{\res{if}}
+   \newcommand\ttlIn{\res{in}}
+   \newcommand\ttlThen{\res{then}}
+   \newcommand\ttlElse{\res{else}}
+   \newcommand\ttlElsif{\res{elsif}}
+   \newcommand\ttlDatatype{\res{datatype}}
+   \newcommand\ttlReturn{\res{return}}
+   \newcommand\ttlString{\res{string}}
+   \newcommand\ttlHd{\res{hd}}
+   \newcommand\ttlTl{\res{tl}}
+   \newcommand\ttlNull{\res{null}}
+   \newcommand\ttlTrue{\res{true}}
+   \newcommand\ttlFalse{\res{false}}
+   \newcommand\ttlPublic{\res{public}}
+   \noindent
+   \begin{tabbing}
+   \qquad \= \quad \= \quad \= \quad \= \quad \= \quad \= \quad \= \quad \= \quad \= \quad \= \quad \quad \quad \quad \quad \= \kill}
+  {\end{tabbing}}
+
+\renewcommand{\MakeUppercase}[1]{#1}
+% \renewcommand{\chaptermark}[1]%
+%              {\markboth{#1}{}}
+% \renewcommand{\sectionmark}[1]%
+%              {\markright{\thesection\ #1}}
+% \lhead[\fancyplain{}{\thepage}]%
+%        {\fancyplain{}{\rightmark}}
+% \rhead[\fancyplain{}{\leftmark}]%
+%       {\fancyplain{}{\thepage}}
+% \cfoot{}
+
+% \pagestyle{fancyplain}
+
+%\addtolength{\parskip}{0.4ex}
+%\parindent0pt
+
+\title{Diplomarbeit\\
+Constraint-imperative Programmierung}
+
+\author{Martin Grabm\"uller\\
+\normalsize{\em mgrabmue@cs.tu-berlin.de}}
+
+\begin{document}
+
+\selectlanguage{german}
+
+\input{cover-text}
+
+\cleardoublepage
+
+%%% This is the English title page.
+%%%
+
+\pagenumbering{arabic}
+
+\thispagestyle{empty}
+
+\selectlanguage{english}
+
+\noindent
+Technische Universit\"at Berlin\\
+Fakult\"at IV (Elektrotechnik und Informatik)\\
+Institut f\"ur Softwaretechnik und Theoretische Informatik\\
+Fachgebiet \"Ubersetzerbau und Programmiersprachen\\
+Franklinstr. 28/29\\
+10587 Berlin
+
+\vskip3cm
+
+\begin{center}
+{\Large Diploma Thesis
+
+\vskip1cm
+
+{\huge \sf Constraint Imperative Programming}
+
+\vskip1cm
+
+Martin Grabm\"uller
+
+\vskip0.5cm
+
+February 28, 2003
+
+\vskip2cm
+
+Advisors: Prof. Dr. Peter Pepper and Dr. Petra Hofstedt
+}
+
+\end{center}
+
+\cleardoublepage
+
+\begin{center}{\large Abstract}\end{center}
+\begin{quote}
+  Constraint-based programming languages are declarative programming
+  languages.  In constraint programs, the solutions of a problem are
+  obtained by specifying their desired properties, whereas in
+  imperative programs, the steps which lead to a solution must be
+  defined explicitly, rather than being derived automatically from the
+  specification.  This work deals with the design and implementation
+  of a programming language which integrates declarative constraints
+  and imperative constructs in order to form a powerful programming
+  paradigm suitable for solving a wide range of problems.
+\end{quote}
+
+\cleardoublepage
+
+\tableofcontents
+
+\listoffigures
+
+\listoftables
+
+\listof{Program}{List of Programs}
+
+\cleardoublepage
+
+
+\input{introduction}
+
+
+\input{constraint-programming}
+
+
+\input{constraint-imperative}
+
+
+\input{turtle}
+
+\input{turtle-impl}
+
+
+\input{summary}
+
+
+\input{appendix}
+
+
+%\nocite{*}
+\bibliographystyle{alpha}
+\bibliography{cip-literature}
+\label{cha:bibliography}
+
+\cleardoublepage
+\printindex
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
+
+%% End of da.tex.

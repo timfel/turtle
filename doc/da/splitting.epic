@@ -1,0 +1,52 @@
+\setlength{\unitlength}{0.00087489in}
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+{\renewcommand{\dashlinestretch}{30}
+\begin{picture}(4794,849)(0,-10)
+\drawline(102,732)(732,732)(732,462)
+	(102,462)(102,732)
+\drawline(102,372)(732,372)(732,102)
+	(102,102)(102,372)
+\drawline(12,822)(822,822)(822,12)
+	(12,12)(12,822)
+\put(192,192){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}y: 4}}}}}
+\put(192,552){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}x: 3}}}}}
+\drawline(1272,732)(1902,732)(1902,462)
+	(1272,462)(1272,732)
+\drawline(1272,372)(1902,372)(1902,102)
+	(1272,102)(1272,372)
+\drawline(1182,822)(1992,822)(1992,12)
+	(1182,12)(1182,822)
+\put(1362,192){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}y: 4}}}}}
+\put(1362,552){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}x: 3}}}}}
+\drawline(2892,732)(3522,732)(3522,462)
+	(2892,462)(2892,732)
+\drawline(2892,372)(3522,372)(3522,102)
+	(2892,102)(2892,372)
+\drawline(2802,822)(3612,822)(3612,12)
+	(2802,12)(2802,822)
+\put(2982,192){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}y: 4}}}}}
+\put(2982,552){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}x: 3}}}}}
+\drawline(4062,732)(4692,732)(4692,462)
+	(4062,462)(4062,732)
+\drawline(4062,372)(4692,372)(4692,102)
+	(4062,102)(4062,372)
+\drawline(3972,822)(4782,822)(4782,12)
+	(3972,12)(3972,822)
+\put(4152,192){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}y: 4}}}}}
+\put(4152,552){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}x: 3}}}}}
+\drawline(822,417)(1182,417)
+\drawline(3522,597)(4062,597)
+\drawline(3522,237)(4062,237)
+\drawline(2172,417)(2622,417)
+\drawline(2502.000,387.000)(2622.000,417.000)(2502.000,447.000)
+\put(957,462){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}=}}}}}
+\put(3747,282){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}=}}}}}
+\put(3747,642){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}=}}}}}
+\end{picture}
+}

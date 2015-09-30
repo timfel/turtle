@@ -1,0 +1,234 @@
+%% cover-text.tex -- German cover and summary for the Diplomarbeit.
+%%
+%% Copyright (C) 2003 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+\def\germantoday{\number\day. \ifcase\month\or
+  Januar\or Februar\or M\"arz\or April\or Mai\or Juni\or
+  Juli\or August\or September\or Oktober\or November\or Dezember\fi
+  \space\number\year}
+
+\thispagestyle{empty}
+
+\noindent
+Technische Universit\"at Berlin\\
+Fakult\"at IV (Elektrotechnik und Informatik)\\
+Institut f\"ur Softwaretechnik und Theoretische Informatik\\
+Fachgebiet \"Ubersetzerbau und Programmiersprachen\\
+Franklinstr. 28/29\\
+10587 Berlin
+
+\vskip3cm
+
+\begin{center}
+{\Large 
+
+% \fbox{\vbox{{\Huge \sc Vorl\"aufige Version}\\
+% {\sc vom \today}}}
+
+\vskip1cm
+
+Diplomarbeit
+
+\vskip1cm
+
+{\huge \sf Constraint-imperative Programmierung}
+
+\vskip1cm
+
+Martin Grabm\"uller
+
+%\vskip0.01cm
+
+Matr-Nr. 183283
+
+\vskip0.5cm
+
+28. Februar 2003
+
+\vskip2cm
+
+\begin{tabular}{ll}
+Pr\"ufer: &Prof. Dr. Peter Pepper\\
+Betreuerin: &Dr. Petra Hofstedt
+\end{tabular}
+}
+
+\end{center}
+
+\cleardoublepage
+
+{}
+% \begin{center}
+% {\large \bfseries Eidesstattliche Versicherung}
+% \end{center}
+
+% \vskip0.5cm
+
+% \noindent
+% Die selbst\"andige und eigenh\"andige Anfertigung versichere ich an
+% Eides statt.
+
+% \vskip1cm
+
+% \noindent
+% Berlin, den 28. Februar 2003
+
+% \vskip2cm
+
+% \noindent
+% \rule{7cm}{0.5pt}
+
+% \noindent
+% Martin Grabm\"uller
+
+\begin{tabbing}
+Load and store instructions\=\kill\\
+\end{tabbing}
+\cleardoublepage
+
+\chapter*{Aufgabenstellung}
+\input{thema}
+
+\cleardoublepage
+
+
+\chapter*{Zusammenfassung}
+
+In Computeranwendungen werden Objekte der realen Welt vereinfacht auf
+Modelle abgebildet, um diese dann durch Datenstrukturen zu
+repr\"asentieren und mittels geeigneter Algorithmen zu verarbeiten.
+Auf diese Weise k\"onnen die Ver\"anderungen der Wirklichkeit
+modelliert werden.  Die Beziehungen zwischen den einzelnen
+Datenobjekten sind ein wichtiger Bestandteil des Modells, und es ist
+w\"unschenswert, diese Beziehungen pr\"azise zu spe\-zi\-fi\-zie\-ren.
+Da einzelne Objekte und die Beziehungen zwischen Objekten im Laufe
+eines Programms ver\"andert werden (z.B. in interaktiven Anwendungen
+oder Simulationen), ist es notwendig, laufend sicherzustellen, ob
+durch eine Zustands\"anderung die Spezifikation verletzt wurde und
+gegebenenfalls einen konsistenten Zustand wiederherzustellen.
+Weiterhin muss es auch m\"oglich sein, neu erzeugte Objekte und deren
+Beziehungen verarbeiten bzw. bestehende Beziehungen erweitern zu
+k\"onnen.  Genau diese Objektbeziehungen sind es, die in der
+Constraint-Programmierung nicht nur genutzt werden, um die Konsistenz
+einer Problembeschreibung zu wahren, sondern sogar, um die L\"osungen
+f\"ur das Problems zu berechnen.
+
+Constraints sind Bedingungen im mathematischen Sinne und eignen sich
+hervorragend, um Einschr\"ankungen von Werten und Beziehungen zwischen
+Objekten zu spezifizieren, w\"ahrend Constraint-L\"oser als
+Programmkomponenten geeignet sind, verletzte Einschr\"ankungen zu
+erkennen und ggf. durch Anpassungen der beteiligten Objekte wieder zu
+erf\"ullen.  Diese Eigenschaften lassen es sehr erstrebenswert
+erscheinen, Programme unter der Verwendung von Constraints zu
+entwickeln und die Vorteile der deklarativen Programmierung zu nutzen:
+\"Ubersichtlichkeit, mathematische Fundierung, Effizienz und effektive
+Programmentwicklung.  Da allerdings ein schneller Umstieg von
+bestehenden Programmiergewohnheiten auf neue, abstraktere
+Vorgehensweisen in der Breite nur schwer umzusetzen ist, empfiehlt es
+sich, existierende Programmiersprachen bzw. Programmierstile zu
+erweitern.  Auf diese Weise lassen sich bestehendes Wissen und
+bestehende Fertigkeiten weiter nutzen, w\"ahrend erweiterte Verfahren
+auf abstrakterer Ebene eine Steigerung der Korrektheit und
+(Programmier-)Effizienz erm\"oglichen.  Dies ist das Ziel der
+Entwicklung so genannter Multiparadigma-Programmiersprachen, die
+wesentliche Elemente verschiedener Programmierstile in einer einzigen
+Sprache kombinieren, um deren Vorteile gemeinsam nutzen zu k\"onnen.
+
+\vskip1ex
+
+Diese Arbeit befasst sich mit der Verschmelzung zweier sehr
+unterschiedlicher Programmierparadigmen in einer Programmiersprache.
+Zum einen betrachten wir die deklarative Programmierung mit
+Constraints, also die Spezifizierung der Eigenschaften, die zwischen
+den Objekten eines Programms gelten m\"ussen, zum anderen die
+imperative Programmierung, die auf Zustandsver\"anderungen durch
+Anweisungen basiert.  Auf der einen Seite steht also die
+Spezifikation, {\em was}\/ berechnet werden soll, auf der anderen
+Seite der Algorithmus, {\em wie}\/ dies geschehen soll.  Die Frage,
+wie diese zun\"achst gegens\"atzlich scheinenden Konzepte miteinander
+verkn\"upft werden k\"onnen und unter welchen Voraussetzungen dieses
+Vorgehen \"uberhaupt sinnvoll ist, soll der Schwerpunkt der Arbeit
+sein.
+
+\vskip1ex
+
+Nach einer Einf\"uhrung in das Thema und das Problemumfeld in
+Kapitel~\ref{cha:introduction} beschreibt die Arbeit in
+Kapitel~\ref{cha:constraint-programming} zun\"achst die
+constraint-basierte Programmierung.  Dabei werden grundlegende
+Begriffe der Constraint-Programmierung, wie z.B.  Constraints und
+Constraint-L\"oser, erkl\"art sowie verschiedene Ans\"atze der
+Implementierung constraint-basierter Systeme beschrieben.  Weiterhin
+werden existierende Arbeiten zu Verbindungen von Constraint-Sprachen
+mit anderen (vor allem deklarativen) Programmiersprachen untersucht.
+
+Eine besondere Verbindung zweier Programmierparadigmen, n\"amlich die
+constraint-imperative Programmierung, wird in
+Kapitel~\ref{cha:constraint-imperative-programming} beschrieben.  Da
+dies der Schwerpunkt dieser Arbeit ist, sollen bisherige Arbeiten auf
+diesem Gebiet ausf\"uhrlicher behandelt werden und charakteristische
+Merkmale und grundlegende Elemente dieser Programmiersprachen
+herausgearbeitet werden.  Dabei handelt es sich einerseits um
+vollwertige Programmiersprachen, die eine vollst\"andige Integration
+von constraint-basierter und imperativer Programmierung beabsichtigen,
+andererseits um so genannte Constraint-Solving Toolkits, das sind
+Programmbibliotheken, die Constraint-L\"oser in Form
+wiederverwendbarer Module an imperative Sprachen anbinden. Neben einer
+Darstellung der Gemeinsamkeiten dieser Sprachen und Bibliotheken
+werden Vor- und Nachteile der einzelnen Systementw\"urfe beleuchtet.
+
+Nach ausf\"uhrlicher Darstellung der Literatur auf diesem Gebiet
+werden in Kapitel~\ref{cha:turtle} Ver\-bess\-er\-ungs- und
+Erg\"anzungsvorschl\"age als Entwurf der neuen
+con\-straint-im\-per\-a\-ti\-ven Programmiersprache \turtle{}
+dargestellt.  Neben der constraint-basierten und imperativen
+Programmierung haben dar\"uberhinaus einige Konzepte der funktionalen
+Programmierung wie algebraische Datentypen, Funktionen h\"oherer
+Ordnung und Polymorphie Einfluss auf den Sprachentwurf genommen.
+Zun\"achst werden die wesentlichen Sprachkonstrukte benannt, die eine
+imperative Programmiersprache zu einer constraint-imperativen Sprache
+erweitern, dann werden nach einer kurzen Einf\"uhrung in Syntax und
+Semantik von \turtle{} besondere Eigenschaften ausf\"uhrlicher
+dargestellt.  Von besonderem Interesse ist dabei nat\"urlich die
+Integration von Constraints und funktionalen Konzepten in eine
+ansonsten herk\"ommliche imperative Sprache.  Abgeschlossen wird das
+Kapitel durch die formale Darstellung der Sprachsemantik in Form einer
+operationalen Semantik, die auf der \"Ubersetzung der Quellsprache in
+die Sprache einer abstrakten Maschine und der Beschreibung der
+Programmausf\"uhrung auf dieser Maschine aufbaut.
+
+Die Ausarbeitung dieser Diplomarbeit umfasst nicht nur den
+Sprachentwurf einer con\-straint-im\-pe\-ra\-ti\-ven Sprache, f\"ur
+die Sprache wurde auch ein Programmsystem bestehend aus Compiler,
+Laufzeitsystem, einer Bibliothek wichtiger Module und zwei
+Constraint-L\"osern implementiert.  Diese Implementierung wird in
+Kapitel~\ref{cha:turtle-impl} beschrieben.  Dabei werden einige
+Aspekte des Kompilierungsvorgangs herausgegriffen, die aufgrund der
+Integration mehrerer unterschiedlicher Sprachparadigmen \"uber eine
+Compilerbeschreibung in der allgemeinen
+\"Uber\-setz\-erbau\-li\-te\-ra\-tur hinausgehen.  Abgeschlossen wird
+das Kapitel durch experimentelle Vergleiche der Leistung des
+entwickelten Systems mit einer traditionellen imperativen
+Programmiersprache.
+
+Das letzte Kapitel fasst die Ergebnisse der Arbeit zusammen und
+bewertet die Resultate.  Weiterhin werden alternative Entw\"urfe und
+Implementierungsaspekte diskutiert und die \"Uberlegungen dargestellt,
+die zur Entscheidung gegen deren Verwendung gef\"uhrt haben.
+Anschlie\ss{}end werden zuk\"unftige Arbeiten vorgeschlagen, die
+entweder aus Zeitgr\"unden nicht in diese Arbeit eingeflossen sind
+oder nicht mehr der Aufgabenstellung der Arbeit zuzuordnen sind, aber
+dennoch interessante nahegelegene Themengebiete betreffen.
+
+Der Anhang umfasst die formale Grammatik der entwickelten
+Programmiersprache, den Quelltext dreier Beispielmodule zur
+Illustration, eine \"Ubersicht \"uber die im Rahmen der
+Implementierung entwickelten Bibliotheksmodule sowie Bezugs- und
+Installationshinweise f\"ur das entwickelte Programmiersystem.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "da.tex"
+%%% End: 
+
+%% End of cover-text.tex.

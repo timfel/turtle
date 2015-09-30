@@ -1,0 +1,18 @@
+2003-02-20  Martin Grabmueller  <mg@glug.org>
+
+	* Cleaned up for release.
+
+2002-09-17  Martin Grabmueller  <mg@glug.org>
+
+	* net.t, net.t.i, files.t, files.t.i: New files.
+
+2002-09-16  Martin Grabmueller  <mg@glug.org>
+
+	* errno.t, errno.t.i, procs.t, procs.t.i: New files.
+
+2002-09-13  Martin Grabmueller  <mg@glug.org>
+
+	* users.t, users.t.i: New module for accessing the user data base.
+
+	* New directory. 
+

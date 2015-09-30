@@ -1,0 +1,31 @@
+								-*-text-*-
+
+This directory holds some utility programs, mostly useful for Turtle
+developers.
+
+`make turtledoc' builds an experimental Turtle documentation
+extractor, but currently it is not doing more than lexing a Turtle
+file.  Note that the scanner and parser are not up-to-date to the
+latest changes in the Turtle grammar.
+
+
+Files in this directory:
+------------------------
+
+make-assembler.sh  Script for generating assembler source for modules.
+analyze.t          Experimental Turtle source code analyzer.
+ast.t              Abstract syntax for Turtle.
+env.t              Compile time environment for Turtle analyzer.
+parser.t	   Experimental Turtle parser.
+scanner.t	   Experimental Turtle scanner.
+turtledoc.t        Experimental Turtle documentation extractor.
+types.t            Turtle type representation.
+
+
+Administrativa:
+---------------
+
+ChangeLog          Change list for the `tools' directory.
+Makefile.am        Input file for Automake for generating Makefile.in.
+Makefile.in        Input file for Autoconf for generating Makefile.
+README             The file you're reading.

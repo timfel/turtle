@@ -1,0 +1,362 @@
+								-*-outline-*-
+
+* Overview
+
+This text documents the tagging scheme and storage layout for objects
+in the Turtle runtime.  Both the garbage collector and the user
+program (hereafter referred to as the `mutator') msut agree on the
+layout, of course.
+
+* General invariants
+
+Turtle objects are denoted by so-called descriptors, which are either
+immediate values, occupying only one word of storage or pointers to 2
+or more words in the heap.
+
+Immediate values are distinguished by their two low bits, which must
+be zero.  Heap-allocated objects come in two flavours: Cons cells are
+two-word objects (mainy used for linked list structures) and have #b10
+in the low bits of their descriptors.  All other heap-allocated
+objects have #b01 in their two lowest descriptor bits.  The
+descriptors fo heap-allocated objects point to the header field of
+their objects, when the two lowest bits are masked out.  That means
+that all heap-allocated objects must be aligned on a two-word
+boundary.  For non-cons cell pointers, the data area is preceded by a
+header field, which is one word big and contains the tag bits #b11 in
+the lowest bits, a type code in the next 6 bits and a 24-bit unsigned
+size field in the upper bits.  The header field is required by the
+garbage collector to find out which words in the objects are pointers,
+so that the objects can be traced correctly.
+
+The special header tag #b11 allows us to avoid having a header field
+for cons cells, thus reducing the storage requirements for lists by
+one third.  The reason for the special tag is that the garbage
+collector can check whether he is pointing to a cons cell or another
+heap-allocated object by simply examining the tow lowest bits of the
+first word of the object.  If it is #b11, it is not a cons cell,
+otherwise, it is a cons cell.  Therefore it is important that *none*
+descriptor in the system which is not a header field is tagged #b11.
+
+
+* Details
+
+** Immediate values
+
+*** Integer
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
+   |           30-bit two-complement integer value             |0|0|
+   +-----------------------------------------------------------+---+
+
+The two tag bits are chosen to be #b00, because this allows some
+arithmetic without the need for any untagging/tagging instructions.
+
+ 
+*** Character
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +--------------------------------+--------------------------+---+
+   | 16-bit Unicode character code  |         reserved         |0|0|
+   +--------------------------------+--------------------------+---+
+
+The data layout for characters is capable of handling 16-bit Unicode
+character codes, but this is not used yet.  Currently only 8 of the 16
+code bits are used, the others are all set to zero.  The layout could
+also be extended to a 24-bit code in the future.
+
+
+*** Boolean
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +---------------------------------------------------------+-+---+
+   |                          all zero                       |V|0|0|
+   +---------------------------------------------------------+-+---+
+
+V = 0 for `false'
+V = 1 for `true'
+
+
+** Heap-allocated objects
+
+*** Cons cells
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|           Pointer to heap-allocated cons cell             |1|0|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+---------------------------------------------------------------+
+   |              Car - descriptor for any Turtle object           |
+   +---------------------------------------------------------------+
+   |              Cdr - descriptor for any Turtle object           |
+   +---------------------------------------------------------------+
+
+
+*** Other heap-allocated objects
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|             Pointer to heap-allocated object              |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |     TC    |1|1|
+   +-----------------------------------------------+---------------+
+   |                        first data word                        |
+   +---------------------------------------------------------------+
+   |                       second data word                        |
+   +---------------------------------------------------------------+
+   |                              ...                              |
+
+The type code tells which kind of heap-allocated object we are dealing
+with.
+
+TC = 0     Broken heart (used during garbage collection)
+TC = 1     Continuation
+TC = 2     Procedure descriptor.
+TC = 3     Closure
+TC = 4     String
+TC = 5     Real number
+TC = 6     Array containing references
+TC = 7     Array not containing references
+TC = 8     Binary array
+TC = 9     Environment
+TC = 10-63 Reserved
+
+The size field normally counts in whole words, but for strings it is
+the character count (16-bit entities), and for binary arrays it is the
+byte count.  The reserved type codes may be used in future
+enhancements of Turtle.
+
+The data words are optional, but because of the necessary alignment,
+at least two word are allocated for every object.
+
+The header is always aligned on a double-word (8-byte) boundary.  This
+alignment and the fact that a descriptor points to the header of an
+object (for non-cons-cell objects) leaves the two lowest bits in the
+descriptor free for tagging.
+
+**** Broken heart
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|             Pointer to heap-allocated object              |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |   TC = 0  |1|1|
+   +-----------------------------------------------+---------------+
+   |                 Descriptor of forwarded object                |
+   +---------------------------------------------------------------+
+
+Broken hearts only exist temporarily during garbage collection.  The
+data of all objects which are forwarded to to-space is replaced by a
+broken heart, so that the address of the forwarded object can be
+found.
+
+
+**** Continuations
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|             Pointer to heap-allocated object              |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |   TC = 1  |1|1|
+   +-----------------------------------------------+---------------+
+   |                     Pointer to host procedure                 |
+   +---------------------------------------------------------------+
+   |                  Pointer to procedure descriptor              |
+   +---------------------------------------------------------------+
+   |                      Environment pointer                      |
+   +---------------------------------------------------------------+
+
+
+**** Procedure descriptors
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|           Pointer to statically allocated object          |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |   TC = 2  |1|1|
+   +-----------------------------------------------+---------------+
+   |                     Pointer to host procedure                 |
+   +---------------------------------------------------------------+
+
+Procedure descriptors are the only objects not allocated on the heap,
+but statically in the data segment.  They are generated by the
+compiler and never created on run time.  The pointer to the host
+procedure is not tagged.
+
+
+**** Closures
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|             Pointer to heap-allocated object              |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |   TC = 3  |1|1|
+   +-----------------------------------------------+---------------+
+   |                     Pointer to host procedure                 |
+   +---------------------------------------------------------------+
+   |                  Pointer to procedure descriptor              |
+   +---------------------------------------------------------------+
+   |                      Environment pointer                      |
+   +---------------------------------------------------------------+
+
+The pointers to the host procedure and the procedure descriptor are
+not tagged.
+
+
+**** Strings
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|             Pointer to heap-allocated object              |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |   TC = 4  |1|1|
+   +-------------------------------+---------------+---------------+
+   |           Character 0         |         Character 1           |
+   +-------------------------------+-------------------------------+
+   |           Character 2         |             ...               |
+   +---------------------------------------------------------------+
+
+
+**** Real numbers
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|             Pointer to heap-allocated object              |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |   TC = 5  |1|1|
+   +-----------------------------------------------+---------------+
+   |                  unused (for alignment reasons)               |
+   +---------------------------------------------------------------+
+   |                first word of 64-bit double value              |
+   +---------------------------------------------------------------+
+   |               second word of 64-bit double value              |
+   +---------------------------------------------------------------+
+
+
+**** Arrays containing references
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|             Pointer to heap-allocated object              |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |   TC = 6  |1|1|
+   +-----------------------------------------------+---------------+
+   |                       Array element 0                         |
+   +---------------------------------------------------------------+
+   |                       Array element 1                         |
+   +---------------------------------------------------------------+
+   |                       Array element 2                         |
+   +---------------------------------------------------------------+
+   |                            ...                                |
+
+
+**** Arrays not containing references
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|             Pointer to heap-allocated object              |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |   TC = 7  |1|1|
+   +-----------------------------------------------+---------------+
+   |                       Array element 0                         |
+   +---------------------------------------------------------------+
+   |                       Array element 1                         |
+   +---------------------------------------------------------------+
+   |                       Array element 2                         |
+   +---------------------------------------------------------------+
+   |                            ...                                |
+
+
+**** Binary arrays
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|             Pointer to heap-allocated object              |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |   TC = 8  |1|1|
+   +---------------+---------------+---------------+---------------+
+   |    Byte 0     |    Byte 1     |    Byte 2     |    Byte 3     |
+   +---------------+---------------+---------------+---------------+
+   |    Byte 4     |    Byte 5     |    Byte 6     |      ...      |
+   +---------------+---------------+---------------+---------------+
+   |                            ...                                |
+
+
+**** Environments
+
+      3                   2                   1                   0
+    1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+   +-----------------------------------------------------------+---+
++--|             Pointer to heap-allocated object              |0|1|
+|  +-----------------------------------------------------------+---+
+|
+|     3                   2                   1                   0
+|   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
++->+-----------------------------------------------+---------------+
+   |           24-bit unsigned size field          |   TC = 9  |1|1|
+   +-----------------------------------------------+---------------+
+   |                     Parent environment                        |
+   +---------------------------------------------------------------+
+   |                      Local variable 0                         |
+   +---------------------------------------------------------------+
+   |                      Local variable 1                         |
+   +---------------------------------------------------------------+
+   |                            ...                                |
+

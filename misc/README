@@ -1,0 +1,23 @@
+								-*-text-*-
+
+This directory holds some miscellaneous data for the Turtle package.
+
+Currently, these are the Turtle logo files.
+
+This directory is currently only in CVS, but not in the distribution.
+
+
+Files in this directory:
+------------------------
+
+turtle-logo-color.xcf    Small coloured Turtle logo, Gimp format.
+turtle-logo-small.png	 Small version of the logo, PNG format.
+turtle-logo.png          Turtle logo, PNG format.
+turtle-logo.xcf		 Normal black-and-white logo, Gimp format.
+
+
+Administrativa:
+---------------
+
+ChangeLog          Change list for the `tools' directory.
+README             The file you're reading.

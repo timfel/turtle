@@ -1,0 +1,70 @@
+								-*-text-*-
+
+This directory contains the standard library modules for Turtle.
+
+Please note that these modules as well as the compiler are still in
+development and likely to be changed.  They may be horribly broken,
+too.
+
+Build the library modules with `make'.
+
+
+Standard library modules:
+-------------------------
+
+arraymap.t       Mapping functions over arrays.
+arrays.t         Utility functions for arrays.
+arraysearch.t    Searching functions for arrays.
+arraysort.t      Sorting functions for arrays.
+binary.t         Binary (byte-)array support.
+bintree.t        Binary tree implementation.
+bools.t		 Utility functions for boolean values.
+chars.t		 Character constants and utility functions.
+cmdline.t	 Command line parsing.
+compare.t        Comparing utilities.
+compose.t        Function composition.
+core.t           Very low-level functions.
+core.t.i         C implementation of some of the above.
+exceptions.t     Exception raising and handling.
+filenames.t      Filename manipulation functions.
+hash.t           Hash functions for the basic data types.
+hashtab.t        Hash tables.
+identity.t       The identity function.  Useful for higher order functions.
+ints.t		 Integer constants and utility functions.
+io.t             Basic input and output.
+listfold.t       Folding functions over lists.
+listindex.t      List functions based of element indices.
+listmap.t        Function mapping over lists.
+listreduce.t     Reducing lists using a function.
+lists.t          List utilities.
+listsearch.t     List searching.
+listsort.t       List sorting.
+listzip.t        Combining two lists into one and the reverse.
+math.t           Math library functions.
+math.t.i         C implementation of some of the above.
+option.t         Option data type, useful for partial functions.
+pairs.t          2-tuple selector functions.
+random.t         Random number generator.
+reals.t		 Real number utility functions.
+strformat.t      String formatting.
+strings.t        String utilities.
+trees.t          Binary trees.
+triples.t        3-tuple selector functions.
+union.t          Union data type for builtin data types.
+unix.t           Access to Unix features.
+unix.t.i         C implementation of some of the above.
+
+
+Subdirectories:
+---------------
+
+internal         Low-level modules for internal runtime support.
+sys		 Modules implementing system-dependent functions.
+
+
+Administrativa:
+---------------
+
+ChangeLog        Change list for the `crawl' directory.
+Makefile.am      Input file for Automake for generating Makefile.in.
+Makefile.in      Input file for Autoconf for generating.

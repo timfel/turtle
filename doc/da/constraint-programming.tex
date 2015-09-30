@@ -1,0 +1,572 @@
+%% constraint-programming.tex -- General introduction to CP.
+%%
+%% Copyright (C) 2003 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+\chapter{Constraint Programming}
+\label{cha:constraint-programming}
+
+Constraint imperative programming inherits important concepts and
+techniques from constraint programming.  Therefore, some fundamental
+notations need to be introduced before looking at more specialized
+topics in the following text.  This chapter will introduce the most
+important concepts and definitions, followed by a brief description of
+several variants of constraint problems.  Finally, several paradigms
+are presented which evolved from blending classic programming
+languages with constraint programming.
+
+
+\section{Introduction to Constraints}
+\label{sec:introduction-to-constraints}
+
+Informally, constraints are relations between variables and constants,
+such as equations or inequalities.  For example,
+$$X=1\quad\text{or}\quad Z\leq 2Y$$
+are arithmetic constraints.  The
+first one constrains the variable $X$ to be equal to 1, whereas the
+second constrains the variables $Y$ and $Z$, so that $Z$ must be less
+than or equal to $2Y$.  As can be seen in the second example,
+constraints are not only useful for specifying a solution exactly, but
+also for specifying incomplete knowledge, so that there may be an
+infinite number of solutions to the problem.  Several constraints can
+be combined for describing a problem, and the conjunction of these
+constraints can then be used for calculating more precise solutions
+than could be derived when investigating the constraints
+independently.  An example for this are equation systems%
+\index{equation system}, where several equations are examined at the
+same time to determine the variable assignment (or assignments) which
+makes the system consistent.
+
+One of the advantages of using constraints in program development is
+that the specification for a program often is given in the form of
+(informal) constraints already.  When using a constraint programming
+language, this specification can be translated into machine-executable
+form without the need to change from the declarative view to a
+procedural view as is needed for imperative programming languages.
+The direct conversion of the program specification increases
+correctness, because the semantic gap between specification and
+implementation is narrower than for languages on a lower abstraction
+level.  The same argument applies to all higher-level languages, but
+especially for constraint programming, because its abstraction level
+is higher than the level for other declarative languages.
+
+Constraints are useful in many ways.  A constraint of the form $a+b=c$
+can be used to calculate a value for $c$, but also (depending on other
+constraints) to determine values for $a$ and $b$.  It is important to
+notice, however, that this multi-directional property of constraints
+does not necessarily lead to unique solutions in all cases as can be
+illustrated by the constraint $|a|=b$, where $b$ can be calculated
+precisely when $a$ is given, but $a$ can only be determined to be
+either $b$ or $-b$.
+
+Constraint programming basically consists of specifying constraints to
+describe the properties of the solution desired and then searching
+among all the solutions which satisfy the constraints.  Depending on
+the problem, the programmer is interested in the first solution, all
+solutions or a solution which is the best under certain criteria.
+Except when only the first solution is needed, the process of
+generating the solutions involves search, and the various constraint
+solving techniques differ in how they try to minimize the search
+space.
+
+The various constraint programming systems can be classified by their
+{\em domains}%
+\index{domain}.  A constraint domain specifies the kind of constraints
+which may be written, the meaning of these constraints, and the set of
+values the constrained variables can take.  Another property by which
+these systems can be distinguished is which constraints are
+syntactically allowed as to make them efficiently solvable.  For
+example, a lot of constraint systems allow linear equations, but not
+non-linear equations, because there are more efficient solving
+algorithms for the former than for the latter.
+
+% \index{functional constraints}
+
+% Another important property for classifying constraints is whether a
+% constraint is {\em functional} or not.  A functional constraint can
+% determine the values of its variables exactly, as for example equality
+% constraints.  Other ({\em non-functional}) constraints, such as
+% inequalities, only narrow the set of possible values for a variable.
+
+
+\section[Constraints and Constraint Programming Languages]{Constraints and Constraint Programming\\Languages}
+
+\index{constraint}
+\index{constraint solver}
+\index{definition!constraint}
+\index{definition!constraint system}
+\index{definition!constraint solver}
+
+The existing literature on constraint programming provides a solid
+theoretical foundation, both for syntax and semantics of constraint
+systems and languages, see for
+example~\cite{marriot98programmingwithconstraints,jaffar87clp}.
+Therefore, this section only gives informal definitions for the most
+important notations needed for understanding the rest of this work.
+
+
+\subsection{Definitions}
+
+A {\em constraint}%
+\index{constraint} is a mathematical relation between one or more {\em
+  variables}%
+\index{variable} and constants.  A constraint can be an equation, an
+inequality, a set inclusion%
+\index{set inclusion} or another relation, depending on the
+domain of the involved variables.  {\em Variables} are placeholders
+for values and have an associated {\em domain}%
+\index{domain}, which is the set of
+values that can be assigned to the variable.  A {\em constraint
+  conjunction}%
+\index{constraint!conjunction}%
+\index{conjunction} consists of a set of constraints which must all be
+satisfied in order to satisfy the constraint conjunction.  A {\em
+  valuation}%
+\index{valuation} is a mapping from variables to values, also called a
+{\em
+  variable assignment}%
+\index{variable assignment}%
+\index{variable!assignment}.  A {\em solution}%
+\index{solution} is a valuation of the variables of a constraint
+system for which all constraints of the system are satisfied.
+
+All constraints in a constraint program are added to a constraint
+conjunction which is called {\em constraint store}%
+\index{constraint store}%
+\index{constraint!store}.  A {\em constraint
+  solver}%
+\index{constraint solver}%
+\index{constraint!solver} is an algorithm which answers several
+questions about a constraint system by maintaining a constraint store,
+for example whether it is {\em satisfied}%
+\index{satisfied}, whether a constraint is
+already implied by the system ({\em entailment}%
+\index{entailment}) or which values are
+assigned to one or more variables of the system ({\em projection}%
+\index{projection}).
+
+Testing for {\em satisfyability}%
+\index{satisfyability} is useful to direct the search among
+several possible solutions or for conditionals.  {\em Entailment}%
+\index{entailment} tells whether a given constraint is redundant with
+respect to a constraint store.  Since the values of variables need not
+be uniquely determined by the constraint store, {\em projecting} them
+does not yield values in the general case, but constraints which
+determine the variables.
+
+Constraints containing one variable are called {\em unary
+  constraints}%
+\index{unary constraint}%
+\index{constraint!unary}, constraints with two variables are called
+{\em binary constraints}%
+\index{binary constraint}%
+\index{constraint!binary} and general constraints with more than two
+variables are called {\em n-ary constraints}%
+\index{n-ary constraint}%
+\index{constraint!n-ary}.
+
+% \index{derivation}
+
+% In addition to the means by which constraint programs are written, we
+% need to define how they are evaluated.  A {\em derivation} is a
+% sequence of state transitions, leading from a start state to either a
+% {\em successful} or {\em failing final state}.  The start state of a
+% derivation represents the problem description and the final state
+% represents the solution, the derivation describes the execution of a
+% constraint program.
+
+\subsection{Constraint Domains}
+
+For illustrating the various constraint domains, a short summary of
+some domains will be given.  This list is not exhaustive, but should
+be sufficient to get a general impression.  Constraint domains are
+described in detail in many works,
+\cite{marriot98programmingwithconstraints} gives a good introduction.
+
+{\em Finite domain}%
+\index{finite domain} constraints are based on domains which are finite
+sets%
+\index{finite set} and lend themselves to several search strategies
+which explore the search space of possible variable assignments.  The
+domain can be a finite set of integers, but also sets of enumerable
+types%
+\index{enumerable} like colours as they are used for colouring maps,
+or resources which should be planned for a process.  These constraints
+are often used for solving combinatorial problems%
+\index{combinatorial}, and much former as well as present research is
+devoted to limit the time complexity needed for solving them, because
+finite domain constraint solvers have exponential complexity in
+general.  Constraint solving for finite domain constraints is also
+called {\em constraint satisfaction}%
+\index{constraint satisfaction}%
+\index{constraint!satisfaction}%
+\index{satisfaction}.
+
+{\em Linear arithmetic}%
+\index{linear arithmetic} constraints are linear equations and
+inequalities.  For this domain efficient solving methods are known
+which can also (in extended variations) be used for non-linear%
+\index{non-linear}
+(in-)equalities.  This is either accomplished by giving knowledge of
+some non-linear constraints to the solvers or by delaying the
+non-linear parts of the constraints until their variables are
+determined by other constraints.  Then the solving process for the
+non-linear parts is just a test whether the constraint is satisfied or
+not.  This type of constraints is important for graphical applications
+like computer aided design%
+\index{computer aided design} (CAD%
+\index{CAD}) systems or graphical user interfaces,
+but also for optimization problems as in linear programming%
+\index{linear programming}.
+
+{\em Boolean}%
+\index{boolean constraint}%
+\index{constraint!boolean} constraints are a special case of finite
+domain
+constraints where the domain contains only two values, {\em true}%
+\index{true} and
+{\em false}%
+\index{false}.  Even though solvers for this kind of constraints are
+also exponential in principle, probabilistic solvers%
+\index{probabilistic solver} with polynomial run time have been
+developed.  They are incomplete, but nonetheless suitable for certain
+problems.
+
+{\em Tree}%
+\index{tree constraint}%
+\index{constraint!tree}%
+\index{tree} constraints can be used for modelling data structures,
+such as lists, records and trees, and for expressing algorithms on
+these data structures.  Constraint logic programming languages are
+based on tree constraints, often combined with one or more of the
+other constraint domains.
+
+{\em Set}%
+\index{set constraint}%
+\index{constraint!set} constraints deal with domains of sets and set
+relations.  They have been used for examples for type inference%
+\index{type inference}%
+\index{inference} and
+type checking%
+\index{type checking} in compilers.  Aiken%
+\index{Aiken}~\cite{aiken94setconstraints} gives a good survey of
+applications and solving techniques for set constraints.
+
+
+\subsection{Solving and Optimization Strategies}
+
+\index{backtracking}
+
+Especially when solving finite domain constraints, it may be necessary
+to explore the entire search space by assigning all possible values
+from the domains of all variables, and after each assignment testing
+whether the constraints are satisfied, and then backtracking if they
+are not.  Since this results in exponential time complexity, a lot of
+strategies are used to reduce the number of variable manipulations.
+
+One approach is to assign values to variables in an order which
+minimizes the width of the search tree.  Another possibility is to
+select the values to assign in such a way that inconsistencies are
+detected early.  These two strategies can also be combined.
+
+A lot of the optimization strategies are based on the assumption that
+any inconsistency between the assignments of two or more variables
+should be detected as early as possible.  For example, when selecting
+a value for a variable, all constraints involving this variable are
+checked to see whether the assignment causes any inconsistency.  If it
+does, it is not necessary to try other values for any other variable,
+and the solution algorithm can backtrack immediately.  In
+Fig.~\ref{pic:binary-constraint} the graph representations%
+\index{graph representation} for two constraints are shown.  This
+graph representation is often used to explain how the various
+consistency testing algorithms work.  The first constraint is a binary
+equality constraint between two variables, $x = y$, and the second
+shows the constraint $x+y=z$.  For the first constraint, whenever a
+value is taken for $x$, it can be checked whether $y$ also has this
+value, thus reducing the set of assignable values for the variable $x$
+for this path in the search tree to the singleton set $\{y\}$.  In
+general, for binary equality constraints, only the values in the
+intersection of the domains of the two variables need to be examined.
+The constraint $x+y=z$ is shown to illustrate how consistency can be
+checked for constraints with more than two variables: whenever a value
+is chosen for one of the variables, the domains for the other two
+variables can be checked for consistency applying any of the rules
+$z=x+y$, $x=z-y$ and $y=z-x$.
+
+\begin{figure}[htp]
+\begin{center}
+\input{binary-constraint.epic}
+\end{center}
+\caption{Constraint graphs}
+\label{pic:binary-constraint}
+\end{figure}
+
+For unary constraints, this consistency check is called {\em node consistency}%
+\index{node consistency}%
+\index{consistency!node}, for binary constraints {\em arc consistency}%
+\index{arc consistency}%
+\index{consistency!arc} and for general constraints {\em path
+  consistency}%
+\index{path consistency}%
+\index{consistency!path}.  For a list of these consistency checking strategies
+and more complicated ones, such as {\em forward checking}%
+\index{forward checking},
+see~\cite{marriot98programmingwithconstraints}.
+
+Solvers for other constraint domains can be implemented by using the
+constraints to guide the search instead of just checking all
+combinations of variable assignments.  Linear arithmetic constraints
+are often solved by using algorithms which take advantage of
+mathematical properties of the constraints, and which can calculate
+the solutions from the constraints instead of trying to find them with
+exhaustive search.
+
+Applying such optimization strategies whenever possible drastically
+reduces the time and space requirements for solving constraint
+problems.  This is the main reason why constraint programming is so
+successful, even on large problems.
+
+\subsection{Constraint Hierarchies}
+\label{sec:constraint-hierarchies}
+
+Constraint hierarchies%
+\index{constraint hierarchies}%
+\index{hierarchies}%
+\index{constraint!hierarchies} are used for modelling constraint
+problems with ``superfluous'' constraints.  Such problems are also
+called {\em over-constrained}%
+\index{over-constrained}, similar to {\em under-constrained}%
+\index{under-constrained} problems which do not have enough
+constraints to find a unique solution.
+
+The idea is to assign a {\em strength}%
+\index{strength}%
+\index{constraint strength}%
+\index{constraint!strength} to each constraint, and when the solver
+detects an inconsistency, it leaves constraints with weaker strengths
+unsatisfied in order to satisfy stronger constraints.  This can be
+used to define several levels of preference%
+\index{preference}, and only if absolutely necessary, some preferences
+are not respected in order to get a solution instead of respecting all
+preferences and failing.
+
+In \cite{borning92constrainthierarchies} a theory of constraint
+hierarchies has been formally defined.  Several solving algorithms for
+constraint hierarchies have been developed, based on both local
+propagation \cite{sannella92skyblue, borning98ultraviolet,
+  borning95oti} and by formulating them as optimization problems and
+then applying methods of linear programming%
+\index{linear programming} \cite{badros02cassowary}.  Harvey%
+\index{Harvey}, Stuckey%
+\index{Stuckey}
+and Borning%
+\index{Borning}~\cite{harveyCompiling} developed an interesting
+algorithm for compiling a subset of constraint hierarchies to
+straight-line code which does not require a run-time constraint
+solver, but can be executed directly.  The resulting code takes
+assignments to some of the variables as its inputs and calculates
+values for the remaining variables in a way that ensures that the
+constraint hierarchy is consistent for the final variable assignment.
+
+Further research in this field was done by Hosobe%
+\index{Hosobe} et al.~\cite{hosobe94locally, hosobe96generalized}, who
+generalize the theory of constraint hierarchies and also provide
+algorithms for solving them, in their case with local propagation.
+
+A collection of algorithms and solving strategies for constraint
+hierarchies can be found in \cite{bartakHierarchies}.
+
+
+\subsection{Concurrent Constraint Programming}
+\label{sec:concurrent-constraint-programming}
+
+Concurrent constraint programming%
+\index{concurrent constraint programming} (CCP%
+\index{CCP}) deals with the possibilities
+of concurrent and parallel evaluation of constraints.  CCP programs
+consist of sets of rules, and when executing constraint programs, one
+of the applicable rules is executed arbitrarily.  This is in contrast
+to other constraint languages, where all rules are evaluated one after
+the other, if there is more than one possibility.  The non-determinism
+in CCP programs is called ``don't care non-determinism''%
+\index{don't care non-determinism}%
+\index{non-determinism!don't care}, whereas the
+other one is called ``don't know non-determinism''%
+\index{don't know non-determinism}%
+\index{non-determinism!don't know}, because the correct rule is not
+known before all preceding rules have been evaluated.
+
+Though this area could be quite interesting for constraint imperative
+programming as well, we do not further discuss it in this work, since
+the addition of concurrency is orthonogal to the issues considered
+here.
+
+For a definition of concurrent constraint programming, see Saraswat%
+\index{Saraswat} \cite{saraswat93cc}.
+
+
+% \section{General Constraint Literature}
+% \label{sec:general-constraint-literature}
+
+% Leler~\cite{leler87cp} writes about the specification of constraint
+% languages.
+
+
+\section{Constraint Language Implementations}
+\label{sec:constraint-language-implementations}
+
+The first system using constraints explicitly was the Sketchpad%
+\index{Sketchpad} system by
+I.~Sutherland%
+\index{Sutherland} \cite{sutherland63sketchpad}.  It was not only the
+first constraint system, but also the first system for interactively
+manipulating graphical objects on computers.  Other early constraint
+systems include a language for integer equations called Ref-Arf%
+\index{Ref-Arf} by Fikes%
+\index{Fikes}~\cite{fikes70refarf} and the Alice%
+\index{Alice} system by
+Lauriere%
+\index{Lauriere}~\cite{lauriere78alice}, which is a solver for
+combinatorial problems.
+
+Constraint programs are already suited for formulating and solving a
+lot of problems, but in practice, only few systems are in use which
+provide constraints as the only means of program formulation.  These
+are special-purpose systems, for example for graphical user interface
+construction (such as
+UltraViolet%
+\index{UltraViolet}~\cite{borning95oti,borning98ultraviolet}) or
+simulation (for example, ThingLab%
+\index{ThingLab}~\cite{borning79thinglab} or
+CONSTRAINTS%
+\index{CONSTRAINTS}~\cite{sussman80constraints}).  Much more often it
+is desirable to have access to functionality which can only be found
+in other programming paradigms, for example when some parts of the
+problem do not need the full power of constraints and more efficient
+solution algorithms are known for these parts, or for tasks which
+cannot easily be formulated in a declarative language, for example in-
+and output.
+
+Especially for interfacing with existing systems and applications, or
+simply for interacting with the ``outside world'', the need for a
+general-purpose programming language arises.
+
+For this reason, constraint programming has been merged with languages
+from all major programming paradigms.  To the user of such languages,
+it is interesting how well they manage to keep the efficiency and
+power of the different paradigms, so that their advantages are
+preserved.  Some of the combinations fit very well together, mostly
+because the components both have declarative semantics, whereas for
+other paradigms, the semantic differences between the combined parts
+are significant.  This leads to problems which need to be solved in
+order to blend the paradigms in a useful way.  We will briefly survey
+the existing approaches.
+
+
+\subsection{Constraint Logic Programming}
+\label{sec:constraint-logic-programming}
+
+Logic programming%
+\index{logic programming} languages like Prolog%
+\index{Prolog} are the roots of constraint programming languages.  By
+now they are even regarded as a subset of the constraint languages,
+where the constraint domain is the set of Prolog terms.
+
+The first definition of the name {\em constraint logic programming}%
+\index{constraint logic programming}
+was given by Jaffar%
+\index{Jaffar} and Lassez%
+\index{Lassez} \cite{jaffar87clp}, who use it as the name of a whole
+class of programming languages.  They use the term
+CLP(X)%
+\index{CLP(X)}%
+\index{CLP}, where X stands for the domain on which the constraints in
+the language work.  The extension of logic programming with
+constraints is theoretically elegant and practically straightforward.
+Perhaps this is the reason why constraint logic programming systems
+are the most widely used constraint language implementations today.
+Jaffar%
+\index{Jaffar} and Maher%
+\index{Maher}~\cite{jaffar94clpsurvey} give a detailed survey of
+constraint logic programming.  .
+
+Not only have CLP languages been developed on the base of logic
+programming languages, but classic logic languages have been extended
+with constraints, for example Prolog~III%
+\index{Prolog III}~\cite{colmerauer90prologIII}.  Other modern Prolog
+systems have also been equipped with more or less advanced constraint
+solving capabilities, such as the Ciao Prolog%
+\index{Ciao Prolog} System~\cite{bueno02ciao} or GNU
+Prolog%
+\index{GNU Prolog}~\cite{gnuProlog}.
+
+
+\subsection{Constraint Functional Programming}
+\label{sec:constraint-functional-programming}
+
+An example of {\em constraint functional programming}%
+\index{constraint functional programming} languages is the language
+\goffin{}%
+\index{Goffin} \cite{chakravarty97goffin}, which combines higher-order
+functions with concurrent constraint programming.
+
+The research in this field is not as active as for constraint logic
+languages, but recently the more general approach of combining all
+three paradigms has been worked on \cite{Hofstedt_02B,
+  KobayashiMarinIdaChe.WFLP02}.
+
+Even though some aspects of functional programming will be discussed
+in the context of constraint imperative languages, they are different
+from those addressed by constraint functional programming.
+
+\subsection{Constraint Imperative Programming}
+
+The combination of constraint techniques and imperative (and
+object-oriented) programming languages characterizes {\em constraint
+  imperative programming}%
+\index{constraint imperative programming}.  In constraint imperative
+programs, constraints can be defined which relate object attributes
+and/or program variables, and all language features known from
+traditional imperative languages are also available.  In addition to
+primitive constraints, which are implemented directly by the
+integrated constraint solvers, the user can define higher-level
+constraints which are mapped to primitive constraints by various
+mechanisms.  In some approaches, imperative languages are also
+extended with language elements from logic programming, such as
+non-deterministic computations with logical variables and
+backtracking.  The name ``constraint imperative programming'' was
+first used by Borning%
+\index{Borning} et
+al.~\cite{lopez94kaleidoscope,freemanbenson90design}.  Apt%
+\index{Apt} et al.~\cite{apt97search, apt98alma, apt98almaproject}
+have worked on a ``imperative constraint language'', which also has
+quite interesting concepts.  Both of these approaches and constraint
+imperative programming in general are treated in detail in
+Chapter~\ref{cha:constraint-imperative-programming}.
+
+
+\section{Industrial Applications}
+
+Constraint programming systems have been used in the ``real world'',
+especially for tasks such as planning and scheduling, but also for the
+optimal placing of mobile phone relay stations etc.  These and other
+examples are given in~\cite{fruehwirthAnwendungen}
+and~\cite{marriot98programmingwithconstraints}.
+
+Another area where constraint techniques are successfully applied are
+graphical user interfaces (GUI), where the positioning of graphical
+objects on the computer screen is specified using constraints.  A
+constraint solver built into the GUI toolkit manages the size and
+position requirements of the individual objects.  An example of these
+toolkits is described by Borning and
+Freeman-Benson~\cite{borning95oti}.
+
+% \cite{cras93review} presents reviews on the practical usage of
+% constraint systems in the industry.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "da.tex"
+%%% End: 
+
+%% End of constraint-programming.tex.

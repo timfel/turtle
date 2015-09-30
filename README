@@ -1,0 +1,151 @@
+								-*-text-*-
+
+Turtle -- a constraint-imperative programming language
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is version 1.0.0 of Turtle, an implementation of the constraint
+imperative programming language Turtle.
+
+Turtle versions with an odd middle number, i.e. 0.1.* are unstable
+development versions.  Even middle numbers indicate stable versions.
+
+The next stable release will be version 1.2.0.
+
+Please send bug reports to <mgrabmue@cs.tu-berlin.de>
+
+
+Turtle Installation ==================================================
+
+  Please see the file INSTALL in the source distribution for details
+  on how to build and install the Turtle system.
+
+
+Turtle Documentation =================================================
+
+  The doc directory contains the documentation for the Turtle system
+  in Texinfo format.
+
+  The Turtle WWW page can be found at
+
+  http://user.cs.tu-berlin.de/~mgrabmue/turtle
+
+
+Turtle License =======================================================
+
+  Turtle is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the
+  Free Software Foundation; either version 2, or (at your option) any
+  later version.
+
+  Turtle is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this package; see the file COPYING.  If not, write to the
+  Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+  MA 02111-1307, USA.
+
+
+About This Distribution ==============================================
+
+Interesting files include:
+
+  AUTHORS       Names of authors and contributors.
+
+  COPYING       The license under which Turtle is distributed.
+
+  HACKING       Informations for hacking on Turtle.
+
+  INSTALL       This file contains instructions on building and 
+                installing Turtle.
+
+  NEWS          Describes user-visible changes since the last release 
+                of Turtle.
+
+Files are usually installed according to the prefix specified to
+configure, /usr/local by default.  Building and installing gives you:
+
+Executables, in ${prefix}/bin:
+
+  turtle        A standalone compiler for Turtle.  Type 
+                `turtle --help' to get an overview of the available
+		command line options.
+
+
+Libraries, in ${prefix}/lib.  Depending on the platform and options
+given to configure, you may get shared libraries in addition or
+instead of these static libraries:
+
+  libturtle.a   An object library containing the Turtle compiler,
+	        You can use Turtle in your own programs by linking 
+                against this.
+
+  libturtle.la  libtool archive of the above.
+
+  liburtle.so,
+  libturtle.so.0,
+  libturtle.so.0.0.0    
+                Shared library version of the above.
+
+  libturtlert.a This object library contains the Turtle runtime 
+                system.  It is linked against programs created by
+                the Turtle compiler.
+
+  libturtlert.la
+                libtool archive of the above.
+
+  libturtlert.so,
+  libturtlert.so.0,
+  libturtlert.so.0.0.0
+                Shared library version of the runtime system.
+
+  turtle/1.0.0  This directory contains the modules of the Turtle
+                standard library.  *.h files contain the C-level
+                interface, *.o files contain the compiled object code
+	        and *.ifc contain the interface definitions, to be
+	        used by the Turtle compiler.
+
+
+Header files, in ${prefix}/include:
+
+  libturtle/libturtle.h  For including when using the Turtle library.
+  libturtle/*.h          Various header files, included by the above.
+
+
+Documentation in Info format, in ${prefix}/info:
+
+  turtle.info,
+  turtle.info-1,
+  turtle.info-2,
+  turtle.info-3,
+  turtle.info-4 The Turtle reference manual.
+
+
+The Turtle source tree is laid out as follows:
+
+  crawl         The run-time support and some modules.
+
+  doc           Documentation (see above).
+
+  emacs         The GNU Emacs Turtle mode, for easier editing of 
+		Turtle source code.  Maybe it works with XEmacs, too.
+
+  examples      Some example Turtle programs, for testing the compiler
+                and for demonstrating the language.
+
+  libturtle     The Turtle library source code.
+
+  tests         The Turtle test suite.
+
+  tools         Some (experimental) tools, written in Turtle. 
+
+  turtle        The stand-alone compiler.
+
+
+Obtaining Turtle =====================================================
+
+  The latest official Turtle release is available via HTTP from
+
+  http://user.cs.tu-berlin.de/~mgrabmue/turtle/download/turtle-1.0.0.tar.gz

@@ -1,0 +1,40 @@
+								-*-text-*-
+
+This directory contains the documentation for the Turtle compiler, the
+runtime library and the library modules as well as my diploma thesis.
+
+If you want to build the Texinfo documentation, simply type `make'.
+`make dvi' will produce a DVI (TeX output) version of the Turtle
+reference manual, which can be converted to PostScript with 
+`dvips -o turtle.ps turtle.dvi'.
+
+
+Files in this directory:
+------------------------
+
+Makefile.am     Automake input for Makefile.in generation..
+Makefile.in     Autoconf input for Makefile generation.
+
+turtle.texi     Texinfo documentation for the Turtle compiler.
+turtle.info,
+turtle.info-1,
+turtle.info-2,
+turtle.info-3,
+turtle.info-4   Documentation in GNU info format.
+
+tagging.text    Description of run-time data formats.
+
+
+Subdirectories:
+---------------
+
+da              Contains the Diplomarbeit.
+
+
+Administrativa:
+---------------
+
+ChangeLog          Change list for the `examples' directory.
+Makefile.am        Input file for Automake for generating Makefile.in.
+Makefile.in        Input file for Autoconf for generating.
+README             The file you're reading.

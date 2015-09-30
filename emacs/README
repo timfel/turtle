@@ -1,0 +1,38 @@
+								-*-text-*-
+Turtle mode for GNU Emacs, version 1.0
+--------------------------------------
+
+This package provides support for the programming language Turtle.
+
+Copy the Emacs lisp file `turtle-mode.el' in this directory either to
+a private direcory or to the site-lisp directory and setup your
+load-path in your .emacs file accordingly. E.g. if you would copy the
+emacs file to /home/user/emacs you would have to add:
+
+  (setq load-path (cons "/home/user/emacs" load-path))
+
+Finally, make sure you put:
+
+  (require 'turtle-mode)
+
+in your .emacs file. That's it!
+
+Note: this mode has only been tested with GNU Emacs so far, please
+report success or failure report about using it with XEmacs to
+<mgrabmue@cs.tu-berlin.de>.  Thank you.
+
+
+Files in this directory:
+------------------------
+
+turtle-mode.el     Turtle mode for GNU Emacs.
+turtle-utils.el    Some utility functions for converting Turtle code
+                   to nicely formatted LaTeX input and other utilities.
+
+Administrativa:
+---------------
+
+ChangeLog          Change list for the `examples' directory.
+Makefile.am        Input file for Automake for generating Makefile.in.
+Makefile.in        Input file for Autoconf for generating.
+README             The file you're reading.

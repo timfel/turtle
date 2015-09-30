@@ -1,0 +1,947 @@
+This is turtle.info, produced by makeinfo version 4.0 from turtle.texi.
+
+INFO-DIR-SECTION Turtle
+START-INFO-DIR-ENTRY
+* turtle: (turtle).     Turtle reference manual.
+END-INFO-DIR-ENTRY
+
+   This file documents the Turtle compiler.
+
+   Copyright (C) 2003 Martin Grabmueller
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+
+File: turtle.info,  Node: sys.users module,  Next: sys.procs module,  Prev: sys.times module,  Up: Modules in the subsystem sys
+
+sys.users module
+----------------
+
+   Module for accessing user information.
+
+ - Function:  getuid (): int
+ - Function:  geteuid (): int
+     `getuid' returns the real user ID of the calling process.
+
+     `geteuid' returns the effective user ID of the current process.
+     The effective ID corresponds to the set ID bit on the file being
+     executed.
+
+ - Data type: passwd
+     Defined as:
+
+          datatype passwd =
+            passwd(name: string, passwd: string, uid: int, gid: int, gecos: string, dir: string, shell: string)
+
+ - Data type: group
+     Defined as:
+
+          datatype group =
+            group(name: string, passwd: string, gid: int, members: array of string)
+
+ - Function:  getpwnam (NAME: string): passwd
+ - Function:  getpwuid (UID: int): passwd
+     Return the password file structure for the user with the given
+     user name or user id, respectively.  If the user name or id is not
+     valid on the system the program runs on, `null' is returned.
+
+ - Function:  getpwent (): passwd
+     Return the next entry from the password file, as a value of the
+     data type `sys.users.passwd'.  If called for the first time, the
+     first entry will be returned, then successive entries until the
+     end of the user data base is reached.  The end of the file is
+     indicated by returning `null'.
+
+ - Function:  setpwent ()
+     Reset the read pointer for the user data base so that the next
+     call to `getpwent' will return the first entry.
+
+ - Function:  endpwent ()
+     Close the password file.  Use this function when you are ready
+     with the user data base.
+
+ - Function:  getgrnam (NAME: string): group
+ - Function:  getgrgid (UID: int): group
+     Return the group file structure for the group with the given group
+     name or group id, respectively.  If the group name or id is not
+     valid on the system the program runs on, `null' is returned.
+
+ - Function:  getgrent (): group
+     Return the next entry from the group file, as a value of the data
+     type `sys.users.group'.  If called for the first time, the first
+     entry will be returned, then successive entries until the end of
+     the group data base is reached.  The end of the file is indicated
+     by returning `null'.
+
+ - Function:  setgrent ()
+     Reset the read pointer for the group data base so that the next
+     call to `getgrent' will return the first entry.
+
+ - Function:  endgrent ()
+     Close the group file.  Use this function when you are ready with
+     the group data base.
+
+ - Function:  getlogin (): string
+     Return a string containing the name of the user logged in on the
+     controlling terminal of the process, or an empty string if this
+     information cannot be determined.
+
+
+File: turtle.info,  Node: sys.procs module,  Next: sys.errno module,  Prev: sys.users module,  Up: Modules in the subsystem sys
+
+sys.procs module
+----------------
+
+   Module for accessing process information and dealing with processes.
+
+ - Function:  getpid (): int
+     Return the process identifier of the current process.
+
+ - Function:  getppid (): int
+     Return the process identifier of the parent of the current process.
+
+ - Function:  sleep (SEC: int): int
+ - Function:  sleep (SEC: int)
+     Make the current process sleep until SEC seconds have elapsed or a
+     signal arrives which is not ignored.
+
+     The first version returns zero if the requested time has elapsed,
+     or the number of seconds left to sleep.  The second version does
+     not return anything.
+
+ - Function:  exit (STATUS: int)
+     Terminate the current process normally and return the value of
+     STATUS to the parent.
+
+ - Function:  kill (PID: int, SIG: int): int
+ - Function:  kill (PID: int, SIG: int)
+     `kill' can be used to send any signal to any process group or
+     process.
+
+     If PID is positive, then signal SIG is sent to PID.  If PID equals
+     0, then SIG is sent to every process in the process group of the
+     current process.  If PID equals -1, then SIG is sent to every
+     process except for the first one, from higher numbers in the
+     process table to lower.  If PID is less than -1, then SIG is sent
+     to every process in the process group -PID.
+
+     If SIG is 0, then no signal is sent, but error checking is still
+     performed.
+
+     On sucess, zero is returned, On error, -1 is returned and `errno'
+     is set appropriately.  The second version of the `kill' function
+     does not return anything and ignores any errors.
+
+ - Function:  fork (): int
+     Create a child process that differs from the parent process only
+     in its PID and PPID, and in the fact that resource utilizations
+     are set to 0.  File locks and pending signals are not inherited.
+
+     On success, the process identifier of the child process is
+     returned in the parent's thread of execution, and a 0 is returned
+     in the child's thread of execution.  On failure, -1 will be
+     returned in the parent's context, no child process will be
+     created, and the variable `errno.errno' will be set appropriately.
+
+ - Function:  wait (): (int, int)
+     Suspend execution of the current process until a child has exited,
+     or until a signal is delivered whose action is to terminate the
+     current process or to call a signal handling function.  If a child
+     has already exited by the time of the call (a so-called "zombie"
+     process), the function returns immediately.  Any system resources
+     used by the child are freed.
+
+     The return value is a pair of the process ID of the exited child
+     (or -1 on error) and the status of the exited child.
+
+ - Constant:  WNOHANG : int
+ - Constant:  WUNTRACED : int
+     Constants to be used as the options argument to `waitpid'.
+
+ - Function:  waitpid (PID: int, OPTIONS: int): int
+     Suspend execution of the current process until a child as
+     specified by the PID argument, or until a signal is delivered
+     whose action is to terminate the current process or to call a
+     signal handling function.  If a child as requested by PID has
+     already exited by the time of the call (a so-called "zombie"
+     process", the function returns immediately.  Any system resources
+     used by the child are freed.
+
+     The value of PID can be one of
+
+    < -1
+          which means to wait for any child process whose process group
+          ID is equal to the absolute value of PID.
+
+    -1
+          which means to wait for any child process; this is the same
+          behaviour which `wait' exhibits.
+
+    0
+          which means to wait for any child process whose process group
+          ID is equal to that of the calling process.
+
+    > 0
+          which means to wait for the child whose process ID is equal to
+          the value of PID.
+
+     The value of OPTIONS is an OR of zero or more of the following
+     constants:
+
+    `WNOHANG'
+          which means to return immediately if no child has exited.
+
+    `WUNTRACED'
+          which means to also return for children which are stopped, and
+          whose status has not been reported.
+
+     The return value is a pair of the process ID of the exited child
+     (or -1 on error) and the status of the exited child.
+
+     If `WNOHANG' was given as an option, and no child has exited, 0 is
+     returned as the process ID.
+
+ - Function:  WIFEXITED (STATUS: int): bool
+     Return `true', if the status code indicates that the process has
+     exited normally.
+
+ - Function:  WEXITSTATUS (STATUS: int): int
+     Return the exit status of the exited process.  This may only be
+     called if `WIFEXITED' returned true for STATUS.
+
+ - Function:  WIFSIGNALED (STATUS: int): bool
+     Return `true', if the status code indicates that the process was
+     terminated by a signal.
+
+ - Function:  WTERMSIG (STATUS: int): int
+     Return the number of the signal which terminated the process.
+     This may only be called if `WIFSIGNALED' returned true for STATUS.
+
+ - Function:  WIFSTOPPED (STATUS: int): bool
+     Return `true', if the status code indicates that the process was
+     stopped by a signal.
+
+ - Function:  WSTOPSIG (STATUS: int): int
+     Return the number of the signal which stopped the process.  This
+     may only be called if `WIFSTOPPED' returned true for STATUS.
+
+ - Function:  execve (FILENAME: string, ARGV: array of string, ENVP:
+          array of string): int
+ - Function:  execve (FILENAME: string, ARGV: array of string, ENVP:
+          array of string)
+ - Function:  execve (FILENAME: string, ARGV: list of string, ENVP:
+          list of string): int
+ - Function:  execve (FILENAME: string, ARGV: list of string, ENVP:
+          list of string)
+ - Function:  execve (FILENAME: string, ARGV: array of string): int
+ - Function:  execve (FILENAME: string, ARGV: array of string)
+ - Function:  execve (FILENAME: string, ARGV: list of string): int
+ - Function:  execve (FILENAME: string, ARGV: list of string)
+     Execute the program called FILENAME.  ARGV is an array or list of
+     argument strings passed to the new program.  ENVP is an array of
+     string, conventionally of the form `key=value', which are passed
+     as environment to the new program.
+
+     Normally these functions do not return, on error, the value -1 is
+     returned and the appropriate error code is placed in the variable
+     `sys.errno.errno'.
+
+ - Function:  getenv (VARNAME: string): string
+     Return the value of the environment variable called VARNAME
+
+
+File: turtle.info,  Node: sys.errno module,  Next: sys.signal module,  Prev: sys.procs module,  Up: Modules in the subsystem sys
+
+sys.errno module
+----------------
+
+   Module for accessing operating system errors.
+
+ - Variable:  errno : int
+     The variable ERRNO contains the result code set by the last
+     operating system call.  A value of 0 means success, all other
+     values indicate failure.  The value can be translated to a
+     readable error message using the `strerror' function below.
+
+ - Function:  strerror (ERRNUM: int): string
+     Return a string describing the error code passed in the argument
+     ERRNUM.
+
+
+File: turtle.info,  Node: sys.signal module,  Prev: sys.errno module,  Up: Modules in the subsystem sys
+
+sys.signal module
+-----------------
+
+   Module for installing a signal function, that is a function which
+gets called whenever the process receives an operating system signal.
+
+   In Turtle, signals are handled synchroneously, that means that a
+Turtle process repeatedly checks whether a signal has arrived and then
+calls the signal handler function.
+
+ - Variable:  SIGHUP : int
+ - Variable:  SIGINT : int
+ - Variable:  SIGQUIT : int
+ - Variable:  SIGILL : int
+ - Variable:  SIGABRT : int
+ - Variable:  SIGFPE : int
+ - Variable:  SIGKILL : int
+ - Variable:  SIGSEGV : int
+ - Variable:  SIGPIPE : int
+ - Variable:  SIGALRM : int
+ - Variable:  SIGTERM : int
+ - Variable:  SIGUSR1 : int
+ - Variable:  SIGUSR2 : int
+ - Variable:  SIGCHLD : int
+ - Variable:  SIGCONT : int
+ - Variable:  SIGSTOP : int
+ - Variable:  SIGTSTP : int
+ - Variable:  SIGTTIN : int
+ - Variable:  SIGTTOU : int
+     These are the signals defined in POSIX.1.
+
+ - Function:  signal (NO: int, HANDLER: fun(int))
+     Install a signal handler for signal number NO.  Whenever a signal
+     is received, the process will stop at the next safe point and call
+     the handler function. with the signal number as the argument.
+
+
+File: turtle.info,  Node: Modules in the subsystem internal,  Prev: Modules in the subsystem sys,  Up: Standard library
+
+Subsystem internal
+==================
+
+   Some of the modules in the standard library are very low-level.
+These modules are either not convenient to use, or are machine or system
+dependent, so it is a good idea to avoid using them as far as possible,
+and rather use the functionality implemented by the higher-level modules
+in the previous sections.
+
+   A lot of functions in the higher-level modules are implemented in
+terms of the low-level ones, and sometimes access to low-level features
+is useful.  That is the reason why these modules are documented here
+even though their use is discouraged.
+
+* Menu:
+
+* internal.version module::     Version information.
+* internal.random module::      Random number functions.
+* internal.stats module::
+* internal.gc module::          Garbage collection interface.
+* internal.ex module::          Exception raising and handling.
+* internal.timeout module::
+* internal.limits module::      System limits.
+
+
+File: turtle.info,  Node: internal.version module,  Next: internal.random module,  Prev: Modules in the subsystem internal,  Up: Modules in the subsystem internal
+
+internal.version module
+-----------------------
+
+   Low-level module for version information.
+
+ - Function:  version (): string
+     Return the version number of the running Turtle runtime in string
+     form, e.g "0.1.1".
+
+
+File: turtle.info,  Node: internal.random module,  Next: internal.stats module,  Prev: internal.version module,  Up: Modules in the subsystem internal
+
+internal.random module
+----------------------
+
+   Low-level module for random numbers.
+
+ - Function:  srand (SEED: int)
+     Set the seed of the random number generator to SEED.
+
+ - Function:  rand (): int
+     Return a random number in the range 0 to `ints.max'.
+
+
+File: turtle.info,  Node: internal.stats module,  Next: internal.gc module,  Prev: internal.random module,  Up: Modules in the subsystem internal
+
+internal.stats module
+---------------------
+
+   Low-level module for interfacing to the runtime system statistics.
+
+ - Function:  dispatch_call_count (): int
+ - Function:  direct_call_count (): int
+ - Function:  local_call_count (): int
+ - Function:  closure_call_count (): int
+ - Function:  gc_checks (): int
+ - Function:  gc_calls (): int
+ - Function:  allocations (): int
+ - Function:  alloced_words (): int
+ - Function:  forwarded_words (): int
+ - Function:  save_cont_count (): int
+ - Function:  restore_cont_count (): int
+ - Function:  total_gc_time (): int
+ - Function:  min_gc_time (): int
+ - Function:  max_gc_time (): int
+     These functions deliver some statistics gathered by the runtime
+     system.
+
+
+File: turtle.info,  Node: internal.gc module,  Next: internal.ex module,  Prev: internal.stats module,  Up: Modules in the subsystem internal
+
+internal.gc module
+------------------
+
+   Low-level module for interfacing to the garbage collector.
+
+ - Function:  gc_calls (): int
+     Return the number of heap garbage collections since the program
+     started.
+
+ - Function:  gc_checks (): int
+     Return the number of heap overflow checks since the program
+     started.
+
+ - Function:  garbage_collect ()
+     Force a garbage collection.
+
+
+File: turtle.info,  Node: internal.ex module,  Next: internal.timeout module,  Prev: internal.gc module,  Up: Modules in the subsystem internal
+
+internal.ex module
+------------------
+
+   Low-level module for raising and handling exceptions.  Do not use
+this module directly, rather use the standard library module
+`exception' (*note exceptions module::).
+
+ - Function:  raise (S: string)
+     Raise an exception with name S.
+
+ - Function:  handle (THUNK: fun(): (), HANDLER: fun(string))
+     Call the function THUNK.  If any exception is raised while THUNK
+     is running, the function HANDLER will be called with the exception
+     name as the only argument.  When HANDLER returns, it will return
+     to the caller of `ex.handle', in the same way as the call would
+     return when THUNK was returning without an exception.
+
+ - Function:  null_pointer_exception (): string
+ - Function:  out_of_range_exception (): string
+ - Function:  subscript_exception (): string
+ - Function:  wrong_variant_exception (): string
+ - Function:  require_exception (): string
+     The return value of these functions is the corresponding exception
+     name, which is the same that would be used if the illegal
+     operation would be performed.
+
+     That means that
+
+          internal.ex.raise (internal.ex.subscript_ex ())
+
+     has the same effect as
+
+          var s: string;
+          s[-1] := 'a'
+
+
+File: turtle.info,  Node: internal.timeout module,  Next: internal.limits module,  Prev: internal.ex module,  Up: Modules in the subsystem internal
+
+internal.timeout module
+-----------------------
+
+   Module for installing a timeout function, that is a function which
+gets called repeatedly in some interval.
+
+ - Function:  set (HANDLER: fun())
+     Register HANDLER as the timeout function for the Turtle runtime.
+     The timeout function gets called repeatedly, but there is no
+     guarantee on how often it will be called.
+
+     On a 800Mhz AMD Duron(tm) processor, the function is called about
+     every 0.1 seconds.
+
+ - Function:  clear ()
+     Remove the current timeout function, so that no function will be
+     called until another handler is registered with the function `set'
+     above.
+
+
+File: turtle.info,  Node: internal.limits module,  Prev: internal.timeout module,  Up: Modules in the subsystem internal
+
+internal.limits module
+----------------------
+
+   Low-level module defining certain system limits.
+
+   There are no exports yet, but that may change in the future.
+
+
+File: turtle.info,  Node: Glossary,  Next: Index,  Prev: Standard library,  Up: Top
+
+Glossary
+********
+
+BASIC CONSTRAINT
+     A basic constraint is a linear equation, which may contain
+     constrainable and unconstrainable variables.
+
+CONSTRAINABLE VARIABLE
+     A constrainable variable is a variable whose value can be
+     determined by a constraint.  Unconstrainable variables can only be
+     changed by assignment.
+
+CONSTRAINT
+     A constraint is a condition which specifies the properties of the
+     values a solution to a certain problem must have.
+
+DECLARATIVE
+     With declarative programming, we name the programming style where
+     the computer is told which properties a problem's solutions must
+     have, but not how to compute the solution.  The compiler and
+     runtime system of the language implementation is responsible for
+     determining an efficient way to compute the solution.
+
+IMPERATIVE
+     Imperative programming means the programming style where the
+     computer is explicitly told which steps to perform when and in
+     which order, to find the solution to a problem.  Imperative
+     programs are rather low-level, compared to declarative programs.
+
+MODULE
+     A module is a collection of functions, variables, constraints and
+     type declarations, which can be compiled independently of other
+     modules.  A collection of modules forms a program.
+
+VARIABLE
+     A variable is a storage location.  The contents of variables can be
+     fetched and new values can be stored into variables, using
+     assignment.  In Turtle, the values of variables can also be
+     determined by using constraints on constrainable variables.
+
+
+File: turtle.info,  Node: Index,  Prev: Glossary,  Up: Top
+
+Index
+*****
+
+* Menu:
+
+* abs <1>:                               reals module.
+* abs <2>:                               longs module.
+* abs:                                   ints module.
+* accept:                                sys.net module.
+* acos:                                  math module.
+* allocations:                           internal.stats module.
+* alloced_words:                         internal.stats module.
+* append <1>:                            lists module.
+* append:                                strings module.
+* Array data type:                       Array data type.
+* array modules:                         Array utility modules.
+* array utilities:                       Array utility modules.
+* arraymap (Module):                     arraymap module.
+* arrays (Module):                       arrays module.
+* arraysearch (Module):                  arraysearch module.
+* arraysort (Module):                    arraysort module.
+* asctime:                               sys.times module.
+* asin:                                  math module.
+* atan:                                  math module.
+* backspace:                             chars module.
+* basename:                              filenames module.
+* Basic data types:                      Basic data types.
+* bell:                                  chars module.
+* binary (Module):                       binary module.
+* binary_get:                            binary module.
+* binary_set:                            binary module.
+* binary_size:                           binary module.
+* bind:                                  sys.net module.
+* bintree (Module):                      bintree module.
+* bla:                                   Standard library.
+* blank:                                 chars module.
+* Booleans:                              Booleans.
+* bools (Module):                        bools module.
+* bsearch:                               arraysearch module.
+* bstrees (Module):                      bstrees module.
+* carriage_return:                       chars module.
+* Characters:                            Characters.
+* chars (Module):                        chars module.
+* chr <1>:                               core module.
+* chr:                                   chars module.
+* clear:                                 internal.timeout module.
+* close <1>:                             sys.files module.
+* close:                                 io module.
+* closedir:                              sys.dirs module.
+* closure_call_count:                    internal.stats module.
+* cmdline (Module):                      cmdline module.
+* cmp:                                   compare module.
+* compare (Module):                      compare module.
+* compose:                               compose module.
+* compose (Module):                      compose module.
+* Compound data types:                   Compound data types.
+* concat:                                lists module.
+* connect:                               sys.net module.
+* cons:                                  lists module.
+* constrainable variable:                Constrainable Variables.
+* constraint statements:                 Constraint Statements.
+* constraint store:                      Constraints and the Constraint Store.
+* constraints:                           Constraints and the Constraint Store.
+* constructor:                           User-defined data types.
+* control?:                              chars module.
+* copy <1>:                              arrays module.
+* copy <2>:                              lists module.
+* copy <3>:                              strings module.
+* copy:                                  trees module.
+* core (Module):                         core module.
+* cos:                                   math module.
+* create <1>:                            sys.files module.
+* create:                                io module.
+* ctime:                                 sys.times module.
+* data type related modules:             Data type related modules.
+* Data Types:                            Data Types.
+* delete:                                hashtab module.
+* digit?:                                chars module.
+* direct_call_count:                     internal.stats module.
+* dirname:                               filenames module.
+* discriminator:                         User-defined data types.
+* dispatch_call_count:                   internal.stats module.
+* downcase <1>:                          strings module.
+* downcase:                              chars module.
+* drop:                                  lists module.
+* empty?:                                lists module.
+* endgrent:                              sys.users module.
+* endpwent:                              sys.users module.
+* EOF:                                   chars module.
+* eq:                                    strings module.
+* errno:                                 sys.errno module.
+* error:                                 io module.
+* even? <1>:                             longs module.
+* even?:                                 ints module.
+* exceptions (Module):                   exceptions module.
+* execve:                                sys.procs module.
+* exit:                                  sys.procs module.
+* explode:                               strings module.
+* filenames (Module):                    filenames module.
+* filter:                                lists module.
+* find:                                  bintree module.
+* first <1>:                             triples module.
+* first:                                 pairs module.
+* flush:                                 io module.
+* fmt:                                   strformat module.
+* foldl:                                 listfold module.
+* foldr:                                 listfold module.
+* foreach <1>:                           arrays module.
+* foreach:                               lists module.
+* fork:                                  sys.procs module.
+* formfeed:                              chars module.
+* forwarded_words:                       internal.stats module.
+* from_int <1>:                          reals module.
+* from_int:                              longs module.
+* from_real <1>:                         longs module.
+* from_real:                             ints module.
+* from_string <1>:                       chars module.
+* from_string <2>:                       bools module.
+* from_string <3>:                       reals module.
+* from_string <4>:                       longs module.
+* from_string <5>:                       ints module.
+* from_string:                           binary module.
+* Function data type:                    Function data type.
+* garbage_collect:                       internal.gc module.
+* gc_calls <1>:                          internal.gc module.
+* gc_calls:                              internal.stats module.
+* gc_checks <1>:                         internal.gc module.
+* gc_checks:                             internal.stats module.
+* General modules:                       General modules.
+* get:                                   io module.
+* getenv:                                sys.procs module.
+* geteuid:                               sys.users module.
+* getgrent:                              sys.users module.
+* getgrgid:                              sys.users module.
+* getgrnam:                              sys.users module.
+* gethostbyname:                         sys.net module.
+* getlogin:                              sys.users module.
+* getopt:                                cmdline module.
+* getpid:                                sys.procs module.
+* getppid:                               sys.procs module.
+* getpwent:                              sys.users module.
+* getpwnam:                              sys.users module.
+* getpwuid:                              sys.users module.
+* getuid:                                sys.users module.
+* gmtime:                                sys.times module.
+* handle <1>:                            internal.ex module.
+* handle:                                exceptions module.
+* hash:                                  hash module.
+* hash (Module):                         hash module.
+* hashtab (Module):                      hashtab module.
+* head:                                  lists module.
+* id:                                    identity module.
+* identity (Module):                     identity module.
+* implode:                               strings module.
+* index <1>:                             lists module.
+* index:                                 strings module.
+* indices <1>:                           lists module.
+* indices:                               strings module.
+* inetaddr:                              sys.net module.
+* init:                                  lists module.
+* inorder:                               trees module.
+* input:                                 io module.
+* Input and output modules:              Input and output modules.
+* insert <1>:                            lists module.
+* insert <2>:                            bintree module.
+* insert <3>:                            bstrees module.
+* insert:                                hashtab module.
+* int_to_real:                           core module.
+* Integers:                              Integers.
+* internal.ex (Module):                  internal.ex module.
+* internal.gc (Module):                  internal.gc module.
+* internal.limits (Module):              internal.limits module.
+* internal.random (Module):              internal.random module.
+* internal.stats (Module):               internal.stats module.
+* internal.timeout (Module):             internal.timeout module.
+* internal.version (Module):             internal.version module.
+* ints (Module):                         ints module.
+* io (Module):                           io module.
+* iota:                                  lists module.
+* kill:                                  sys.procs module.
+* last:                                  lists module.
+* length <1>:                            arrays module.
+* length <2>:                            lists module.
+* length:                                strings module.
+* letgit?:                               chars module.
+* letter?:                               chars module.
+* List data type:                        List data type.
+* List modules:                          List utility modules.
+* List utilities:                        List utility modules.
+* listen:                                sys.net module.
+* listfold (Module):                     listfold module.
+* listindex (Module):                    listindex module.
+* listmap (Module):                      listmap module.
+* listreduce (Module):                   listreduce module.
+* lists (Module):                        lists module.
+* listsearch (Module):                   listsearch module.
+* listsort (Module):                     listsort module.
+* listzip (Module):                      listzip module.
+* local_call_count:                      internal.stats module.
+* localtime:                             sys.times module.
+* Longs:                                 Longs.
+* longs (Module):                        longs module.
+* lookup:                                hashtab module.
+* low level modules:                     Low level modules.
+* lowercase?:                            chars module.
+* lpad:                                  strings module.
+* lsearch <1>:                           arraysearch module.
+* lsearch:                               listsearch module.
+* make:                                  hashtab module.
+* make_binary:                           binary module.
+* map <1>:                               arraymap module.
+* map:                                   listmap module.
+* math (Module):                         math module.
+* max <1>:                               chars module.
+* max <2>:                               reals module.
+* max <3>:                               longs module.
+* max:                                   ints module.
+* max_gc_time:                           internal.stats module.
+* min <1>:                               chars module.
+* min <2>:                               reals module.
+* min <3>:                               longs module.
+* min:                                   ints module.
+* min_gc_time:                           internal.stats module.
+* negative? <1>:                         reals module.
+* negative? <2>:                         longs module.
+* negative?:                             ints module.
+* newline:                               chars module.
+* nl:                                    io module.
+* node:                                  trees module.
+* nth:                                   listindex module.
+* null_pointer_ex:                       exceptions module.
+* null_pointer_exception:                internal.ex module.
+* odd? <1>:                              longs module.
+* odd?:                                  ints module.
+* open <1>:                              sys.files module.
+* open:                                  io module.
+* opendir:                               sys.dirs module.
+* option (Module):                       option module.
+* ord <1>:                               core module.
+* ord:                                   chars module.
+* out_of_range_ex:                       exceptions module.
+* out_of_range_exception:                internal.ex module.
+* output:                                io module.
+* pair:                                  pairs module.
+* pairs (Module):                        pairs module.
+* path_seperator:                        filenames module.
+* PF_INET:                               sys.net module.
+* PF_LOCAL:                              sys.net module.
+* PF_UNIX:                               sys.net module.
+* PF_UNSPEC:                             sys.net module.
+* pi:                                    math module.
+* pos:                                   listindex module.
+* positive? <1>:                         reals module.
+* positive? <2>:                         longs module.
+* positive?:                             ints module.
+* postorder:                             trees module.
+* pow <1>:                               reals module.
+* pow <2>:                               longs module.
+* pow:                                   ints module.
+* pred <1>:                              chars module.
+* pred <2>:                              longs module.
+* pred:                                  ints module.
+* preorder:                              trees module.
+* printable?:                            chars module.
+* punctuation?:                          chars module.
+* put:                                   io module.
+* putln:                                 io module.
+* raise <1>:                             internal.ex module.
+* raise:                                 exceptions module.
+* rand <1>:                              internal.random module.
+* rand:                                  random module.
+* random (Module):                       random module.
+* read:                                  sys.files module.
+* read_char:                             core module.
+* readdir:                               sys.dirs module.
+* real_to_int:                           core module.
+* real_to_string:                        core module.
+* Reals:                                 Reals.
+* reals (Module):                        reals module.
+* reducel:                               listreduce module.
+* reducer:                               listreduce module.
+* replicate <1>:                         arrays module.
+* replicate <2>:                         lists module.
+* replicate:                             strings module.
+* require_ex:                            exceptions module.
+* require_exception:                     internal.ex module.
+* restore_cont_count:                    internal.stats module.
+* reverse <1>:                           arrays module.
+* reverse:                               lists module.
+* rewinddir:                             sys.dirs module.
+* rexplode:                              strings module.
+* rimplode:                              strings module.
+* rindex:                                strings module.
+* rpad:                                  strings module.
+* save_cont_count:                       internal.stats module.
+* search:                                bstrees module.
+* second <1>:                            triples module.
+* second:                                pairs module.
+* seed:                                  random module.
+* selector:                              User-defined data types.
+* set:                                   internal.timeout module.
+* setgrent:                              sys.users module.
+* setpwent:                              sys.users module.
+* setter:                                User-defined data types.
+* SIGABRT:                               sys.signal module.
+* SIGALRM:                               sys.signal module.
+* SIGCHLD:                               sys.signal module.
+* SIGCONT:                               sys.signal module.
+* SIGFPE:                                sys.signal module.
+* SIGHUP:                                sys.signal module.
+* SIGILL:                                sys.signal module.
+* SIGINT:                                sys.signal module.
+* SIGKILL:                               sys.signal module.
+* signal:                                sys.signal module.
+* signum <1>:                            reals module.
+* signum <2>:                            longs module.
+* signum:                                ints module.
+* SIGPIPE:                               sys.signal module.
+* SIGQUIT:                               sys.signal module.
+* SIGSEGV:                               sys.signal module.
+* SIGSTOP:                               sys.signal module.
+* SIGTERM:                               sys.signal module.
+* SIGTSTP:                               sys.signal module.
+* SIGTTIN:                               sys.signal module.
+* SIGTTOU:                               sys.signal module.
+* SIGUSR1:                               sys.signal module.
+* SIGUSR2:                               sys.signal module.
+* sin:                                   math module.
+* sleep:                                 sys.procs module.
+* slice:                                 listindex module.
+* SOCK_DGRAM:                            sys.net module.
+* SOCK_RAW:                              sys.net module.
+* SOCK_STREAM:                           sys.net module.
+* sockaddr_addr:                         sys.net module.
+* sockaddr_port:                         sys.net module.
+* socket:                                sys.net module.
+* sort <1>:                              arraysort module.
+* sort:                                  listsort module.
+* space:                                 chars module.
+* space?:                                chars module.
+* split:                                 strings module.
+* srand:                                 internal.random module.
+* stderr:                                sys.files module.
+* stdin:                                 sys.files module.
+* stdout:                                sys.files module.
+* strerror:                              sys.errno module.
+* strformat (Module):                    strformat module.
+* string_to_real:                        core module.
+* Strings:                               Strings.
+* strings (Module):                      strings module.
+* subscript_ex:                          exceptions module.
+* subscript_exception:                   internal.ex module.
+* substring:                             strings module.
+* subsystem internal:                    Modules in the subsystem internal.
+* subsystem sys:                         Modules in the subsystem sys.
+* succ <1>:                              chars module.
+* succ <2>:                              longs module.
+* succ:                                  ints module.
+* sys.dirs (Module):                     sys.dirs module.
+* sys.errno (Module):                    sys.errno module.
+* sys.files (Module):                    sys.files module.
+* sys.net (Module):                      sys.net module.
+* sys.procs (Module):                    sys.procs module.
+* sys.signal (Module):                   sys.signal module.
+* sys.times (Module):                    sys.times module.
+* sys.users (Module):                    sys.users module.
+* tab:                                   chars module.
+* tail:                                  lists module.
+* take:                                  lists module.
+* tan:                                   math module.
+* third:                                 triples module.
+* time:                                  sys.times module.
+* to_int <1>:                            reals module.
+* to_int:                                longs module.
+* to_real <1>:                           longs module.
+* to_real:                               ints module.
+* to_string <1>:                         strings module.
+* to_string <2>:                         chars module.
+* to_string <3>:                         bools module.
+* to_string <4>:                         reals module.
+* to_string <5>:                         longs module.
+* to_string <6>:                         ints module.
+* to_string:                             binary module.
+* total_gc_time:                         internal.stats module.
+* tree:                                  bstrees module.
+* trees (Module):                        trees module.
+* triple:                                triples module.
+* triples (Module):                      triples module.
+* Tuple data type:                       Tuple data type.
+* tuple modules:                         Tuple utility modules.
+* tuple utilities:                       Tuple utility modules.
+* unget:                                 io module.
+* union (Module):                        union module.
+* unlink:                                sys.files module.
+* unpair:                                pairs module.
+* untriple:                              triples module.
+* unzip:                                 listzip module.
+* upcase <1>:                            strings module.
+* upcase:                                chars module.
+* uppercase?:                            chars module.
+* User-defined data types:               User-defined data types.
+* version:                               internal.version module.
+* vtab:                                  chars module.
+* wait:                                  sys.procs module.
+* waitpid:                               sys.procs module.
+* WEXITSTATUS:                           sys.procs module.
+* whitespace?:                           chars module.
+* WIFEXITED:                             sys.procs module.
+* WIFSIGNALED:                           sys.procs module.
+* WIFSTOPPED:                            sys.procs module.
+* WNOHANG:                               sys.procs module.
+* write:                                 sys.files module.
+* write_char:                            core module.
+* wrong_variant_ex:                      exceptions module.
+* wrong_variant_exception:               internal.ex module.
+* WSTOPSIG:                              sys.procs module.
+* WTERMSIG:                              sys.procs module.
+* WUNTRACED:                             sys.procs module.
+* zero? <1>:                             reals module.
+* zero? <2>:                             longs module.
+* zero?:                                 ints module.
+* zip:                                   listzip module.
+
+

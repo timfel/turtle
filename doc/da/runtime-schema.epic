@@ -1,0 +1,40 @@
+\setlength{\unitlength}{0.00087489in}
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+{\renewcommand{\dashlinestretch}{30}
+\begin{picture}(3444,2559)(0,-10)
+\drawline(12,1092)(1182,1092)(1182,732)
+	(12,732)(12,1092)
+\drawline(12,1542)(1182,1542)(1182,1182)
+	(12,1182)(12,1542)
+\drawline(12,2532)(1182,2532)(1182,1632)
+	(12,1632)(12,2532)
+\drawline(12,642)(1272,642)(1272,12)
+	(12,12)(12,642)
+\drawline(1452,552)(1452,642)(2352,642)
+	(2352,102)(2262,102)
+\drawline(1272,2532)(3432,2532)(3432,732)
+	(1272,732)(1272,2532)
+\drawline(2352,2532)(2352,732)
+\drawline(2532,552)(2532,642)(3432,642)
+	(3432,102)(3342,102)
+\drawline(2442,552)(3342,552)(3342,12)
+	(2442,12)(2442,552)
+\drawline(1362,552)(2262,552)(2262,12)
+	(1362,12)(1362,552)
+\put(102,912){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Stack}}}}}
+\put(102,1362){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Data}}}}}
+\put(102,2352){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Code}}}}}
+\put(1362,2352){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Heap}}}}}
+\put(102,462){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Turtle run-time}}}}}
+\put(1452,192){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Solver}}}}}
+\put(1452,372){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Constraint}}}}}
+\put(2532,372){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Constraint}}}}}
+\put(2532,192){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}Store}}}}}
+\end{picture}
+}

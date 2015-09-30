@@ -1,0 +1,25 @@
+								-*-text-*-
+
+This directory contains the command line compiler for Turtle.
+
+To build the compiler, you have to type `make' in the parent
+directory.  `make' in the current directory will not suffice, because
+the main part of the compiler is contained in a library, located in
+directory `../libturtle'.
+
+
+Files in this directory:
+------------------------
+
+turtle.c        Turtle command line compiler.
+lala.t          Module for testing.  This is mainly of interest for
+		developers.
+
+
+Administrativa:
+---------------
+
+ChangeLog       Listing of changes.
+Makefile.am     Automake input for Makefile.in generation.
+Makefile.in     Autoconf input for Makefile generation.
+README          The file you're reading.

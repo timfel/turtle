@@ -1,0 +1,101 @@
+								-*-text-*-
+
+This directory contains some examples for Turtle programs.  The
+programs range from extremely simple to sophisticated examples of
+constraint-imperative programming.
+
+To build the examples, simply run `make examples' in the current
+directory.  (Of course, you have to build the compiler and runtime
+system first by doing `make' in the parent directory.)  `make check'
+in this directory will build the examples too, and then run them to
+see whether the compiler and the compiled programs work.  `make check'
+in the parent directory will build and run the examples as well as
+some test programs in the `../tests' directory.
+
+Note that some of the example files will not be built when `make
+check' is invoked, this is because they expect special preconditions
+on the host they are run on.  See below for details.
+
+
+Files which do compile and run:
+-------------------------------
+
+minimal.t          Minimal Turtle program.  Contains only what is 
+		   needed to compile and run.
+hello.t            Simply prints ``Hello World!'' to the screen.
+hello2.t	   ``Hello World!'' extended with command line
+		   parsing via the `cmdline' module.
+fac.t		   Standard factorial program, calculates 10!
+fac_iterative.t    Does the same, but with a loop instead of
+		   recursion.
+fib.t              Calculates the Fibonacci number for generation 32.
+counter.t          Simple example for the use of higher-order 
+		   functions.
+higher_order.t     Demonstrates some of Turtle's higher-order
+                   capabilities.
+evenodd.t          Demonstrates tail recursion elimination within
+                   a module.
+even_module.t,
+odd_module.t       These two show tail recursion elimination across
+                   module boundaries.
+module_params.t    Demonstrates parametric module usage.
+overloading.t      Example for overloaded functions and variables. 
+queens.t	   N-queens problem, imperative version (adapted from
+		   Andrew W. Appel: Modern compiler implementation 
+		   in C).
+trees.t		   Data structure example.
+copy_file.t        Simple file copying program, demonstrates basic
+		   file handling.  [1]
+miniwget.t         Very minimalistic HTTP-client, dumps a web page from 
+		   a specified web server.  [2]
+helloserver.t      Minimal server application, demonstrates basic network
+		   programming in combination with the client program.  [2]
+helloclient.t      Client for the program above.  [2]
+webserver.t	   A minimal web server.  [2]
+http.t		   Support module for the webserver.
+indigo.t           A simple constraint program with a constraint example
+		   from the Indigo article.
+constraints.t	   Examples of constraint usage in Turtle programs. [3]
+layout.t           A simple layouting problem, solved with constraints.
+omaopa.t           Crypto-arithmetic puzzle: OMA+OPA=PAAR.
+sendmory.t         Crypto-arithmetic puzzle: SEND+MORE=MONEY.
+sendmory2.t        Crypto-arithmetic puzzle: SEND+MORE=MONEY. Cooler version.
+crypto.t           General crypto-arithmetic puzzle solver.
+loop.t             Simple loop for benchmarking.
+tak.t              Tekeuchi function.
+hanoi.t            Towers of Hanoi.
+interpret.t        Simple expression interpreter.
+
+
+[1] This program is not built and run on `make check', because it
+    modifies the contents of the current directory.  You can build it
+    with `make copy_file' and then run `copy_file copy_file.t
+    copy_file.copy' to verify that it works.  `make examples' will
+    also build this program.
+
+[2] These programs are not built and run when `make check' is invoked,
+    because they require a host with networking support.  You can
+    build these with `make examples' and run them by hand for testing.
+
+
+[3] The results printd by this example are not correct, since we would
+    need integer or finite domain constraints in order to calculate
+    something sensible.
+
+
+Files which do not compile yet:
+-------------------------------
+
+min-ex.t           Calculation of minimal list element using
+		   constraints.
+queens_cip.t       N-queens problem, with constraint-imperative
+                   programming.
+
+
+Administrativa:
+---------------
+
+ChangeLog          Change list for the `examples' directory.
+Makefile.am        Input file for Automake for generating Makefile.in.
+Makefile.in        Input file for Autoconf for generating Makefile.
+README             The file you're reading.

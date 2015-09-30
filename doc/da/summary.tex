@@ -1,0 +1,201 @@
+%% summary.tex -- Summary and evaluation.
+%%
+%% Copyright (C) 2003 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+\chapter{Summary and Evaluation}
+\label{cha:summary}
+
+In this work, we introduced constraint programming, examined the
+research in the field of constraint integration into imperative
+languages, defined the properties these combinations should have, and
+finally presented the design and implementation of the higher-order
+constraint imperative programming language \turtle{}.
+
+This chapter discusses some alternatives to the design and
+implementation decisions made for this work, gives a list of desirable
+future works in the field of constraint imperative programming and
+finally closes with a conclusion.
+
+\section{Alternative Designs and Implementations}
+\label{sec:alternatives}
+
+The integration of backtracking into the language similar to Alma-0
+would have made the interaction to constraint solving possible for
+problems with multiple solutions.  On the other hand, the
+implementation of arbitrary backtracking in the presence of assignment
+and higher-order functions would have been much more difficult than it
+is in the present solution.
+
+Also, the design of \turtle{} differs significantly from that of
+Kaleidoscope, since the \turtle{} design started with an imperative
+language and added constrainable variables and constraint statements
+later.  This results in a more efficient implementation, because
+well-known techniques for implementing imperative languages can be
+employed for programs (or program parts) which do not make use of
+constraints.  In Kaleidoscope, even the simplest imperative
+operations, such as assignment, are modelled in terms of constraints
+and a sophisticated optimizer is necessary for discovering which
+assignments can be implemented imperatively and thus more efficiently.
+The problem of different treatment of object identity and object
+equality does not appear in \turtle{}, since only identity is defined
+on arbitrary objects.  Unfortunately, the limitation that only
+constrainable variables can be determined by constraints and the fact
+that only integer and real types may appear in constraint types reduce
+the power of the constraint extensions considerably.  For example, it
+is not possible in \turtle{} to model the relations between arbitrary
+data structures, as it is in Kaleidoscope.
+
+\section{Future Works}
+\label{sec:future-works}
+
+The present language design of \turtle{} and the state of the
+implementation can not be regarded as a production-quality programming
+system.  It is best viewed as a starting point for investigating the
+possibilities and limitations of constraint imperative programming,
+and for the more ambitious research field of multiparadigm programming
+languages, combining not only imperative and constraint languages but
+also the functional and relational (logic) programming styles.
+
+\paragraph{Language enhancements.}
+\index{language enhancements} Real polymorphism, combined with type
+inference would reduce a lot of typing work when writing \turtle{}
+programs.  The work on the standard library revealed some
+short-comings, because some control structures known from other
+languages would have been useful from time to time.  A more useful
+loop construct like the {\bf for} loop in C, {\bf break} and {\bf
+  continue} statements for exiting loops, or {\bf switch} statements
+for multiway-branching were often missed.
+
+Support for object-orientation was sometimes missed, too.  Given the
+already available data structures for user-defined types and
+higher-order functions, this could be implemented within the current
+implementation merely by extending the syntax.
+
+When writing code which handles user-defined data types with many
+variants, dispatching on the type of variant is very tedious.  A
+pattern-matching construct as known from functional languages would
+ease that problem, and could also be implemented by syntax
+transformations early in the compilation process.
+
+Currently, the \turtle{} reference implementation uses exceptions to
+handle run-time errors such as subscripting errors or uninitialized
+variables only internally.  There is no way for the user to intercept
+and handle exceptions, or to manually raise them.  This has not been
+done for time reasons.
+
+\paragraph{Constraint solvers.}
+Constraint solvers for more domains and more powerful constraint
+solvers should be integrated into the \turtle{} run-time system.
+Finite domain solvers and linear arithmetic solvers capable of
+handling cycles in the constraint graph could extend the applicability
+of \turtle{} drastically.  An interesting idea is to remove all
+knowledge about constraint solving from the compiler, except the
+capability to construct a symbolic representation for arbitrary
+expressions.  This representation could then be handed over to a Meta
+Solver~\cite{hofstedt2001diss} which in turn processes the constraints
+and delegates the solving process to one or more solvers which can
+handle the constraints.
+
+\paragraph{Standard library.}
+To be generally useful, the standard library needs more abstract data
+types (for example graphs), code for interoperatibility with existing
+libraries (so-called glue code) and modules which implement generally
+useful algorithms, e.g. graph algorithms.
+
+\paragraph{Debugger.}
+\index{debugger} A source-code debugger, which would not only support
+\turtle{} programs, but also the visual presentation of constraints
+and constraint networks, would ease debugging in constraint-imperative
+languages. Meier~\cite{meier95debugging} describes a debugging
+framework for constraint-logic programs, which could be adapted to the
+needs of a constraint-imperative environment.
+
+\paragraph{Optimizations.}
+\index{optimizations}
+%
+A lot of well-known and established optimization techniques for
+imperative languages could be applied to the imperative subset of
+\turtle{}.  Inlining (sometimes referred to as {\em procedure
+  integration}), inside of modules and across module boundaries,
+constant propagation and folding, some control flow analysis and
+optimizations would be beneficial.  Also, some of the optimizations
+known from functional language implementations should be considered:
+boxing analysis, escape analysis and code fusion.  Especially
+important are optimizations which reduce heap allocation, such as
+advanced closure representation optimizations, because closure and
+environment allocation is an important source of inefficiency in the
+current implementation.
+
+A better garbage collector could improve the performance of \turtle{}
+programs further.
+
+\paragraph{Byte code compiler/interpreter.}
+\index{byte code!compiler}
+%
+In addition to the C backend a byte code compiler could be
+implemented.  This would speed up the development cycle.  Byte code
+modules take up less storage and are easier to handle, for example for
+dynamic loading.
+
+Using the \java{} byte code as a target code comes to mind, because it
+would provide interoperatibility with many applications, tools and
+libraries.  On the other hand, direct generation of machine code could
+improve the performance of the implementation a lot and should be
+considered, too.
+
+\paragraph{Logic Variables and Non-determinism.}
+Alma-0 supports non-deterministic calculation and logic variables,
+similar to logic programming languages.  The designers of Kaleidoscope
+also thought about integrating them, and support for these language
+features seems especially useful for solving constraint problems with
+several solutions and optimization problems.
+
+\paragraph{Further paradigm integration.}  
+More programming paradigms, for example functional or logic
+programming, could be integrated into the language, thus leading to a
+true {\em multiparadigm programming language}
+\index{multiparadigm!programming}%
+in the sense of Budd et al.~\cite{buddGeneral}.
+
+\section{Conclusion}
+
+Starting with the literature on the topic of constraint imperative
+programming, this thesis has identified the minimal properties a
+language in this paradigm should have: constrainable variables,
+constraint statements and a constraint solver.  Based on these key
+features, the higher-order constraint imperative language \turtle{}
+has been designed, starting with an imperative language with
+higher-order functions and adding constraint programming extensions
+later.  \turtle{} has been implemented for demonstrating the
+possibilities of the language design and to explore its limitations.
+
+The resulting language is practical, as has been verified by
+implementing programs of varying sizes in \turtle{}.  The set of
+example and test programs ranges from trivial ``Hello-World'' programs
+to a functional web server (including built-in directory listing and
+Wiki support~\cite{cunningham01wiki}) and a
+hand-written parser for the \turtle{} language.  The integrated
+constraint support was used in programs for solving crypto-arithmetic
+puzzles and simple layout problems.  The major drawback when using
+\turtle{} for practical programming is not the language design, which
+is simple but flexible, but the implementation of the integrated
+constraint solvers, which currently limits constraint imperative
+programming to the solution of small problems.
+
+The modeling of problems using \turtle{}'s language features,
+especially algebraic data types and constraints, is very convenient.
+High-level language features such as higher-order functions and
+user-defined constraints lead to much cleaner programs than could be
+written using traditional imperative languages.  The imperative
+features of the language are available whenever a problem of
+imperative nature is to be solved.  This flexibility of constraint
+imperative programming is especially useful when solving problems with
+varying requirements in one project and is worth considering in the
+design of new programming languages and systems.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "da.tex"
+%%% End: 
+
+%% End of summary.tex.

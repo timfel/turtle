@@ -1,0 +1,28 @@
+\setlength{\unitlength}{0.00087489in}
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+{\renewcommand{\dashlinestretch}{30}
+\begin{picture}(2663,756)(0,-10)
+\put(143,323){\circle{270}}
+\put(1043,323){\circle{270}}
+\put(1633,148){\circle{270}}
+\put(2083,598){\circle{270}}
+\put(2520,143){\circle{270}}
+\drawline(278,323)(908,323)
+\drawline(1763,143)(2393,143)
+\drawline(2078,458)(2078,143)
+\put(998,278){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}y}}}}}
+\put(503,368){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}=}}}}}
+\put(98,278){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}x}}}}}
+\put(1583,98){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}x}}}}}
+\put(2483,98){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}y}}}}}
+\put(2038,548){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}z}}}}}
+\put(2123,278){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}=}}}}}
+\put(2033,8){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}+}}}}}
+\end{picture}
+}

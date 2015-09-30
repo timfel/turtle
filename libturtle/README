@@ -1,0 +1,28 @@
+								-*-text-*-
+
+This directory contains the compiler library for Turtle and the
+runtime library for Turtle programs.
+
+To build the libraries, do `make' in the current directory.  If you
+want the complete compiler (and most certainly you will), do `make' in
+the parent directory.  This will build the compiler in `../turtle'
+which uses the compiler library to compile programs from the command
+line.
+
+
+Files in this directory:
+------------------------
+
+libturtlert.c   Runtime library for Turtle programs.
+libturtlert.h   Declarations for the runtime library..
+
+*.h, *.c        Various source files for the compiler library.
+
+
+Administrativa:
+---------------
+
+ChangeLog       Listing of changes.
+Makefile.am     Automake input for Makefile.in generation..
+Makefile.in     Autoconf input for Makefile generation.
+README          The file you're reading.

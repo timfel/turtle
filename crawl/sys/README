@@ -1,0 +1,38 @@
+								-*-text-*-
+
+This directory contains some library modules for system-dependent
+functions.
+
+Please note that the functions in this subsystem are probably not
+portable.
+
+Build the system-dependent library modules with `make'.
+
+
+Internal library modules:
+-------------------------
+
+dirs.t           File system directory handling.
+dirs.t.i         Handcoded implementation of the above.
+errno.t          Accessing operator system errors.
+errno.t.i        Handcoded implementation of the above.
+files.t		 File handling.
+files.t.i        Handcoded implementation of the above.
+net.t		 Network programming.
+net.t.i          Handcoded implementation of the above.
+procs.t          Process handling.
+procs.t.i        Handcoded implementation of the above.
+sigs.t           Operating system handling.
+sigs.t.i         Handcoded implementation of the above.
+times.t		 Time of day handling.
+times.t.i        Handcoded implementation of the above.
+users.t          Accessing the user data base.
+users.t.i        Handcoded implementation of the above.
+
+
+Administrativa:
+---------------
+
+ChangeLog        Change list for the `crawl/internal' directory.
+Makefile.am      Input file for Automake for generating Makefile.in.
+Makefile.in      Input file for Autoconf for generating.

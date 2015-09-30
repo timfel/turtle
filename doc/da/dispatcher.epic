@@ -1,0 +1,62 @@
+\setlength{\unitlength}{0.00087489in}
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+{\renewcommand{\dashlinestretch}{30}
+\begin{picture}(6048,2340)(0,-10)
+\put(1992,1260){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}break;}}}}}
+\put(1992,900){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}break;}}}}}
+\put(1902,1440){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}case 0: /* Code for function 0. */}}}}}
+\put(1902,1080){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}case 1: /* Code for function 1. */}}}}}
+\put(1812,1620){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}switch (pc - descriptors) $\{$}}}}}
+\put(1767,1800){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}jump:}}}}}
+\put(1902,720){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}default:}}}}}
+\put(1992,540){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}pc = (closure)(pc)-$>$code;}}}}}
+\put(1992,360){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}goto jump;}}}}}
+\put(1812,180){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}$\}$}}}}}
+\put(1722,0){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}$\}$}}}}}
+\put(1722,1980){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}void host(ttl\_descr pc) $\{$}}}}}
+\put(4602,1980){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}void dispatcher(void) $\{$}}}}}
+\put(4692,1800){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}pc = initial\_pc;}}}}}
+\put(4692,1620){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}while (1) $\{$}}}}}
+\put(4782,1440){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}pc = pc-$>$host(pc);}}}}}
+\put(4692,1260){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}$\}$}}}}}
+\put(4602,1080){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}$\}$}}}}}
+\drawline(192,1935)(732,1935)
+\drawline(192,1755)(732,1755)
+\drawline(192,1575)(732,1575)
+\drawline(192,1395)(732,1395)
+\drawline(192,1215)(732,1215)
+\drawline(192,2115)(732,2115)(732,1035)
+	(192,1035)(192,2115)
+\drawline(642,2025)(1632,2025)
+\drawline(1512.000,1995.000)(1632.000,2025.000)(1512.000,2055.000)
+\drawline(642,1845)(1002,1845)(1002,2025)
+\drawline(642,1665)(1002,1665)(1002,1845)
+\drawline(642,1485)(1002,1485)(1002,1665)
+\drawline(642,1305)(1002,1305)(1002,1485)
+\drawline(642,1125)(1002,1125)(1002,1305)
+\drawline(732,225)(732,45)
+\drawline(192,225)(1272,225)(1272,45)
+	(192,45)(192,225)
+\drawline(642,135)(642,405)(1092,405)(1092,2025)
+\drawline(1182,135)(1182,675)(12,675)
+	(12,1485)(192,1485)
+\drawline(72.000,1455.000)(192.000,1485.000)(72.000,1515.000)
+\drawline(12,2295)(12,2025)(192,2025)
+\drawline(72.000,1995.000)(192.000,2025.000)(72.000,2055.000)
+\put(237,1080){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}host}}}}}
+\put(237,1260){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}host}}}}}
+\put(237,1440){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}host}}}}}
+\put(237,1620){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}host}}}}}
+\put(237,1800){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}host}}}}}
+\put(237,1980){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}host}}}}}
+\put(282,90){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}host}}}}}
+\put(777,90){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}code}}}}}
+\put(102,2205){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}initial\_pc}}}}}
+\end{picture}
+}

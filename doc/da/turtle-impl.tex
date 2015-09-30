@@ -1,0 +1,1345 @@
+%% turtle-impl.tex -- Chapter on the implementation of Turtle
+%%
+%% Copyright (C) 2003 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+\chapter{The Implementation of \turtle{}}
+\label{cha:turtle-impl}
+
+This chapter describes the implementation of the \turtle{} compiler
+and the \turtle{} run-time system.  First we will give an introduction
+to the compilation process, then the various modules of the compiler
+are briefly described.  We will not go into detail for most parts of
+the compiler, because they are fairly straightforward and well treated
+in literature~\cite{appel98moderncompiler,grune00compilerdesign}.
+Only the more interesting algorithms and concepts will be covered
+explicitly.  Then we will present the structure of the run-time system
+and document various aspects of the implementation, such as memory
+management algorithms and constraint handling.  The chapter concludes
+with a discussion of the implementation techniques and presents some
+statistical data about the generated code and performance of \turtle{}
+programs.
+
+
+\section{The \turtle{} Compiler}
+\label{sec:turtle-compiler}
+
+In this section the \turtle{} compiler---as currently implemented---is
+described.  Its task is the translation of \turtle{} source code into
+executable programs.  As for most modern high-level languages, the
+generated programs require substantial run-time support (for memory
+management etc.) from a library which gets linked into the final
+program (either statically or via a run-time link loader).  The
+run-time system will be described in the next section, but it is very
+important that the compiler and the run-time system agree on the
+run-time in\-ter\-face (e.g.~data representation and function call
+conventions) because the compiler must generate code which works with
+the run-time system when executing the program.
+
+
+\subsection{Compiler Description}
+\label{sec:compiler-description}
+
+The \turtle{} compiler is implemented as a library which exports a
+single function.  This function expects as input the name of the input
+file and a data structure containing the compilation options, such as
+optimization switches, and paths to module directories.  The function
+translates the input file to either an object file (for library
+modules) or to an executable (for main programs) and returns a success
+indicator to the caller.  The library can be linked into any
+application, so it could be used for implementing an integrated
+development environment.  Currently only a command line compiler is
+available, which allows to set the compilation options on the command
+line.
+
+\begin{figure}[htp]
+\begin{center}
+\input{compiler.epic}
+\end{center}
+\caption{\turtle{} compiler and internal representations}
+\label{pic:compiler}
+\end{figure}
+
+\index{scanner}
+\index{token}
+\index{lexical analysis}
+%
+Figure~\ref{pic:compiler} illustrates the architecture of the
+\turtle{} compiler, which can be divided into an analysis and a
+synthesis part.  The first component of the analysis, the {\em
+  scanner}, reads the source code from an external file and groups the
+individual characters into lexical entities, so-called {\em tokens}.
+Layout and comments are removed and keywords are separated from other
+identifiers.  The scanner recognizes the regular part of the \turtle{}
+syntax and attaches source code locations to the individual tokens.
+This information is important to provide precise error messages in the
+parsing and semantic checking phases and for generating debugging
+information to be used with the final program during run-time, for
+example for displaying back-traces on exceptions.  The following
+phases of the compiler maintain the source code location information
+in their respective program representations.
+
+\index{recursive descent}
+\index{abstract syntax tree}
+\index{AST}
+%
+The token stream produced by the scanner is then processed by the
+parser, which recognizes the context-free structure of the syntax and
+creates an {\em abstract syntax tree} (AST).  This abstract syntax
+tree is a 1-to-1 mapping from source code into a tree structure, and
+only very few syntactic transformations are performed in this part of
+the compiler.\footnote{Currently, only {\bf elsif} constructs are
+  expanded into nested {\bf if}-statements.}  The parser used is a
+hand-written {\em recursive descent} parser.
+
+\index{semantic analysis}
+\index{overloading resolution}
+%
+The parsing phase is followed by the semantic analysis.  This phase
+takes the AST as its input and checks the context-dependent
+correctness of the program and relates the identifiers in the program
+to the entities (variables, functions, etc.) they refer to.  Because
+of the overloading provided by the language, these relations depend on
+the types of identifiers and expressions.  Furthermore, the module
+concept of \turtle{} requires that imported modules are made available
+in the global name-space of the module to be compiled.  In this step,
+also the instantiation of module parameters is performed as described
+in section~\ref{sec:overload-resolution}.
+
+\index{name mangling}
+%
+When the analysis is finished, the compiler has an internal
+representation of the source program which is syntactically and
+semantically correct\footnote{Of course only as far as the static
+  semantics is concerned, the dynamic semantics can only be checked
+  when the program is actually run.} and in which every identifier is
+unambiguously related to the entity it stands for.  All nodes in the
+program graph are annotated with the types of the expressions they
+represent.  For all identifiers, a unique name has been generated,
+either by {\em name mangling}\footnote{Generating a name which
+  includes the original name and an alphanumeric representation of its
+  type.} for global variables, functions or constraints, or by
+appending a unique number to the name for local variables, functions
+and constraints.
+
+
+\index{HIL}
+\index{high-level intermediate language}
+
+This intermediate tree-like representation of the program text is
+called {\em high-level intermediate language} (HIL).  It is the input
+to the synthesis phase of the compiler.
+
+Before being passed on, the HIL could be optimized by a high-level
+optimizer module which could perform procedure integration, common
+subexpression elimination and other optimizations.  Since this is
+currently not implemented, this module is represented by a dotted box.
+
+\index{LIL}
+\index{low-level intermediate language}
+%
+The synthesis phase is responsible for translating the HIL to the
+target code, which in the case of the current \turtle{} implementation
+is the programming language ANSI \cee{}.  This translation is
+implemented in two steps.  First, the HIL is translated by the code
+generator to a {\em low-level intermediate language}\footnote{The idea
+  to use several different intermediate representations for
+  compilation comes from~\cite{muchnick97advancedcompiler}, where
+  three intermediate representations are used (HIR, MIR and LIR).}
+(LIL) which has a form similar to assembler language, but is machine
+independent.  Here are located some machine-independent optimizations,
+known as {\em peep-hole optimization}, such as collecting heap
+overflow checks at the start of basic blocks.
+
+In the second step of the synthesis, the LIL is translated to \cee{}
+code, which is then compiled to machine code by a \cee{} compiler.
+
+\begin{figure}
+\begin{center}
+\input{compiling.epic}
+\end{center}
+\caption{Compilation of \turtle{} programs}
+\label{pic:compiling}
+\end{figure}
+
+Figure ~\ref{pic:compiling} shows the various phases of the compiler
+together with their in- and output files and describes how the
+generated \cee{} code is processed further.  The input to the
+compiler, the source code file, is shown on the upper left.  It is
+read into the scanner and processed by the parser.  The semantic
+analysis must check references to external identifiers, so the context
+checker must know the interfaces of all imported modules.  These are
+read from the interface files of the modules, shown on the left.
+
+After the successful semantic analysis the interface file for the
+currently compiled source module is written out, which includes all
+module dependencies, the optional module parameters and the signature
+of all exported types, functions, variables and constraints.  This
+interface file is shown on the right of the context check/overload
+resolution module.
+
+After the optional optimization step, the HIL is given to the code
+generator, producing optimized LIL code.  The optimized LIL code is
+then passed to the code emitter, which writes out a \cee{} source code
+file.
+
+\index{C compiler}
+\index{linker}
+\index{object code}
+\index{executable}
+
+The \cee{} source code is translated to object code by a \cee{}
+compiler, which is not part of the \turtle{} implementation.  Since
+the \cee{} compiler needs to know about global variables and
+functions, it is given the header files for the imported modules.  The
+result of this compilation step is an object file.  When compiling a
+program and not only a library module, the linker is invoked to link
+the newly created object file, the object files of the imported
+modules and the \turtle{} run-time library to form the executable
+program. The linking step is not necessary when compiling a library
+module and is therefore put into a dotted box in the figure.
+
+For illustrating the various stages of the compiler, the intermediate
+representations for the \turtle{} program~\ref{prog:mini-prog} will be
+shown.
+
+\begin{Program}
+\begin{ttlprog}
+1\>\ttlModule{} example;\\
+\\
+2\>\ttlPublic{} \ttlFun{} main(argv: \ttlList{} \ttlOf{} \ttlString{}): int\\
+3\>\>\ttlVar{} x: int $\leftarrow$ 1;\\
+4\>\>\ttlVar{} y: int $\leftarrow$ 2;\\
+5\>\>x $\leftarrow$ y * x;\\
+6\>\>\ttlReturn{} 0;\\
+7\>\ttlEnd{};
+\end{ttlprog}
+\caption{Compilation example}
+\label{prog:mini-prog}
+% module example;
+
+% public fun main(argv: list of string): int
+%   var x: int := 1;
+%   var y: int := 2;
+%   x := y * x;
+%   return 0;
+% end;
+\end{Program}
+
+The HIL representation for this program is shown in
+program~\ref{prog:mini-prog-hil}.  All type information has been made
+explicit and all identifiers have been made unique by either name
+mangling (for the function name {\em main}) or by appending unique
+numbers (for the local variables)
+
+\begin{Program}
+\begin{ttlprog}
+1\>.\ttlFun{} example\_main\_pF1pLpS\_pI\\
+2\>\>.param argv\_0\\
+3\>\>.local x\_1\\
+4\>\>.local y\_2\\
+\\
+5\>\>x\_1:int $\leftarrow$ 1:int\\
+6\>\>y\_2:int $\leftarrow$ 2:int\\
+7\>\>x\_1:int $\leftarrow$ (y\_2:int * x\_1:int):int\\
+8\>\>\ttlReturn{} 0
+\end{ttlprog}
+\caption{Compilation example -- HIL}
+\label{prog:mini-prog-hil}
+\end{Program}
+
+Finally, Program~\ref{prog:mini-prog-lil} contains the LIL code for
+the example program. In this representation all nested expressions
+have been put into a form suitable for machine execution.  All
+references to local variables have been translated to references to
+the environment and the expressions have been unnested.  Additionally,
+code for checking for heap overflow and environment creation has been
+generated.  LIL is similar to the TAM machine language presented in
+Chapter~\ref{cha:turtle}, but has more instructions so that generation
+of efficient code is easier. Other instructions are necessary because
+of the restriction of real machines. For example, the {\tt gc-check}
+instruction in LIL checks for heap overflow, which is not necessary in
+an abstract machine with conceptionally unbounded memory.
+
+\begin{Program}
+\begin{ttlprog}
+1\>L0:\\
+2\>\>gc-check  \#4\\
+3\>\>make-env  \#1, \#2\\
+4\>\>load-int   \#1\\
+5\>\>store     env(0, 1)\\
+6\>\>load-int  \#2\\
+7\>\>store     env(0, 2)\\
+8\>\>load      env(0, 2)\\
+9\>\>push\\
+10\>\>load      env(0, 1)\\
+11\>\>mul\\
+12\>\>store     env(0, 1)\\
+13\>\>load-int  \#0\\
+14\>\>restore
+\end{ttlprog}
+\caption{Compilation example -- LIL}
+\label{prog:mini-prog-lil}
+\end{Program}
+
+\subsection{Overload resolution}
+\label{sec:overload-resolution}
+
+\index{overload resolution}
+%
+Identifiers in \turtle{} programs can be defined multiple times in the
+same scope, as long as the applications of these identifiers can be
+unambiguously assigned to their declarations.  This means that it must
+be possible to either distinguish identifiers by context (type names
+can only occur in type expressions; variables, functions or
+constraints only in expressions) or by type.  It is not allowed to
+have more than one data type with the same name in a scope, and
+variables, functions and constraints must be distinguishable by their
+type.
+
+\index{Ada}
+%
+In contrast to other programming languages like \java{} or
+\cplusplus{}, variables and the return types of functions can be
+overloaded, as for example in \ada{}.  The implemented overload
+resolution algorithm, a simplified variant of Baker's algorithm as
+presented in~\cite{bilsonOverload} (originally described
+in~\cite{baker82overload}), is capable of making the right assignments
+by examining the context of the identifiers.  The basic idea is to
+collect for each expression the set of possible interpretations (e.g.
+for an identifier all variables or functions with that name) in a
+bottom-up traversal of the syntax tree, and to eliminate as soon as
+possible all interpretations which lead to wronlgy typed or otherwise
+non-sensical interpretations (for example, assignment to the name of a
+function).  If at the top-level of statement expressions more than one
+interpretation arrives, the expression is ambiguous, and if the set of
+interpretations is empty, a semantic error has been found, for example
+the use of an undefined identifier or a type error.
+
+Overloading is also used for type-checking parametrized modules.
+\turtle{} requires the programmer to give actual types as parameters
+to imported parametrized modules.  When adding the public declarations
+of these modules to the scope of the importing program, all occurences
+of type parameters in these declarations are replaced by their
+corresponding actual parameters.  Thus, when a module is imported
+multiple times with different actual parameters, the definitions of
+this module are imported several times, with different types.
+
+For example, consider the following {\bf import} statement:
+
+%import listmap<int, string>, listmap<char, int>;
+\begin{ttlprog}
+\>\ttlImport{} listmap$<$int, \ttlString{}$>$, listmap$<$char, int$>$;
+\end{ttlprog}
+%
+The importing module will see the following function declarations:
+%
+%public fun map(f: fun(A): B, l: list of A): list of B
+%public fun map(f: fun(int): string, l: list of int): list of string
+%public fun map(f: fun(char): int, l: list of char): list of int
+\begin{ttlprog}
+\>\ttlFun{} map(f: \ttlFun{}(int): \ttlString{}, l: \ttlList{} \ttlOf{} int): \ttlList{} \ttlOf{} \ttlString{}\\
+\>\ttlFun{} map(f: \ttlFun{}(char): int, l: \ttlList{} \ttlOf{} char): \ttlList{} \ttlOf{} int
+\end{ttlprog}
+%
+With these multiple declarations of function {\em map}, the normal
+overload resolution algorithm can type-check applications of this
+function to arguments of different types.  Thus, with a simple
+substitution when importing module declarations, parametrized modules
+can be type-checked with a semantic analyzer which does not know
+anything about parametric polymorphism at all!
+
+\subsection{Code Generation}
+\label{sec:code-generation}
+
+\index{code generation}
+
+The translation from HIL to LIL is performed by the code generation
+module.  While HIL is a tree-like representation, LIL is a flat,
+assembler-like language which only supports simple stack or register
+operations and labels for naming locations in the instruction
+sequence.  The code generation algorithm is similar to that by Dybvig%
+\index{Dybvig},
+Hieb%
+\index{Hieb} and Butler%
+\index{Butler}~\cite{dybvig90destination}.  Their article shows how a
+relatively simple compiler without data or control flow analysis can
+generate reasonably efficient machine code.  They define a
+transformation function, which receives a syntax tree, the location
+for the expected result and the target of the control flow (or the two
+targets, if it is a boolean expression used in a conditional) as
+inputs and produces the generated code.  By these means, unnecessary
+register moves and jumps to jump instructions can be avoided.  In many
+cases, the need for an additional optimization phase for cleaning up 
+the machine code (often called {\em peep-hole optimization}%
+\index{peep-hole optimization}) does not arise when using this
+algorithm.
+
+Nevertheless, the \turtle{} compiler contains a simple peep-hole
+optimizer, which for example combines all the heap-overflow checks in
+basic blocks into one at the beginning of the block.  This
+optimization could only be integrated with the code generation
+algorithm if an additional analysis would be added which determines in
+advance how much memory is allocated in any basic block, so that the
+code generator knows the amount of memory when it emits the first
+heap-overflow check of a basic block.  Our solution seems to be much
+simpler, but better analysis could find more opportunities for
+optimizing these overflow checks.
+
+Some complications in the code generation for \turtle{} programs are
+described below in section~\ref{sec:tail-recursion-elimination}.
+
+
+\subsection{Closure Representation}
+\label{sec:closure-representation}
+
+\index{closure}
+\index{free variable}
+
+Since \turtle{} is a higher-order language where functions can be
+arguments and results of functions and where functions can be stored
+into arbitrary data structures, functions must be represented
+internally in such a way that every function, when called, can access
+its free variables.  Free variables can be global variables or
+variables declared in lexically enclosing functions.  For global
+variables, no special care must be taken because they can be accessed
+by simply using their address in the data segment.  Local variables
+(including parameters) need to be treated differently, because there
+may be multiple copies of each local variable and because local
+variables may live longer than the function invocation during which
+they were created.  Therefore, for each definition of a local (named
+or anonymous) function, a data structure is created which contains a
+pointer to the machine code to execute when calling the function, and
+a pointer to the environment in which the local variables are stored.
+Since each environment contains a pointer to the enclosing
+environment, all free variables can be accessed following this pointer
+chain.
+
+For global functions, the run-time representation is simpler, because
+there are no enclosing environments for top-level function, and thus
+the only free variables can be global variables.  Global functions are
+simply represented by a pointer to their entry point.
+
+\index{Appel}
+%
+The advantage of the representation of closures as two-element records
+is the implementation simplicity.  A possible problem is that this
+representation, combined with linked environments can lead to an
+increase in asymptotic space complexity, as noted by
+Appel~\cite{appel92compilingwithcontinuations}.
+
+\subsection{Tail Recursion Elimination}
+\label{sec:tail-recursion-elimination}
+
+\index{tail recursion}
+%
+All functions of one source module are compiled to a single \cee{}
+function. As an example, consider the compilation of the two mutually
+recursive functions {\em odd} and {\em even} in
+program~\ref{prog:odd-even}.  These functions determine whether an
+integer is odd or even by repeatedly calling themselves until the
+integer becomes zero.  The \cee{} code resulting from compilation with
+the \turtle{} compiler is shown in figure~\ref{prog:c-odd-even}.  The
+code was taken directly from the output of the compiler but has been
+cleaned up for better presentation.\footnote{The labels L1, L4 and L6
+  were used for interrupt checks and have been deleted.  These
+  instructions are inserted by the compiler at each function and loop
+  beginning and check for operating system signals.}
+
+The generated \cee{} code illustrates that the two functions from the
+\turtle{} program have been combined into the function {\em
+  host\_procedure}.  When the function is called, a pointer (to the
+descriptor for the \turtle{} function to be called) is passed in the
+variable {\em pc}, and the {\bf switch} statement determines which
+case of the statement should be executed.  In the example, case 0 has
+been allocated to the function {\em odd} and case 5 for the function
+{\em even}.  Because of the combination of two source functions into
+one \cee{} function, the function {\em odd} can call the function {\em
+  even} by simply pushing the parameter onto the evaluation stack and
+jumping to label L5 (line 35).  The other way around works similarly
+(line 58).
+
+\begin{Program}
+\begin{ttlprog}
+1\>\ttlFun{} odd($i$: int): bool\\
+2\>\>\ttlIf{} $i = 0$ \ttlThen{}\\
+3\>\>\>\ttlReturn{} \ttlFalse{};\\
+4\>\>\ttlElse{}\\
+5\>\>\>\ttlReturn{} even ($i$ $-$ 1);\\
+6\>\>\ttlEnd{};\\
+7\>\ttlEnd{};\\
+\\
+8\>\ttlFun{} even ($i$: int): bool\\
+9\>\>\ttlIf{} $i = 0$ \ttlThen{}\\
+10\>\>\>\ttlReturn{} \ttlTrue{};\\
+11\>\>\ttlElse{}\\
+12\>\>\>\ttlReturn{} odd ($i$ $-$ 1);\\
+13\>\>\ttlEnd{};\\
+14\>\ttlEnd{};
+\end{ttlprog}
+\caption{Functions {\em odd} and {\em even} in \turtle{}}
+\label{prog:odd-even}
+% fun odd(i: int): bool
+%   if i = 0 then
+%     return false;
+%   else
+%     return even (i - 1);
+%   end;
+% end;
+
+% fun even (i: int): bool
+%   if i = 0 then
+%     return true;
+%   else
+%     return odd (i - 1);
+%   end;
+% end;
+\end{Program}
+
+\begin{Program}
+{\scriptsize
+\begin{ttlprog}
+1\>static int\\
+2\>host\_procedure (void)\\
+3\>\{\\
+4\>\>ttl\_value acc;\\
+5\>\>ttl\_value * sp;\\
+6\>\>ttl\_value * alloc;\\
+7\>\>ttl\_environment env;\\
+8\>\>ttl\_descr pc;\\
+9\>\>ttl\_closure self = NULL;\\
+10\>\>TTL\_RESTORE\_REGISTERS;\\
+11\> L\_jump:\\
+12\>\>switch (pc $-$ descriptors)\\
+13\>\>\>\{\\
+14\>\>\>case 0:\\
+15\>L0:\\
+16\>\>\>\>\>env = NULL;\\
+17\>\>\>\>\>TTL\_GC\_CHECK (10);\\
+18\>\>\>\>\>TTL\_MAKE\_ENV (1, 0);\\
+19\>\>\>\>\>env$-$$>$locals[0] = *($-$$-$sp);\\
+20\>\>\>\>\>acc = env$-$$>$locals[0];\\
+21\>\>\>\>\>TTL\_PUSH();\\
+22\>\>\>\>\>acc = TTL\_INT\_TO\_VALUE (0);\\
+23\>\>\>\>\>if (*($-$$-$sp) {\bf!}= acc) goto L3;\\
+24\>L2:\\
+25\>\>\>\>\>acc = TTL\_FALSE;\\
+26\>\>\>\>\>TTL\_RESTORE\_CONT;\\
+27\>\>\>\>\>break;\\
+28\>L3:\\
+29\>\>\>\>\>acc = env$-$$>$locals[0];\\
+30\>\>\>\>\>TTL\_PUSH();\\
+31\>\>\>\>\>acc = TTL\_INT\_TO\_VALUE (1);\\
+32\>\>\>\>\>acc = (ttl\_value) ((((int)*($-$$-$sp)) $-$ ((int)acc)));\\
+33\>\>\>\>\>TTL\_PUSH();\\
+34\>\>\>\>\>env = TTL\_VALUE\_TO\_OBJ (ttl\_environment, env$-$$>$parent);\\
+35\>\>\>\>\>goto L5;\\
+36\>\>\>case 5:\\
+37\>L5:\\
+38\>\>\>\>\>env = NULL;\\
+39\>\>\>\>\>TTL\_GC\_CHECK (10);\\
+40\>\>\>\>\>TTL\_MAKE\_ENV (1, 0);\\
+41\>\>\>\>\>env$-$$>$locals[0] = *($-$$-$sp);\\
+42\>\>\>\>\>acc = env$-$$>$locals[0];\\
+43\>\>\>\>\>TTL\_PUSH();\\
+44\>\>\>\>\>acc = TTL\_INT\_TO\_VALUE (0);\\
+45\>\>\>\>\>if (*($-$$-$sp) {\bf!}= acc) goto L8;\\
+46\>L7:\\
+47\>\>\>\>\>acc = TTL\_TRUE;\\
+48\>\>\>\>\>TTL\_RESTORE\_CONT;\\
+49\>\>\>\>\>break;\\
+50\>L8:\\
+51\>\>\>\>\>pc = descriptors $+$ 8;\\
+52\>\>\>\>\>acc = env$-$$>$locals[0];\\
+53\>\>\>\>\>TTL\_PUSH();\\
+54\>\>\>\>\>acc = TTL\_INT\_TO\_VALUE (1);\\
+55\>\>\>\>\>acc = (ttl\_value) ((((int)*($-$$-$sp)) $-$ ((int)acc)));\\
+56\>\>\>\>\>TTL\_PUSH();\\
+57\>\>\>\>\>env = TTL\_VALUE\_TO\_OBJ (ttl\_environment, env$-$$>$parent);\\
+58\>\>\>\>\>goto L0;\\
+59\>\>\>\}\\
+60\>\>TTL\_SAVE\_REGISTERS;\\
+61\>\}
+\end{ttlprog}
+}
+\caption{Generated C code for {\em odd} and {\em even}}
+\label{prog:c-odd-even}
+\end{Program}
+
+This compilation scheme makes it possible to compile calls to known
+functions in the same module to direct jump instructions, yielding
+extremely efficient function calls.  Unfortunately, this scheme cannot
+be employed for function calls across module boundaries, because it is
+not possible to compile portable \cee{} code with this property.
+
+\index{Scheme}
+\index{Gambit}
+\index{Feeley}
+%
+In order to achieve proper tail-recursive function calls, even across
+module boundaries, the \turtle{} compiler uses a compilation scheme
+similar to the one used in the \gambit{} \scheme{} compiler for its
+\cee{} back-end.  Feeley et al.  describe how to compile languages
+with higher-order functions to portable
+\cee{}~\cite{feeley97compilingtoc}.
+
+\begin{figure}[htp]
+\begin{center}
+\input{dispatcher.epic}
+\end{center}
+\caption{Function call implementation}
+\label{pic:dispatcher}
+\end{figure}
+
+Figure~\ref{pic:dispatcher} shows how this compilation scheme works
+for non-local function calls.  On the left, the descriptor table which
+is generated for each module is shown.  This table contains an entry
+for each function entry point and each return location, and each table
+entry points to the {\em host function}, that is the \cee{} function
+which contains its code.  The variable {\em initial\_pc} points to the
+first element of the table and indicates the entry point for the first
+function to be called.  Below the descriptor table, a closure record
+is shown.  The first word of a closure record also contains a pointer
+to the host function.  The reason is that it is possible to fetch the
+first word of a closure record or descriptor table entry and to get
+the correct host function, so that global functions do not need
+closure records but can instead point directly into the descriptor
+table.
+
+In the middle of the figure, the host function is shown.  It
+calculates from the descriptor in the global variable {\em pc} the
+index of the function which is to be called and then jumps to the
+corresponding program code with a {\bf switch} statement.  When a
+function calls another function, it first saves the descriptor of the
+return point on a stack, loads the target function into {\em pc} and
+returns from the host function.  When the called function returns, it
+takes the saved {\em pc} from the stack and returns from its host
+function, so that the dispatch loop will jump to the return point.
+
+Closures are distinguished from normal descriptors by the fact that
+their address does not point into the descriptor table.  This will
+cause the {\bf switch} statement to jump to its {\bf default} branch.
+Since the real descriptor address for the closure code is stored in
+the closure together with the captured environment of the closure,
+both can be fetched from the closure object and by jumping to the
+beginning of the host function, the correct code will be executed.
+
+This implementation of closures has the advantage that normal
+functions and closures can be called in the same way, but at a
+slightly higher cost of calling closures.
+
+A host function runs as long as only function calls inside a module
+are made.  Whenever a function from another module is to be called or
+whenever a function must return to a function in another module, the
+host function is left.  This ensures that no stack space is needed for
+these function calls or returns, but it requires a means to call the
+host function of the next \turtle{} module to be called.  This is the
+task of the main loop.
+
+The main loop (called {\em dispatcher} in Figure~\ref{pic:dispatcher})
+initializes the program counter and calls the host function associated
+with the program counter via the descriptor table.  When the host
+function returns, it has placed the program counter to call next in
+the variable {\em pc} which will be called in the next loop iteration.
+This continues until the program terminates by calling an operating
+system call for this purpose.
+
+Feeley et al.~\cite{feeley97compilingtoc} report that the \cee{} code
+generated in this way runs at half the speed compared to the machine
+code generated directly by the native code back-end of the Gambit
+compiler.  Slower code is a clear disadvantage of this approach, but
+the generation of portable \cee{} has the obvious advantage that the
+\turtle{} system can compile code for various architectures without
+any work for porting.
+
+Additionally, the machine code produced by the \cee{} compiler is
+better than one would expect, since \cee{} compilers often include
+sophisticated optimizations which would be hard to achieve when
+implementing them again for the \turtle{} compiler.
+
+
+\subsection{Compiling Constraint Statements}
+\label{sec:compiling-constraints}
+\index{compilation!constraints}
+\index{constraint!compilation}
+\index{constraint compilation}
+
+The compiler distinguishes two kinds of constraints in constraint
+statements: first, we have trivial constraints which do not contain
+any references to constrainable variables.  These constraints are
+translated like normal boolean expressions, followed by a test whether
+the result was true or false.  If the result was false and the
+constraint was required, an exception is raised.
+
+For non-trivial constraints, compilation is more complicated.  Since
+constraints are first-class objects (they have to remain accessible to
+the constraint solver until the scope of the constraints is left), a
+representation of the constraint must be built.  This representation
+must contain references to the constrainable variables so that the
+constraint solver can fetch the values of these variables and can
+store new values into them.  Recall that references to normal
+variables, function calls and constant subexpressions are treated as
+constants, so that only the results of evaluating them have to be
+stored in the constraint representation.  After building the
+representation, the constraint is tagged with its strength (0 for
+required constraints, and values greater than 0 for preferential
+(non-required) constraints) and added to the constraint store.  Adding
+the constraint will cause the constraint solver to re-solve the store.
+If any required constraints in the store cannot be satisfied after
+adding the new constraint, the new constraint will be removed and an
+exception will be raised.  If any preferential constraints are not
+satisfied, the solver tries to satisfy as many preferential
+constraints as possible, but no exception will be raised.
+
+For illustration of the translation of constraint statements, we will
+translate the following code fragment step by step:
+
+\begin{Program}
+% var x: ! int := var 0;
+% var y: int := 4;
+% require 10 * x > 3 * y - 1;
+\begin{ttlprog}
+1\>\ttlVar{} x: {\bf!} int $\leftarrow$ \ttlVar{} 0;\\
+2\>\ttlVar{} y: int $\leftarrow$ 4;\\
+3\>\ttlRequire{} 10 * x + 10 $>$ 3 * y $-$ 1;
+\end{ttlprog}
+\caption{Constraint compilation example}
+\label{prog:constraint-compilation-example}
+\end{Program}
+
+Line 1 declares the variable $x$ as a constrainable integer variable,
+so the compiler will need to translate the {\bf require} statement as
+a non-trivial constraint statement.  The translation proceeds by first
+partitioning the terms of the constraint into constants (that includes
+non-constrainable variables and function calls, which are evaluated
+before the constraint is created) and constrainable variables,
+together with their coefficients.  For our example, we have the
+constant expression 
+$$ -10+3*y - 1$$
+and the constrainable variable with coefficient
+$$10*x$$
+
+The translation of the {\bf require} statement consists of first
+pushing the constraint's strength onto the evaluation stack.  For our
+example, since no strength was specified, 0 (the strongest strength)
+is assumed.  After that, an indicator for the kind of constraint (the
+inequality `$>$') is pushed, followed by the number of constrainable
+variables (1 in the example). Then the value of the constant term
+(which must be evaluated before the constraint is created) is pushed
+onto the stack, followed by all constrainable variables with their
+corresponding coefficients.
+Program~\ref{prog:example-constraint-code} shows the generated code
+for the example.
+
+\begin{Program}
+\begin{tabular}{ll}
+load-constant & 0 \qquad{\em // constraint strength}\\
+push&\\
+load-constant & 3 \qquad{\em // constraint kind `$>$'}\\
+push&\\
+load-constant & 1 \qquad{\em // number of constrainable variables}\\
+push&\\
+load-variable & y \qquad{\em // calculate the constant term\dots}\\
+push&\\
+load-constant & 3\\
+mul&\\
+push&\\
+load-constant & -11\\
+add&\\
+push&\\
+load-variable & x \qquad{\em // load the constrainable variable object}\\
+push\\
+load-constant & 10\\
+push\\
+add-constraint & \qquad{\em // add the constraint to the store}
+\end{tabular}
+\caption{Generated code for the constraint example}
+\label{prog:example-constraint-code}
+\end{Program}
+
+Note that difference between the variables $x$ and $y$. The value of
+$y$ is used for calculating the constant term of the constraint,
+whereas the value of $x$ (which is a variable object) is pushed onto
+the stack so that the constraint solver responsible for the constraint
+can access the variable.
+
+Before translating the constraints into code, the compiler checks
+whether the constraint is representable in the symbolic
+representation.  Non-linear constraints or constraints with relations
+not supported by the constraint solvers are rejected by the compiler.
+
+
+\section{The Run-Time System}
+
+The run-time system comprises the environment for executing the
+imperative, functional and constraint code, for example memory
+management, in-/output functions, the constraint store and constraint
+solver.
+
+Figure~\ref{pic:turtle-program-parts} shows the individual parts of a
+\turtle{} program when it is executed.  The code section is the
+compiled program code of the source program, the data section holds
+the global variables of the \turtle{} program and the run-time system,
+and a variable for each global function storing its function
+descriptor.  The stack is needed for the run-time system, because it
+is written in the \cee{} language.  A separate small stack for
+evaluating expressions and holding intermediate results is contained
+in the data section.  The code of the run-time system is shown as {\em
+  \turtle{} run-time} in the figure.  The heap stores dynamically
+created data structures, the environments and continuations of active
+\turtle{} functions.  It is divided into two equal-sized parts,
+because the garbage collector is a copying collector which moves the
+heap data from one space to the other during collection.  The
+constraints are held in one or more constraint stores, where they are
+accessed and manipulated by the constraint solver component(s) only.
+
+\begin{figure}[htp]
+\begin{center}
+\input{runtime-schema.epic}
+\end{center}
+\caption{\turtle{} program components}%
+\label{pic:turtle-program-parts}
+\end{figure}
+
+
+\subsection{Memory Management}
+\label{sec:memory-management}
+
+\index{memory management}
+\index{garbage collection}
+\index{copying collection}
+\index{stop\&copy collector}
+\index{Cheney}
+%
+The dynamic memory of the \turtle{} system is maintained automatically
+by the garbage collector included in the run-time system.  Memory for
+dynamic data structures is allocated in the heap.  As soon as the heap
+becomes full and an allocation request cannot be satisfied, the
+garbage collector is invoked in order to remove all memory cells which
+are no longer needed from the heap, thus making them available for new
+allocation requests.  The collector employs a simple {\em stop\&copy}
+algorithm, as described by Cheney in~\cite{cheney70compaction}
+(reference given in~\cite{jones96gc}).
+
+\index{roots}
+\index{semi-space}
+%
+For this algorithm, the heap is divided into two areas of equal size
+called semi-spaces.  One of the two halves is used for allocation at a
+given time, while the other is unused between collections.  Since a
+heap segment is continuous in memory, memory allocation can be
+implemented very efficiently by simply incrementing a pointer by the
+size of the object to allocate.  As soon as the allocation pointer
+reaches the end of the semi-space,\footnote{This can be implemented
+  with an explicit comparison between the allocation pointer and the
+  end address of the semi-space, or by write-protecting a page at the
+  end of the space and catching the trap which will be generated when
+  the allocated object in the write-protected page is initialized.
+  \turtle{} uses the former method, because it is much more portable,
+  easier to implement and efficient enough for our purposes.} all heap
+objects which are (transitively) reachable from some storage locations
+called {\em garbage collection roots} (such as the stack and the
+machine registers) are copied to the other semi-space and the roles of
+the two spaces are switched.  All objects which remain in the old
+allocation space have not been reachable from the roots and therefore
+cannot influence the future program execution, they are called {\em
+  garbage}.  Since the old allocation space will become allocation
+space again after the next garbage collection, there is no need to
+explicitly remove the garbage objects, they will simply be overwritten
+by objects allocated in the future.
+
+Cheney's algorithm is extended in the \turtle{} garbage collector to
+check how full the allocation semi-space is after each collection, and
+if the collection did not free enough memory, the heap is resized.
+This ensures that garbage collections will not occur too frequently
+and adapts the heap size to the memory requirements of the running
+program.
+
+
+\subsection{Data Representation}  
+\label{sec:data-representation}
+
+The data representation specifies how values are represented during a
+\turtle{} program's run-time.  The representation scheme used is
+similar to the one used in the Scheme~48 system
+\cite{kelsey94tractable}, with an optimization suggested in the paper.
+
+Turtle objects are denoted by so-called descriptors, which are either
+immediate values, occupying only one word of storage or pointers to
+two or more words in the heap.  Figure~\ref{pic:data-rep} shows the
+four types of descriptors and how they are related to each other.
+
+\begin{figure}[htp]
+\begin{center}
+\input{data-rep.epic}
+\end{center}
+\caption{Data representation}%
+\label{pic:data-rep}
+\end{figure}
+
+\begin{figure}[htp]
+\begin{center}
+\input{data-header.epic}
+\end{center}
+\caption{Header field layout}%
+\label{pic:data-header}
+\end{figure}
+
+Immediate values are distinguished by their two low bits, which must
+be \#b00\footnote{This notation will be used in this section for
+  binary numbers.}.  Heap-allocated objects come in two flavours:
+pairs (also known as {\em cons cells}%
+\index{cons cell} in other languages) are two-word objects (mainly
+used for linked list structures) and have \#b10 in the low bits of
+their descriptors.  All other heap-allocated objects have \#b01 in
+their two lowest descriptor bits.  The descriptors for heap-allocated
+objects point to the header field of their objects, when the two
+lowest bits are masked out.  That means that all heap-allocated
+objects must be aligned on a two-word boundary.  For non-pair cell
+pointers, the data area is preceded by a header field, which is one
+word in size and contains the tag bits \#b11 in the lowest bits, a
+type code in the next 6 bits and a 24-bit unsigned size field in the
+upper bits (see Figure~\ref{pic:data-header}).  The header field is
+required by the garbage collector to find out which words in the
+objects are pointers and how large the object is, so that the objects
+can be traced correctly.
+
+The special header tag \#b11 allows us to omit a header field for
+pairs, thus reducing the storage requirements for lists by one word
+per pair.  The reason for the special tag is that the garbage
+collector can check whether a pointer into the heap is pointing to a
+pair or another heap-allocated object by simply examining the two
+lowest bits of the first word of the object.  If it is \#b11, it is
+not a pair, otherwise, it is a pair.  Therefore it is an important
+invariant of the run-time system that {\em no} descriptor in the
+system which is not a header field is tagged \#b11.
+
+
+\subsection{Hand-Coding}  
+\label{sec:handcoding}
+
+\index{hand-coded}
+%
+A lot of low-level functions cannot be implemented in Turtle, because
+there is no way to access operating system features or the C library
+directly.  Therefore, {\em hand-coded} modules have been added to the
+Turtle compiler.
+
+A hand-coded module contains function definitions, where the function
+body is either left out entirely, or is replaced by a string.  In the
+former case, the implementation of the function must then be given in
+a separate file as a \cee{} macro which is copied into the \turtle{}
+compiler's output, in the latter case, the string must name a \cee{}
+function which is defined in the separate file.  In the \cee{} source
+(either a macro or a function), calls to the \cee{} library, operating
+system calls or calls to the \turtle{} run-time system can be made.
+It is the responsibility of the programmer to make sure that no
+invariants of the run-time environment are violated.
+
+Another possibility to access the underlying system is the use of {\bf
+  foreign} expressions.  The statement
+%
+\begin{ttlprog}
+\>\ttlVar{} x: int $\leftarrow$ {\bf foreign} "TTL\_MAKE\_INTEGER (SIGINT)";
+\end{ttlprog}
+%
+initializes the variable $x$ with the integer value of the \cee{}
+preprocessor symbol {\tt SIGINT}.  The argument to {\bf foreign}
+expression is simply copied to the generated code in the correct
+place.
+
+The usage of hand-coded modules can affect the safety of \turtle{}
+programs, so they have to be written with special care and knowledge
+of the internals of the run-time system.  In order to avoid program
+errors because of hand-coded modules, the \turtle{} compiler must be
+explicitly instructed to accept these modules.  When this is not done,
+the compiler gives an error when a hand-coded module should be
+compiled.
+
+The same functionality could be achieved by providing a possibility to
+link object files written in other languages into \turtle{} programs,
+but the chosen approach has some advantages: the compiler will create
+interface files for hand-coded modules, it will also handle the
+dispatch loop and the initialization of variables etc.  All which is
+left for the programmer writing such a module is the programming of
+the function bodies.
+
+The term ``hand-coding'' and the idea to include this mechanism was
+inspired by the implementation of the functional language
+\opal{}~\cite{Pepper.Opal}.
+
+\section{Run-Time Constraint Solver}
+
+The \turtle{} run-time system contains constraint solvers for solving
+the constraints for which the compiler cannot generate more efficient
+straight-line code.  Currently, two constraint solvers are included in
+the implementation: a solver for cycle-free linear arithmetic equality
+and inequality constraints over the real numbers and a finite-domain
+solver ranging over the integers.  The architecture is open for the
+inclusion of more powerful solvers since the interface between the
+(imperative) run-time system and the constraint solvers is clearly
+designed and flexible enough for a wide variety of solvers.
+
+The real number constraint solver used implements the Indigo
+algorithm.  Indigo is a local propagation solver which can handle
+constraint hierarchies.  It works by narrowing intervals of real
+numbers and was developed by Borning, Anderson and Freeman-Benson.
+The implementation is based on the description
+in~\cite{borning96indigo}.
+
+The finite-domain constraint solver is a simple backtracking solver
+which is only optimized to make use of equality and inequality
+constraints with one variable and one constant to narrow the domains
+of variables before performing an exhaustive search to find solutions.
+Constraint hierarchies are currently not supported by the
+finite-domain solver.
+
+Both solvers are restricted to linear equations and inequalities over
+their respective domains, where the Indigo solver deals with the
+relations $=$, $\le$, $\ge$ and the backtracking solver with the
+relations $=$, $<$, $>$, $\le$, $\ge$ and $\not=$.  The compiler
+checks whether the constraints are syntactically correct and rejects
+constraints which the built-in solvers cannot handle.  This knowledge
+about the capabilites of the individual solvers is currently
+hard-wired into the compiler and would need to be extended before
+integrating other constraint solvers.
+
+\subsection{Run-Time-Solver-Interface}
+
+Communication between the imperative virtual machine and the run-time
+constraint solver needs to perform several tasks:
+
+\begin{itemize}
+\item Create variables on which the solver(s) can operate.
+\item Create constraints which tell the solver(s) how to operate on
+  the variables.
+\item Invoke the solver to obtain solutions.
+\item Work with the constrainable variables by extracting their values.
+% \item Mark solver-specific data structures as being used and inform
+%   the solver(s) about garbage collection, so that unused memory can be
+%   freed.
+\end{itemize}
+
+Constrainable variables are known to the compiler because of the
+constrainable type annotations given by the programmer.  For every
+constrainable variable, a slot in the data segment (for global
+variables), in the environment of the defining function (for local
+variables) or in the data object (for record fields) is reserved.  The
+variable objects which must be stored into these slots must be explicitly
+initialized by {\bf var} expressions (see
+section~\ref{sec:constrainable-vars}).
+
+In Figure~\ref{pic:variable-rep} (a) an environment frame is shown
+which corresponds to the environment of a function with the following
+local variables, just before the initializations are done:
+
+\begin{ttlprog}
+1\>\ttlVar{} x: {\bf!} int $\leftarrow$ \ttlVar{} 0;\\
+2\>\ttlVar{} y: int;\\
+3\>\ttlVar{} z: {\bf!} int $\leftarrow$ \ttlVar{} 2;
+\end{ttlprog}
+
+Figure~\ref{pic:variable-rep} (b) shows the same environment after
+initialization has finished.  The variable $y$, which is a normal
+variable, is initialized to the value 0, whereas the other variables
+are initialized with constrainable variable objects.  These objects
+contain a value slot, which is initialized by the operand of the {\bf
+  var} expressions and a pointer to a solver-specific data structure,
+which holds the information necessary for constraint solving.
+
+\begin{figure}[htp]
+\begin{center}
+\input{variables.epic}
+\end{center}
+\caption{Representation of variables and variable objects}%
+\label{pic:variable-rep}
+\end{figure}
+
+This layout of constrainable variables is the same for all domains and
+for all solvers, and only the solver-specific pointer differs for the
+various solvers.
+
+In order to store the values obtained by the constraint solvers, one
+additional requirement is necessary.  The solver-specific data
+structure must reserve a pointer field at the beginning which holds a
+pointer back to the constrainable variable object.  This pointer is
+used by the garbage collector.
+
+The garbage collector must be able to reclaim constrainable variable
+objects and inform the various constraint solvers when their specific
+data structures are no longer needed.  This is done by treating
+constrainable variable objects like record objects, which are copied
+during garbage collection, when they are reachable.  Additionally, the
+solver-specific object (which can be found by following the pointer in
+the constrainable variable object) is adjusted to point to the copy of
+the constrainable variable.  After each garbage collection, the
+individual solvers are informed that a collection was done, so that
+they can free all variable and constraint structures which are not
+marked.
+
+% Until now, we have seen how the necessary data structures are
+% maintained by the virtual machine, and how the necessary instructions
+% for handling them can be produced by the compiler.  What remains to be
+% discussed is how constraints are added to the solvers' constraint
+% stores and how the solvers are invoked to check the constraints for
+% satisfiability and to produce values for the variables.
+
+Currently, there are two different instructions for constraint
+creation, one for constraints over the real numbers and one for
+constraints over the integers.  This constraint creation instruction
+is then responsible for constructing a solver-specific representation
+of the constraint which can then be added to the constraint store of
+the solver.  After adding all the constraints of the conjunction to
+the solver, an instruction for re-solving the store is emitted.  When
+values for the individual variables are determined, the values are
+stored into the constrainable variable objects, reachable through the
+pointer in the solver-specific data structure mentioned above.
+
+The interface between the run-time system and the constraint solvers
+is very simple, nevertheless it is very flexible because of the
+two-directional references between constrainable variables and
+solver-specific variable representation.
+
+The constraint programming model currently implemented in \turtle{}
+only allows a single solution for the constraints, so that the solvers
+only determine the first (not necessarily best) solution.  This could
+be fixed by adding backtracking to the \turtle{} semantics, as with
+Alma-0.  Unfortunately, this would complicate \turtle{}'s semantics
+considerably, so it was left out of the language as described in this
+work.
+
+Additionally, under-constrained problems are not detected, so that for
+constraints over the real numbers, intervals of reals can be found as
+solutions, whereas only single real values can be stored into
+\turtle{} variables.  When such a situation arises, one value from the
+interval is chosen and stored into the variable.
+
+The constraint hierarchy support in \turtle{} is restricted to the
+syntax necessary for specifying them and the interface between the
+run-time system and the constraint solvers which attaches strengths to
+the symbolic constraint representation.  It is the task of the
+constraint solvers to make use of the strength information (as the
+Indigo solver does) or to ignore it (as in the implemented finite
+domain solver).
+
+\section{The Standard Library}
+
+A library containing often-used data structures and functions is very
+important if a language is intended to be used in real life.
+Therefore, a standard library for \turtle{} has been designed and
+implemented in the reference implementation.
+
+The library provides a range of useful data types, such as trees and
+hash tables, support modules for the built-in data types for list,
+array, string and number manipulation and of course functions for
+imperative in- and output.  Additionally, some low-level library
+modules have been included for interfacing with the operating system,
+such as for process management and network programming.
+
+The library makes intensive use of \turtle{} features such as the
+module system, pa\-ra\-me\-trized modules and higher-order functions.
+Thus the library implementation was very useful in debugging the
+compiler and testing the language design.
+
+The structuring of the library was inspired by the design of the
+``Bibliotheca Opalica,'' the standard library of the functional
+language Opal~\cite{Pepper.Opal}.
+
+Appendix~\ref{cha:turtle-library} briefly describes the modules of the
+standard library. The complete documentation is included in the
+\turtle{} implementation (see Appendix~\ref{cha:turtle-compiler} for
+information where the reference implementation can be obtained).
+
+
+% \section{Semantics}
+
+% The following describes the translation scheme for constraint
+% statements.  All kinds of {\em require} statements are based on the
+% primitive operations {\em assert} and {\em retract} which add a
+% (labelled) constraint conjunction to the store or remove a constraint
+% conjunction, respectively.
+
+% For all kinds of constraint statements, it is first checked whether
+% there are any constrainable variables in any of the constraints.  If
+% not, the constrains are simply translated as normal boolean
+% expressions and if they are of strength {\em required} and not
+% satisfied, an exception is raised.
+
+% \begin{tabbing}
+% \qquad \= \qquad \= \qquad \= \kill
+% $\mathcal{T}\langle${\bf require} $c_1/l_1 \wedge\dots\wedge c_n/l_n, \mathcal{C}\rangle$ \qquad(if no constrainable variables in $c_n$)\\
+% \>$\Rightarrow$\>$\mathcal{T}\langle \text{\bf if not}\, c_1\, \text{{\bf then} {\em raise exception} {\bf end}}\rangle$\\
+% \>\>\dots\\
+% \>\>$\mathcal{T}\langle \text{\bf if not}\, c_n\, \text{{\bf then} {\em raise exception} {\bf end}}\rangle$
+% \end{tabbing}
+
+% The following kind of the {\em require} statement implies an unlimited
+% duration for the constraints, so that the constraints are added to the
+% constraint store without keeping a reference for later removal.
+
+% \begin{tabbing}
+% \qquad \= \qquad \= \qquad \= \kill
+% $\mathcal{T}\langle${\bf require} $c_1/l_1 \wedge\dots\wedge c_n/l_n, \mathcal{C}\rangle$\\
+% \>$\Rightarrow$\>$assert(c_1/l_1 \wedge\dots\wedge c_n/l_n)$
+% \end{tabbing}
+
+% The {\em require-while} variant assert the constraints and keeps a
+% reference to the added constraints so that they can be removed as soon
+% as the loop is terminated.  But note that the translation of the loop
+% must take the constraint reference into account, so that a statement
+% which quits the loop prematurely can properly remove the constraints,
+% for example when a {\em return} statement is executing in the loop, or
+% when an exception is raised.\footnote{This could be implemented by
+%   storing the references to active constraint conjunctions in the
+%   currently active environment during run time and let the exception
+%   mechanism walk the call chain, thereby removing (and retracting) all
+%   active constraints between the point where the exception was raised
+%   and the handler.}
+
+% \begin{tabbing}
+% \qquad \= \qquad \= \qquad \= \kill
+% $\mathcal{T}\langle${\bf require} $c_1/l_1 \wedge\dots\wedge c_n/l_n \text{\em WhileStmt\/}, \mathcal{C}\rangle$\\
+% \>$\Rightarrow$\>$tmp = assert(c_1/l_1 \wedge\dots\wedge c_n/l_n)$\\
+% \>\>$\mathcal{T}\langle\text{\em WhileStmt\/}, \mathcal{C}\cup \{tmp\}\rangle$\\
+% \>\>$retract(tmp)$
+% \end{tabbing}
+
+% The {\em require-in} statement is nearly the same as the {\em
+%   require-while}, so no special actions are necessary.
+
+% \begin{tabbing}
+% \qquad \= \qquad \= \qquad \= \kill
+% $\mathcal{T}\langle${\bf require} $c_1/l_1 \wedge\dots\wedge c_n/l_n \text{\em InStmt\/}, \mathcal{C}\rangle$\\
+% \>$\Rightarrow$\>$tmp = assert(c_1/l_1 \wedge\dots\wedge c_n/l_n)$\\
+% \>\>$\mathcal{T}\langle\text{\em InStmt\/}, \mathcal{C}\cup \{tmp\}\rangle$\\
+% \>\>$retract(tmp)$
+% \end{tabbing}
+
+\section{Discussion}
+\label{sec:impl-discussion}
+
+The current compiler implementation is quite usable, as demonstrated
+by the fact that we were able to write a web server and a \turtle{}
+compiler frontend in \turtle{} (scanner, parser and abstract syntax
+tree implementation).  The example programs run with reasonable speed
+and memory consumption and provide enough debugging information (stack
+backtraces on exceptions) to program comfortably.
+
+User-defined data structures make the modeling of problems very
+convenient, and the use of constructor functions and garbage
+collection avoids a lot of programming errors due to manual memory
+management.
+
+One of the major drawbacks of the current implementation technique is
+the slow compilation speed and the size of the resulting object
+programs.  The \turtle{} compiler is quite fast, but it produces C
+files which contain extremely large functions.  For example, a
+\turtle{} parser written in \turtle{} is 900 lines long, and results
+in a 12,300 line C file.  The use of a single function for a complete
+\turtle{} module has the advantage that the C compiler can optimize it
+very well, but the compilation speed of the C compiler is very slow.
+The generation of large C functions and the necessary dispatch tables
+results in large data and code sections in the resulting program.
+
+\subsection{Benchmarks}
+
+For illustration, we present timings for some of the \turtle{} example
+programs and equivalent programs written in C.  The C compiler used
+was GCC 2.95.2 and the example programs were run on an AMD Duron
+processor (x86 architecture), clocked at 900MHz with 128MB main
+memory.  Table~\ref{tab:benchmark} lists the results, all measured
+times are in seconds.
+
+The example programs are {\em `hanoi'}, {\em `tak'} and {\em `loops'}.
+{\em `hanoi'} solves the Towers of Hanoi problem with 25 disks, {\em
+  `tak'} runs the Takeuchi function 500 times and {\em `loop'} is an
+empty loop which runs 500,000,000 times.  The columns named {\em
+  `turtle'} show the times for the \turtle{} programs, the columns named
+{\em `gcc'} show the C programs.  The columns with {\em `-O3'} show the
+times for the programs optimized with the GCC command line option -O3.
+For the \turtle{} programs, this means that the C output of the
+compiler was compiled with -O3.  The last two columns show the ratio
+between the execution times of \turtle{} and C programs, unoptimized
+and optimized respectively.
+
+The example programs run slower for a factor from 11.94--22.24 times
+for the unoptimized case, and 7.7--13.3 for the optimized case.
+Several reasons for that can be identified: \turtle{} programs
+allocate all activation records on the heap, so they use a lot of
+memory which must be repeatedly reclaimed by the garbage collector.
+This is the reason why the {\em `loop'} program is much closer to its
+C equivalent: it does not call any functions.  Tail-recursion
+elimination does decrease performance further, as described in
+section~\ref{sec:tail-recursion-elimination}.  Finally, \turtle{}
+programs perform an interrupt check\footnote{The interrupt check tests
+  whether asynchronous operating system signals have arrived and calls
+  the appropriate signal handlers.} at each function entry and loop
+header, which the C programs do not.
+
+No timings have been made for the constraint example programs, because
+the implemented constraint solvers are too slow to compare them with
+any other (serious) constraint programming implementation.  The
+solvers have been implemented to show that constraint imperative
+programming is possible with \turtle{} and not as examples for
+efficient constraint solving techniques.  Therefore they are not good
+enough to be compared with other implementations.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|r|r|r|r|r|r|}
+\hline
+Name & turtle & gcc & turtle -O3 & gcc -O3 & turtle/gcc & turtle -O3/gcc -O3 \\
+\hline\hline
+hanoi & 14.01 & 0.63 & 8.05 & 0.83 & 22.24 & 9.70 \\
+\hline
+tak & 12.65 & 0.65 & 8.51 & 0.64 & 19.46 & 13.30 \\
+\hline
+loop & 34.03 & 2.85 & 9.56 & 1.24 & 11.94 & 7.70 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Benchmark figures}
+\label{tab:benchmark}
+\end{table}
+
+\subsection{Open Issues}
+
+The implementation of \turtle{} is nearly complete with regard to the
+language description developed in Chapter~\ref{cha:turtle}, but some
+minor implementation issues need to be addressed to make it a
+practically usable constraint imperative programming language.
+
+The imperative part of the language is implemented completely as
+documented in this work, but the constraint extensions need more work.
+Translation and execution of constraint statements and the constraint
+solvers work, but the garbage collector has not yet been extended to
+properly collect constraints and constrainable variables when they are
+no longer needed.  For serious usage of the programming system for
+real applications, this would have to be implemented, of course, in
+order to avoid memory space leaks.  Also the semantics concerning the
+interaction of exceptions and constraints have not been implemented.
+An exception occurring while a constraint statement is in effect does
+not remove the constraints of the statements from the constraint
+store, so constraints can remain in the store even after the body of
+the corresponding constraint statement has been left.
+
+Another problem is that the currently implemented constraint solvers
+are too weak for serious constraint programming.  They can only serve
+as a proof that the integration of constraints into an imperative base
+language does work.
+
+Finally, in the current implementation, the compiler is connected too
+tightly to the integrated constraint solvers.  It must know which
+solvers are available, which relations are defined for the individual
+solvers and how the constraints in constraint statements need to be
+assigned to the solvers which can handle them.  This knowledge, which
+is currently implemented in the compiler, should be abstracted out
+into some kind of database which describes each solver and can be
+queried by the compiler when generating code for constraint
+statements.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "da.tex"
+%%% End: 
+
+%% End of turtle-impl.tex.

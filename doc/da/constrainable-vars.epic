@@ -1,0 +1,27 @@
+\setlength{\unitlength}{0.00087489in}
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+{\renewcommand{\dashlinestretch}{30}
+\begin{picture}(1812,939)(0,-10)
+\drawline(180,912)(810,912)(810,642)
+	(180,642)(180,912)
+\drawline(180,552)(810,552)(810,282)
+	(180,282)(180,552)
+\drawline(1170,552)(1800,552)(1800,282)
+	(1170,282)(1170,552)
+\drawline(1170,282)(1800,282)(1800,12)
+	(1170,12)(1170,282)
+\drawline(495,417)(1170,417)
+\drawline(1050.000,387.000)(1170.000,417.000)(1050.000,447.000)
+\put(1440,372){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}2}}}}}
+\put(450,732){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}1}}}}}
+\put(1395,102){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}. . .}}}}}
+\put(0,732){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}x:}}}}}
+\put(0,372){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}y:}}}}}
+\end{picture}
+}

@@ -1,0 +1,60 @@
+\setlength{\unitlength}{0.00087489in}
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+{\renewcommand{\dashlinestretch}{30}
+\begin{picture}(2638,1510)(0,-10)
+\drawline(1305,1165)(1575,1165)
+\drawline(765,1390)(945,1390)
+\drawline(765,40)(945,40)
+\drawline(1395,40)(1575,40)
+\drawline(945,130)(1035,130)
+\drawline(945,220)(1035,220)
+\drawline(945,310)(1035,310)
+\drawline(945,400)(1035,400)
+\drawline(945,490)(1035,490)
+\drawline(945,580)(1035,580)
+\drawline(945,670)(1035,670)
+\drawline(945,760)(1035,760)
+\drawline(945,850)(1035,850)
+\drawline(945,940)(1035,940)
+\drawline(945,1030)(1035,1030)
+\drawline(945,1120)(1035,1120)
+\drawline(945,1210)(1395,1210)
+\drawline(945,1300)(1395,1300)
+\drawline(945,1390)(1395,1390)(1395,40)
+	(945,40)(945,1390)
+\drawline(1035,1165)(1305,1165)(1305,40)
+	(1035,40)(1035,1165)
+\drawline(1689,788)(1880,597)(1944,661)
+	(1753,851)(1848,883)(1594,947)
+	(1657,692)(1689,788)
+\drawline(1689,788)(1880,597)(1944,661)
+	(1753,851)(1848,883)(1594,947)
+	(1657,692)(1689,788)
+\drawline(1575,940)(1575,490)
+\drawline(1620,940)(2025,940)
+\drawline(1305,130)(1395,130)
+\drawline(1305,220)(1395,220)
+\drawline(1305,310)(1395,310)
+\drawline(1305,400)(1395,400)
+\drawline(1305,490)(1395,490)
+\drawline(1305,580)(1395,580)
+\drawline(1305,670)(1395,670)
+\drawline(1305,760)(1395,760)
+\drawline(1305,850)(1395,850)
+\drawline(1305,940)(1395,940)
+\drawline(1305,1030)(1395,1030)
+\drawline(1305,1120)(1395,1120)
+\put(1575,355){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}mouse.x}}}}}
+\put(2115,940){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}mouse.y}}}}}
+\put(1620,40){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}temp.min}}}}}
+\put(1620,1165){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}temp.max}}}}}
+\put(0,1390){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}scale.max}}}}}
+\put(45,40){\makebox(0,0)[lb]{\smash{{{\SetFigFont{10}{12.0}{\familydefault}{\mddefault}{\updefault}scale.min}}}}}
+\end{picture}
+}

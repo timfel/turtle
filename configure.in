@@ -1,0 +1,244 @@
+dnl -*-shell-script-*-
+dnl configure.in
+dnl
+dnl Autoconf input file.
+dnl
+dnl Copyright (C) 2003 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+dnl
+
+dnl
+dnl Initialize autoconf and automake
+dnl
+AC_INIT(turtle/turtle.c)
+AM_INIT_AUTOMAKE(turtle,1.0.0)
+AM_CONFIG_HEADER(config.h)
+#AC_CONFIG_HEADERS(config.h)
+
+dnl
+dnl Determine if maintainer portions of the Makefiles should be included.
+dnl
+AM_MAINTAINER_MODE
+
+dnl
+dnl Determine default prefix
+dnl
+test x$prefix = "xNONE" && prefix="$ac_default_prefix"
+
+dnl ----------------------------------------------------------------------
+
+CPPEXTRAFLAGS=""
+EXTRALIBS=""
+LIBTURTLELIBS=""
+
+AC_SUBST(CPPEXTRAFLAGS)
+AC_SUBST(EXTRALIBS)
+AC_SUBST(LIBTURTLELIBS)
+
+dnl
+dnl Check whether compilation warnings are desired.
+dnl
+AC_ARG_ENABLE(warnings,
+[  --enable-warnings       Turn on most compiler warnings (may require gcc)],
+[if test "yes" = "$enableval"; then
+   CPPEXTRAFLAGS="-W -Wall -Wno-unused -pedantic -Wstrict-prototypes"
+  fi
+])
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether debug code should be compiled in.
+dnl
+define_enable_debug=yes
+AC_MSG_CHECKING([whether to include debug code])
+AC_ARG_ENABLE(debug,
+  [  --enable-debug          Include debug code [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_debug=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_debug=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_debug=yes
+  AC_MSG_RESULT([yes])
+)
+if test $define_enable_debug = no ; then
+  AC_DEFINE(NDEBUG,
+    1,
+    [Define if debug code should be suppressed.])
+fi
+unset define_enable_debug
+
+dnl ----------------------------------------------------------------------
+
+dnl ----------------------------------------------------------------------
+
+dnl Checks for programs.
+
+dnl AC_PROG_AWK
+AC_PROG_CC
+AC_ISC_POSIX
+AC_PROG_CPP
+AC_MSG_CHECKING([checking whether byte ordering is bigendian])
+AC_TRY_RUN([#include <stdio.h>
+  #include <string.h>
+  main () {
+    unsigned char c_big[] = {0x12, 0x34};
+    unsigned short s_big = 0x1234;
+    if (!memcmp (c_big, &s_big, sizeof (char) * 2))
+      exit (0);
+    exit (1);}],
+  AC_MSG_RESULT([yes])
+  AC_DEFINE(WORDS_BIGENDIAN, 1, 
+  [Define if your processor stores words with the most significant 
+   byte first (like Motorola and SPARC, unlike Intel and VAX).]),
+  AC_MSG_RESULT(no),
+  AC_MSG_RESULT(no))
+
+dnl AC_PROG_INSTALL
+AC_LN_S
+dnl AC_PROG_MAKE_SET
+
+
+dnl libtool support ------------------------------------------------------
+
+dnl AM_DISABLE_SHARED
+AM_PROG_LIBTOOL
+
+dnl Checks for libraries.
+AC_CHECK_LIB(m, sin)
+
+
+dnl Checks for header files.
+AC_HEADER_STDC
+
+
+dnl getopt and getopt_long stuff -----------------------------------------
+
+AC_CHECK_HEADERS(getopt.h)
+
+have_getopt="no"
+have_getopt_long="no"
+AC_CHECK_FUNC(getopt, have_getopt="yes",
+    AC_CHECK_LIB(iberty, getopt, have_getopt="yeslib"))
+if test $have_getopt != "no"; then
+    AC_DEFINE(HAVE_GETOPT, 
+	1, [Define if you have the getopt function.])
+fi
+
+AC_CHECK_FUNC(getopt_long, have_getopt_long="yes",
+    AC_CHECK_LIB(iberty, getopt_long, have_getopt_long="yeslib"))
+
+dnl We might declare getopt_long ourselves if the headers do not.
+
+if test $have_getopt_long != "no"; then
+    AC_MSG_CHECKING([whether getopt_long is declared])
+    AC_EGREP_HEADER(getopt_long, getopt.h,
+	AC_MSG_RESULT([yes])
+	AC_DEFINE(DECLARED_GETOPT_LONG, 
+	    1, [Define if the getopt_long function is declared in getopt.h.]),
+	AC_MSG_RESULT([no]))
+fi
+
+if test $have_getopt_long != "no"; then
+    AC_DEFINE(HAVE_GETOPT_LONG, 
+	1, [Define if you have the getopt_long function.])
+fi
+
+if test $have_getopt = "yeslib" -o $have_getopt_long = "yeslib"; then
+    LIBS="$LIBS -liberty"
+fi
+unset have_getopt
+unset have_getopt_long
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_UID_T
+AC_TYPE_SIZE_T
+
+dnl Taken from Guile''s configure.in
+AC_CHECK_SIZEOF(int, 4)
+AC_CHECK_SIZEOF(long, 4)
+
+AC_MSG_CHECKING([for long long])
+AC_TRY_COMPILE(, [long long a],
+    AC_MSG_RESULT(yes)
+    scm_cv_long_longs="long long",
+    AC_MSG_RESULT(no)
+    scm_cv_long_longs="")
+if test x"$scm_cv_long_longs" = x; then
+    AC_MSG_CHECKING([for __int64])
+	AC_TRY_COMPILE(, [__int64 a],
+	    AC_MSG_RESULT([yes])
+	    scm_cv_long_longs="__int64",
+	    AC_MSG_RESULT([no])
+	    scm_cv_long_longs="")
+fi
+if test x"$scm_cv_long_longs" != x; then
+  AC_DEFINE(HAVE_LONG_LONG, 1, [Define if compiler knows large integers.])
+fi
+
+dnl Checks for library functions.
+AC_FUNC_MEMCMP
+AC_FUNC_MMAP
+AC_TYPE_SIGNAL
+AC_FUNC_UTIME_NULL
+
+dnl ----------------------------------------------------------------------
+
+dnl Networking stuff.
+
+TTLRUNTIMELIBS=""
+
+AC_SUBST(TTLRUNTIMELIBS)
+
+dnl
+dnl Check whether extra net libraries are required.
+dnl
+AC_CHECK_FUNC(connect)
+if test $ac_cv_func_connect = no; then
+    AC_CHECK_LIB(socket, connect, 
+	[AC_DEFINE(HAVE_LIBSOCKET, 1, 
+		[Define if you have to link to the socket library.])
+	    TTLRUNTIMELIBS="-lsocket $EXTRALIBS"])
+fi
+
+dnl
+dnl Check for Solaris nsl library.
+dnl
+AC_CHECK_FUNC(gethostbyaddr)
+if test $ac_cv_func_gethostbyaddr = no; then
+    AC_CHECK_LIB(nsl, gethostbyaddr,
+	[AC_DEFINE(HAVE_LIBNSL, 1, 
+		[Define if you have to link to the nsl library.])
+	    TTLRUNTIMELIBS="-lnsl $EXTRALIBS"])
+fi
+
+dnl
+dnl Check for dl library.
+dnl
+AC_CHECK_FUNC(dlopen)
+if test $ac_cv_func_dlopen = no; then
+    AC_CHECK_LIB(dl, dlopen,
+	[AC_DEFINE(HAVE_LIBDL, 1, 
+		[Define if you have to link to the dl library.])
+	    TTLRUNTIMELIBS="-ldl $EXTRALIBS"])
+fi
+
+dnl ----------------------------------------------------------------------
+
+LIBTURTLELIBS="$EXTRALIBS"
+LIBS="$LIBS $EXTRALIBS"
+
+dnl
+dnl Output files.
+dnl
+AC_OUTPUT(Makefile doc/Makefile doc/da/Makefile libturtle/Makefile turtle/Makefile crawl/Makefile crawl/internal/Makefile crawl/sys/Makefile emacs/Makefile examples/Makefile tests/Makefile tools/Makefile misc/Makefile version.h)
+
+dnl
+dnl Print results.
+dnl
+AC_MSG_RESULT([])
+AC_MSG_RESULT([	$PACKAGE version $VERSION configured successfully.])
+AC_MSG_RESULT([])

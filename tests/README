@@ -1,0 +1,85 @@
+								-*-text-*-
+
+This directory holds some Turtle source files for testing the Turtle
+system.
+
+After building the compiler and runtime system (with `make' in the
+parent directory), you can run the tests with `make check' in this
+directory.  Doing a `make check' in the parent directory will build
+and run some example programs from the `../examples' directory, too.
+
+The additional target `make extracheck' will run some test programs
+which require some features on the host they are run on, and are
+therefore not tested with a normal `make check' or `make distcheck'.
+See below for details.
+
+
+Turtle test programs:
+---------------------
+
+array0.t               Test for array sorting module `arraysort'.
+array1.t	       Test for array mapping module `arraymap'.
+arraytest.t	       General array operator testing.
+binary0.t	       Binary (byte-) array testing.
+booltest.t	       Testing boolean operations.
+bstrees0.t	       Binary search tree module `bstrees' testing.
+constraint0.t	       Test constrainable variable handling.
+constraint1.t	       Test constrainable data type fields..
+exceptions0.t	       Testing of exception raising and handling.
+filenames0.t	       Module `filenames' testing.
+fun0.t		       Testing nested functions and higher-order functions.
+fun1.t		       Function composition with module `compose' testing.
+hashtab0.t	       Hashtable testing with module `hashtab'.
+internal_timeout0.t    Testing of module `internal.timeout'.
+inttest.t	       Testing integer operations.
+lex0.t		       Testing lexical analysis in the compiler.
+lex1.t		       Testing error recovery in the lexical analysis. [1]
+list0.t		       List sorting with module `listsort'.
+listfold0.t	       List folding with module `listfold'.
+listindex0.t	       List operations with module `listindex'.
+listreduce0.t	       List reduction with module `listreduce'.
+listtest.t	       Test file for module `lists' and other list operations.
+listzip0.t	       List zipping with module `listzip'.
+longtest.t             Testing long integer arithmetic.
+math0.t		       Fundamental mathematic functions with module `math'.
+overloading0.t	       Overloading resolution, part 1.
+overloading1.t	       Overloading resolution, part 2.
+overloading2.t	       Overloading resolution, part 3.
+pairs0.t	       2-tuple testing with module `pairs'.
+parse0.t	       Testing the Turtle parser in the compiler.
+parse1.t	       Testing error recovery in the Turtle parser. [1]
+rand0.t		       Random numbers with module `random'.
+stress0.t	       Memory intensive stress testing.
+stress1.t	       Memory intensive stress testing with exceptions.
+stress2.t	       Memory intensive stress testing with string `+'.
+stress3.t	       Some more stress testing.
+stringtest.t	       Testing string handling and module `strings'.
+sys_dirs0.t	       Testing directory functions in module `sys.dirs'.
+sys_files0.t	       Testing file handling in module `sys.files'.
+sys_net0.t	       Testing network handling in module `sys.net'. [2]
+sys_procs0.t	       Testing process handling in module `sys.procs'.
+sys_sigs0.t	       Testing signal handling in module `sys.sigs'.
+sys_users0.t	       Testing user and group management in `sys.users'.
+test-template.t	       Template file for new test programs.
+testsuite.t            Module providing functions for testing. [3]
+trees0.t	       Binary tree operations in module `trees'.
+triples0.t	       3-tuple testing with module `triples'.
+tupletest.t	       Tuple creation, assignment and access.
+
+[1] These test programs are not run on `make check', because they
+    are expected to crash or otherwise exit unsuccessfully.
+
+[2] Only built by `make extracheck', because it only works when a
+    web server is running on localhost.
+
+[3] This is a library module used by some test programs, not a test
+    program.
+
+
+Administrativa:
+---------------
+
+ChangeLog          Change list for the `tests' directory.
+Makefile.am        Input file for Automake for generating Makefile.in.
+Makefile.in        Input file for Autoconf for generating Makefile.
+README             The file you're reading.

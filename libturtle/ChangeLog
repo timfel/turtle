@@ -1,0 +1,37 @@
+2003-02-20  Martin Grabmueller  <mg@glug.org>
+
+	* Cleaned up for release.
+
+2002-08-15  Martin Grabmueller  <mg@glug.org>
+
+	* scanner.c (ttl_next_token): Allow `!' and `?' in identifiers,
+	not only at the end.
+	(ttl_next_token): Continue processing after skipping invalid
+	characters in input.
+
+2002-07-11  Martin Grabmueller  <mg@glug.org>
+
+	* emit-c.c (ttl_emit_c): Emit calls to ttl_register_root() for all
+	global variables.
+
+	* libturtlert.h, libturtlert.c: New function ttl_register_root()
+	and support core in garbage_collect() for registering global
+	variables as GC roots.
+
+	* README: Added file descriptions and build instructions.
+
+2002-05-08  Martin Grabmueller  <mg@glug.org>
+
+	* symbols.c (ttl_symbol_print): Cleanup.
+
+	* symbols.h: Commenting.
+
+2002-04-29  Martin Grabmueller  <mg@glug.org>
+
+	* error.h, error.c: Cleanup and new comments.
+
+	* types.h, types.c, compiler.c: Removed type of kind
+	`type_unknown'.
+
+	* compiler.h: Cleanup and commenting.
+

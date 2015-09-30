@@ -2534,7 +2534,7 @@ print_stats (void)
 	   ttl_stats.min_gc_time, ttl_stats.max_gc_time);
   if (ttl_stats.total_run_time)
     {
-      secs = ((double) ttl_stats.total_run_time) / CLK_TCK;
+      secs = ((double) ttl_stats.total_run_time) / CLOCKS_PER_SEC;
       fprintf (stderr, "allocation rate: %gMB/sec\n",
 	       ((ttl_stats.alloced_words * 4) / (double) (1024 * 1024)) /
 	       secs);

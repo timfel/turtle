@@ -1647,7 +1647,7 @@ ttl_emit_c (ttl_compile_state state, ttl_module module,
       variable = variable->next;
     }
 
-  fprintf (code_f, "extern struct ttl_descr descriptors[];\n\n");
+  fprintf (code_f, "static struct ttl_descr descriptors[];\n\n");
 
   function = module->toplevel_functions;
   while (function)

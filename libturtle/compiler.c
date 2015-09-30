@@ -5362,6 +5362,9 @@ make_compile_state (ttl_pool pool, char * filename,
   state->include_path = ttl_string_append (state->pool,
 					   options->include_path,
 					   ":" INCLUDE_DIR);
+  state->library_path = ttl_string_append (state->pool,
+					   options->library_path,
+					   ":" INCLUDE_DIR);
 
   state->pragma_handcoded = options->pragma_handcoded;
 
@@ -5601,6 +5604,7 @@ ttl_init_compile_options (struct ttl_compile_options * options)
   options->program_name = "a.out";
   options->module_path = "";
   options->include_path = "";
+  options->library_path = "";
 }
 
 /* End of compiler.c.  */

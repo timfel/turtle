@@ -140,6 +140,7 @@ usage (void)
   -m, --main=NAME            compile a main program and output as NAME\n\
   -p, --module-path=PATH     set the search path for modules\n\
   -I, --include-path=PATH    set the search path for runtime header files\n\
+  -L, --library-path=PATH    set the search path for library files\n\
   -z, --pragma=PRAGMA        set compilation pragma\n\
     where PRAGMA is one of\n\
       handcoded              handcoded module\n\
@@ -176,6 +177,7 @@ Report bugs to mgrabmue@cs.tu-berlin.de\n",
   -m NAME            compile a main program and output as NAME\n\
   -p PATH            set the search path for modules\n\
   -I PATH            set the search path for runtime header files\n\
+  -L PATH            set the search path for library files\n\
   -z PRAGMA          set compilation pragma\n\
     where PRAGMA is one of\n\
       handcoded      handcoded module\n\
@@ -238,6 +240,7 @@ main (int argc, char * argv[])
     {"main", required_argument, NULL, 'm'},
     {"module-path", required_argument, NULL, 'p'},
     {"include-path", required_argument, NULL, 'I'},
+    {"library-path", required_argument, NULL, 'L'},
     {NULL, 0, NULL, 0}
   };
 #endif /* HAVE_GETOPT_LONG */
@@ -248,10 +251,10 @@ main (int argc, char * argv[])
   ttl_init_compile_options (&options);
 
 #if HAVE_GETOPT_LONG
-  while ((arg = getopt_long (argc, argv, "+hvVm:d:I:z:O:p:",
+  while ((arg = getopt_long (argc, argv, "+hvVm:d:I:L:z:O:p:",
 			     command_line_options, &index)) != EOF)
 #else /* !HAVE_GETOPT_LONG */
-  while ((arg = getopt (argc, argv, "hvVm:d:I:z:O:p:")) != EOF)
+  while ((arg = getopt (argc, argv, "hvVm:d:I:L:z:O:p:")) != EOF)
 #endif /* !HAVE_GETOPT_LONG */
     {
       switch (arg)
@@ -281,6 +284,10 @@ main (int argc, char * argv[])
 
 	case 'I':
 	  options.include_path = optarg;
+	  break;
+
+	case 'L':
+	  options.library_path = optarg;
 	  break;
 
 	case 'd':

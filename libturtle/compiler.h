@@ -67,6 +67,9 @@ struct ttl_compile_state
   char * include_path;		/* Colon-seperated path of directory
 				   names, which will be searched when
 				   looking for the runtime headers.  */
+  char * library_path;		/* Colon-seperated path of directory
+				   names, which will be searched when
+				   looking for the libraries.  */
 
   unsigned pragma_handcoded;	/* Non-zero if handcoded functions are
 				   allowed.  */
@@ -110,6 +113,7 @@ struct ttl_compile_options
   char * program_name;
   char * module_path;
   char * include_path;
+  char * library_path;
 };
 
 void ttl_init_compile_options (struct ttl_compile_options * options);

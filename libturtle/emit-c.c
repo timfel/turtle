@@ -1341,6 +1341,31 @@ append_include_dirs (char * buf, char * module_path)
     }
 }
 
+static void
+append_library_dirs (char * buf, char * module_path)
+{
+  unsigned len;
+  char * sp;
+  while (*module_path)
+    {
+      sp = module_path;
+      while (*sp && *sp != ':')
+	sp++;
+      if (sp > module_path)
+	{
+	  strcat (buf, " -L");
+	  len = strlen (buf);
+	  memmove (buf + len, module_path, sp - module_path);
+	  len += sp - module_path;
+	  buf[len] = '\0';
+	}
+      if (*sp)
+	module_path = sp + 1;
+      else
+	module_path = sp;
+    }
+}
+
 /* Run the C compiler on the produced C source code.  Return 0 on
    success, != 0 if an error occurs.  */
 static int
@@ -1363,6 +1388,7 @@ c_compile (ttl_compile_state state, ttl_module module,
 
   append_include_dirs (buf, state->module_path);
   append_include_dirs (buf, state->include_path);
+  append_library_dirs (buf, state->library_path);
 
   if (options->opt_gcc_level > 2)
     sprintf (buf + strlen (buf), " -O%d -fomit-frame-pointer -funroll-loops ",
@@ -1392,6 +1418,7 @@ c_compile (ttl_compile_state state, ttl_module module,
 
     append_include_dirs (buf, state->module_path);
     append_include_dirs (buf, state->include_path);
+    append_library_dirs (buf, state->library_path);
 
     if (options->opt_gcc_level > 2)
       sprintf (buf + strlen (buf), " -O%d -fomit-frame-pointer -funroll-loops ",
@@ -1445,6 +1472,9 @@ c_compile (ttl_compile_state state, ttl_module module,
 	 variable TURTLE_HACKING to the directory where your turtle
 	 libraries are (the real ones, not the libtool libraries). */
       hackdir = getenv ("TURTLE_HACKING");
+      if (!hackdir) {
+	  hackdir = options->library_path;
+      }
 
       sprintf (buf,
 	       "gcc %s-g '%s' -lturtlert -L%s -o '%s' ",

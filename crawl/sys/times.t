@@ -67,6 +67,14 @@ end;
 //* - Internal helper function for time ().
 fun itime (t: long): long;
 
+//* Return processor clock time in milliseconds
+public fun clock (): real
+  var t: real := 0.0;
+  return iclock (t);
+end;
+//* - Internal helper function for time ().
+fun iclock (t: real): real;
+
 
 //* Return a string representation of the time @var{tm} or @var{t},
 //* respectively.

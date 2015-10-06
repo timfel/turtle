@@ -61,6 +61,14 @@
   acc = env->locals[0];						\
 }
 
+/* Function iclock: fun(real): real.  */
+#define	sys_times_iclock_pF1pR_pR_implementation		\
+{								\
+  long t = clock();						\
+  TTL_VALUE_TO_OBJ (ttl_real, env->locals[0])->value = ((float)t / (float)CLOCKS_PER_SEC); \
+  acc = env->locals[0];						\
+}
+
 /* Function asctime: fun(sys.times.tm): string.  */
 #define sys_times_asctime_pF1utm_pS_implementation		\
 {								\
